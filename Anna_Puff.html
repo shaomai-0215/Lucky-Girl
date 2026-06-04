@@ -11,48 +11,31 @@
         body {
             background: linear-gradient(145deg, #1e2b3c 0%, #0f1a24 100%);
             min-height: 100vh; display: flex; justify-content: center; align-items: center;
-            font-family: 'Segoe UI', 'Poppins', system-ui; margin: 0; padding: 20px;
+            font-family: 'Segoe UI', system-ui; margin: 0; padding: 20px;
         }
-        .app-container {
-            max-width: 1300px; width: 100%; background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(2px); border-radius: 64px; padding: 20px 24px 32px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
-        }
+        .app-container { max-width: 1300px; width: 100%; background: rgba(255,255,255,0.08); backdrop-filter: blur(2px); border-radius: 64px; padding: 20px 24px 32px; }
         .dashboard { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
-        .wheel-area { flex: 2; min-width: 320px; background: rgba(0,0,0,0.25); border-radius: 60px; padding: 20px; backdrop-filter: blur(4px); }
+        .wheel-area { flex: 2; min-width: 320px; background: rgba(0,0,0,0.25); border-radius: 60px; padding: 20px; }
         .info-area { flex: 1.4; min-width: 280px; background: rgba(30,40,50,0.7); backdrop-filter: blur(8px); border-radius: 48px; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .wheel-wrapper { position: relative; display: flex; justify-content: center; margin-bottom: 20px; }
+        .wheel-wrapper { display: flex; justify-content: center; margin-bottom: 20px; }
         canvas { background: #2a3e4f; border-radius: 50%; box-shadow: 0 20px 35px rgba(0,0,0,0.5); max-width: 460px; width: 100%; aspect-ratio: 1/1; cursor: pointer; }
-        .spin-btn {
-            background: linear-gradient(135deg, #ffb347, #ff7e05); border: none; color: white;
-            font-size: 1.8rem; font-weight: bold; padding: 14px 32px; border-radius: 60px;
-            cursor: pointer; box-shadow: 0 8px 0 #a34400; transition: 0.07s linear; width: 80%;
-        }
-        .spin-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #a34400; }
-        .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .spin-btn { background: linear-gradient(135deg, #ffb347, #ff7e05); border: none; color: white; font-size: 1.8rem; font-weight: bold; padding: 14px 32px; border-radius: 60px; cursor: pointer; width: 80%; margin-top: 20px; }
+        .spin-btn:active { transform: translateY(4px); }
         .user-section { background: #0f1a1f; border-radius: 40px; padding: 18px 20px; }
-        .user-section h3 { margin: 0 0 12px 0; color: #ffd966; }
         .input-group { display: flex; gap: 12px; flex-wrap: wrap; }
         .input-group input { flex: 2; padding: 12px 18px; border-radius: 50px; border: none; background: #2c3e2f; color: white; }
         .input-group button { background: #2c6e4f; border: none; color: white; padding: 0 20px; border-radius: 50px; cursor: pointer; }
-        .history-box { background: #0a1219b3; border-radius: 36px; padding: 12px 16px; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-        .history-header { display: flex; justify-content: space-between; align-items: baseline; padding: 0 10px 10px; border-bottom: 2px solid #ffb347; }
-        .clear-btn { background: #882d2d; border: none; color: #ffc6c6; border-radius: 30px; padding: 6px 14px; cursor: pointer; }
-        .record-list { list-style: none; margin: 0; padding: 0 6px; overflow-y: auto; max-height: 380px; display: flex; flex-direction: column; gap: 10px; }
-        .record-list li { background: #1e2a32c9; padding: 12px 15px; border-radius: 28px; border-left: 6px solid #ffaa33; color: #ececec; }
-        .record-name { font-weight: bold; color: #ffcf8a; }
-        .record-result { font-weight: 600; color: #ffe0a3; }
-        .record-time { font-size: 0.7rem; color: #aab7c2; margin-top: 6px; display: flex; gap: 12px; }
-        .sync-status { font-size: 0.7rem; text-align: center; margin-top: 10px; color: #aaffdd; background: #1e3a2f; border-radius: 30px; padding: 4px; }
+        .history-box { background: #0a1219b3; border-radius: 36px; padding: 12px 16px; flex: 1; overflow: hidden; }
+        .record-list { list-style: none; margin: 0; padding: 0 6px; overflow-y: auto; max-height: 380px; }
+        .record-list li { background: #1e2a32c9; padding: 12px 15px; border-radius: 28px; border-left: 6px solid #ffaa33; margin-bottom: 10px; color: #ececec; }
         .prize-edit { background: #101e26; border-radius: 36px; padding: 12px 16px; margin-top: 8px; }
-        .prize-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; max-height: 90px; overflow-y: auto; }
-        .prize-tag { background: #2c4d3e; padding: 5px 12px; border-radius: 40px; display: inline-flex; gap: 8px; font-size: 0.8rem; }
-        .prize-tag span { cursor: pointer; font-weight: bold; color: #ffbc6e; }
+        .prize-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .prize-tag { background: #2c4d3e; padding: 5px 12px; border-radius: 40px; display: inline-flex; gap: 8px; }
+        .prize-tag span { cursor: pointer; color: #ffbc6e; }
         .add-prize { display: flex; gap: 8px; }
         .add-prize input { flex: 1; padding: 8px 12px; border-radius: 40px; border: none; background: #1f3a33; color: white; }
         .add-prize button { background: #f39c12; border: none; border-radius: 30px; padding: 0 16px; cursor: pointer; }
-        @media (max-width: 780px) { .spin-btn { font-size: 1.4rem; width: 100%; } .record-list { max-height: 280px; } }
-        footer { text-align: center; margin-top: 20px; color: #7c8f9c; font-size: 0.7rem; }
+        .sync-status { font-size: 0.7rem; text-align: center; margin-top: 10px; color: #aaffdd; }
     </style>
 </head>
 <body>
@@ -62,41 +45,40 @@
             <div class="wheel-wrapper"><canvas id="wheelCanvas" width="600" height="600"></canvas></div>
             <div style="text-align: center;"><button class="spin-btn" id="spinButton">✨ 旋转转盘 ✨</button></div>
             <div class="prize-edit">
-                <h4>🎁 编辑奖项 (点击❌删除)</h4>
+                <h4>🎁 编辑奖项</h4>
                 <div class="prize-list" id="prizeListContainer"></div>
                 <div class="add-prize"><input type="text" id="newPrizeInput" placeholder="新奖品名称"><button id="addPrizeBtn">➕ 添加</button></div>
-                <small style="color:#adbbca;">⚠️ 修改奖项会同步给所有人，并保留原有记录。</small>
             </div>
         </div>
         <div class="info-area">
             <div class="user-section">
                 <h3>🧑‍🤝‍🧑 抽奖人</h3>
-                <div class="input-group"><input type="text" id="usernameInput" placeholder="输入您的名字"><button id="setUserBtn">确认身份</button></div>
-                <div style="font-size: 0.75rem; margin-top: 8px; color:#c7e0f0;" id="currentUserDisplay">当前抽奖人: 未设置</div>
+                <div class="input-group"><input type="text" id="usernameInput" placeholder="您的名字"><button id="setUserBtn">确认身份</button></div>
+                <div id="currentUserDisplay" style="margin-top:8px;color:#c7e0f0;">当前抽奖人: 未设置</div>
             </div>
             <div class="history-box">
-                <div class="history-header"><h3>📋 共享抽奖记录</h3><button class="clear-btn" id="clearHistoryBtn">🗑️ 清空记录(所有人)</button></div>
-                <ul class="record-list" id="recordList"><li class="empty-history">✨ 连接云端，等待记录同步 ✨</li></ul>
+                <h3>📋 共享抽奖记录</h3>
+                <ul class="record-list" id="recordList"><li class="empty-history">✨ 暂无记录 ✨</li></ul>
+                <button id="clearHistoryBtn" style="background:#882d2d; border:none; color:white; border-radius:30px; padding:6px; width:100%; margin-top:12px;">🗑️ 清空记录</button>
             </div>
         </div>
     </div>
-    <div class="sync-status" id="syncStatus">🔄 正在同步云端记录...</div>
-    <footer>✅ 所有抽奖记录云端共享，任何用户抽奖，所有人实时可见。</footer>
+    <div class="sync-status" id="syncStatus">☁️ 连接云端中...</div>
 </div>
 
 <script>
+    // ========== 请替换成您的 Firebase 配置 ==========
     const firebaseConfig = {
-  apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
-  databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
-  authDomain: "anna-puff.firebaseapp.com",
-  projectId: "anna-puff",
-  storageBucket: "anna-puff.firebasestorage.app",
-  messagingSenderId: "247577846134",
-  appId: "1:247577846134:web:9555c1436be25bf7b0da57",
-  measurementId: "G-H23Z96J6G2"
-};
+        apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
+        databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
+        authDomain: "anna-puff.firebaseapp.com",
+        projectId: "anna-puff",
+        storageBucket: "anna-puff.firebasestorage.app",
+        messagingSenderId: "247577846134",
+        appId: "1:247577846134:web:9555c1436be25bf7b0da57"
+    };
+    // =============================================
 
-    // 初始化 Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const historyRef = database.ref('sharedWheelHistory');
@@ -106,229 +88,189 @@
     let currentRotation = 0;
     let isSpinning = false;
     let animFrame = null;
-    let spinDuration = 2000;
-    let targetStopAngle = 0;
-    let startRotate = 0;
-    let canvas, ctx, width, height, centerX, centerY, radius;
     let currentUserName = "";
+    let canvas, ctx;
 
-    const colorPalette = ["#F05454","#FFC069","#6ECB63","#5D9BEC","#E98A8A","#A366F5","#47B5FF","#FFB26F","#96CEB4","#FFACB7"];
+    const colorPalette = ["#F05454","#FFC069","#6ECB63","#5D9BEC","#E98A8A","#A366F5","#47B5FF","#FFB26F"];
 
-    // 监听奖项变化 (云端)
     segmentsRef.on('value', (snapshot) => {
-        const val = snapshot.val();
-        if(val && Array.isArray(val) && val.length) {
+        let val = snapshot.val();
+        if (val && Array.isArray(val) && val.length) {
             segments = val;
         } else {
-            // 默认奖项
-            segments = ["一等奖 🏆","二等奖 🎁","三等奖 🎀","幸运奖 🍀","参与奖 🌟","特等奖 💎","阳光普照 ☀️","再来一次 🔄"];
+            segments = ["100", "50", "20", "10", "5", "0"];  // 默认数字奖项
             segmentsRef.set(segments);
         }
         drawWheel();
         renderPrizeTags();
     });
 
-    // 监听历史记录变化 (实时)
     historyRef.on('value', (snapshot) => {
-        const records = snapshot.val();
-        if(records) {
-            // 将对象转为数组并按时间倒序
-            let historyArr = Object.values(records);
-            historyArr.sort((a,b) => b.timestamp - a.timestamp);
-            spinHistory = historyArr;
-        } else {
-            spinHistory = [];
-        }
-        renderHistoryList();
+        let records = snapshot.val();
+        let historyArr = records ? Object.values(records) : [];
+        historyArr.sort((a,b) => b.timestamp - a.timestamp);
+        renderHistoryList(historyArr);
     });
 
-    let spinHistory = [];
-
-    function renderHistoryList() {
-        const listContainer = document.getElementById('recordList');
-        if(!listContainer) return;
-        if(!spinHistory.length) {
-            listContainer.innerHTML = '<li class="empty-history">✨ 暂无抽奖记录，旋转转盘后所有人可见 ✨</li>';
+    function renderHistoryList(history) {
+        const container = document.getElementById('recordList');
+        if (!history.length) {
+            container.innerHTML = '<li class="empty-history">✨ 暂无抽奖记录 ✨</li>';
             return;
         }
         let html = '';
-        for(let rec of spinHistory) {
-            html += `<li>
-                <div class="record-name">🧑 ${escapeHtml(rec.userName)}</div>
-                <div class="record-result">🎁 获得：${escapeHtml(rec.prizeName)}</div>
-                <div class="record-time">📅 ${rec.dateStr}  🕒 ${rec.timeStr}</div>
-            </li>`;
+        for (let rec of history) {
+            html += `<li><strong>${escapeHtml(rec.userName)}</strong> 获得: ${escapeHtml(rec.prizeName)}<br><small>${rec.dateStr} ${rec.timeStr}</small></li>`;
         }
-        listContainer.innerHTML = html;
+        container.innerHTML = html;
     }
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;';}); }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;';}); }
 
-    // 添加抽奖记录到云端
-    function addRecordToCloud(prizeName) {
-        if(!currentUserName || currentUserName.trim() === "") {
-            alert("请先设置抽奖人姓名！");
-            return false;
-        }
-        const now = new Date();
-        const record = {
-            userName: currentUserName.trim(),
-            prizeName: prizeName,
-            timestamp: now.getTime(),
-            dateStr: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
-            timeStr: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`
-        };
-        historyRef.push(record);
-        document.getElementById('syncStatus').innerHTML = '✅ 记录已同步至云端';
-        setTimeout(()=>{ document.getElementById('syncStatus').innerHTML = '☁️ 云端共享已连接'; }, 2000);
-        return true;
-    }
-
-    // 清空所有记录
-    function clearAllHistory() {
-        if(confirm("⚠️ 清空记录会删除所有人的抽奖数据，不可恢复！确定吗？")) {
-            historyRef.remove();
-        }
-    }
-
-    // 转盘绘图与动画逻辑 (与原版相同，略作精简)
     function drawWheel() {
-        if(!ctx) return;
-        width = canvas.width = canvas.clientWidth;
-        height = canvas.height = canvas.clientHeight;
-        let size = Math.min(width, height);
-        canvas.width = size; canvas.height = size;
-        centerX = size/2; centerY = size/2; radius = size * 0.45;
+        if (!ctx) return;
+        let size = Math.min(canvas.clientWidth, canvas.clientHeight);
+        canvas.width = canvas.height = size;
+        let centerX = size/2, centerY = size/2, radius = size * 0.45;
         ctx.clearRect(0,0,size,size);
-        if(!segments.length) return;
-        const angleStep = (Math.PI * 2) / segments.length;
-        for(let i=0;i<segments.length;i++) {
-            const start = i*angleStep + currentRotation;
-            const end = (i+1)*angleStep + currentRotation;
+        if (!segments.length) return;
+        let angleStep = Math.PI * 2 / segments.length;
+        for (let i=0; i<segments.length; i++) {
+            let start = i * angleStep + currentRotation;
+            let end = (i+1) * angleStep + currentRotation;
             ctx.beginPath(); ctx.moveTo(centerX,centerY); ctx.arc(centerX,centerY,radius,start,end);
-            ctx.fillStyle = colorPalette[i%colorPalette.length]; ctx.fill();
-            ctx.strokeStyle = "#FFF6E0"; ctx.lineWidth=2; ctx.stroke();
-            ctx.fillStyle = "#ffffff"; ctx.font = `bold ${Math.floor(radius*0.08)}px "Segoe UI"`;
-            const textAngle = start + angleStep/2;
-            const x = centerX + Math.cos(textAngle) * radius*0.68;
-            const y = centerY + Math.sin(textAngle) * radius*0.68;
-            let text = segments[i]; if(text.length>10) text=text.slice(0,8)+"..";
+            ctx.fillStyle = colorPalette[i % colorPalette.length]; ctx.fill();
+            ctx.strokeStyle = "#FFF"; ctx.lineWidth=2; ctx.stroke();
+            ctx.fillStyle = "#fff"; ctx.font = `bold ${Math.floor(radius*0.1)}px "Segoe UI"`;
+            let textAngle = start + angleStep/2;
+            let x = centerX + Math.cos(textAngle) * radius * 0.7;
+            let y = centerY + Math.sin(textAngle) * radius * 0.7;
+            let text = segments[i];
             ctx.fillText(text, x-ctx.measureText(text).width/2, y+5);
         }
-        ctx.beginPath(); ctx.arc(centerX,centerY,radius*0.12,0,2*Math.PI); ctx.fillStyle="#FADB67"; ctx.fill();
+        // 指针
         ctx.beginPath(); ctx.moveTo(centerX-12,centerY-radius-8); ctx.lineTo(centerX,centerY-radius+8); ctx.lineTo(centerX+12,centerY-radius-8); ctx.fillStyle="#FFD966"; ctx.fill();
     }
 
     function getCurrentPrizeIndex() {
-        if(!segments.length) return -1;
-        const angleStep = (Math.PI*2)/segments.length;
+        if (!segments.length) return -1;
+        let angleStep = Math.PI * 2 / segments.length;
         let pointerAngle = -Math.PI/2;
-        for(let i=0;i<segments.length;i++) {
-            let start = i*angleStep + currentRotation;
-            let end = (i+1)*angleStep + currentRotation;
+        for (let i=0; i<segments.length; i++) {
+            let start = i * angleStep + currentRotation;
+            let end = (i+1) * angleStep + currentRotation;
             let p = pointerAngle;
-            if(start < 0) { start += 2*Math.PI; end += 2*Math.PI; p += 2*Math.PI; }
-            if(p >= start && p < end) return i;
+            if (start < 0) { start += 2*Math.PI; end += 2*Math.PI; p += 2*Math.PI; }
+            if (p >= start && p < end) return i;
         }
         return 0;
     }
 
-    function startSpinToPrize(targetIndex) {
-        if(isSpinning) return;
-        if(!currentUserName || !currentUserName.trim()) { alert("请先设置抽奖人"); return; }
-        isSpinning = true; document.getElementById('spinButton').disabled = true;
-        const angleStep = (Math.PI*2)/segments.length;
-        const targetSectorMid = targetIndex*angleStep + angleStep/2;
+    function addRecordToCloud(prizeName) {
+        if (!currentUserName) { alert("请先设置抽奖人姓名"); return false; }
+        let now = new Date();
+        let record = {
+            userName: currentUserName,
+            prizeName: prizeName,
+            timestamp: now.getTime(),
+            dateStr: now.toLocaleDateString('zh-CN'),
+            timeStr: now.toLocaleTimeString('zh-CN')
+        };
+        historyRef.push(record);
+        return true;
+    }
+
+    function startSpin() {
+        if (isSpinning || !segments.length) return;
+        if (!currentUserName) { alert("请先输入抽奖人姓名"); return; }
+        isSpinning = true;
+        document.getElementById('spinButton').disabled = true;
+
+        let randomIndex = Math.floor(Math.random() * segments.length);
+        let angleStep = Math.PI * 2 / segments.length;
+        let targetSectorMid = randomIndex * angleStep + angleStep/2;
         let pointerAngle = -Math.PI/2;
         let rawFinal = pointerAngle - targetSectorMid;
-        let twoPi = Math.PI*2;
+        let twoPi = Math.PI * 2;
         let finalRotation = rawFinal % twoPi;
-        const extraRounds = (Math.floor(Math.random()*8)+6)*twoPi;
+        let extraRounds = (Math.floor(Math.random() * 8) + 6) * twoPi;
         finalRotation += extraRounds;
-        startRotate = currentRotation;
-        targetStopAngle = finalRotation;
+
+        let startRot = currentRotation;
         let startTime = performance.now();
         function animate(now) {
-            let t = Math.min(1, (now-startTime)/spinDuration);
-            let ease = 1-Math.pow(1-t,3);
-            currentRotation = startRotate + (targetStopAngle-startRotate)*ease;
+            let t = Math.min(1, (now - startTime) / 2000);
+            let ease = 1 - Math.pow(1-t, 3);
+            currentRotation = startRot + (finalRotation - startRot) * ease;
             drawWheel();
-            if(t<1) requestAnimationFrame(animate);
-            else {
-                currentRotation = targetStopAngle % twoPi;
+            if (t < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                currentRotation = finalRotation % twoPi;
                 drawWheel();
-                const prizeName = segments[getCurrentPrizeIndex()];
-                addRecordToCloud(prizeName);
+                let idx = getCurrentPrizeIndex();
+                let prize = segments[idx];
+                addRecordToCloud(prize);
+                alert(`🎉 ${currentUserName} 抽中: ${prize} 🎉`);
                 isSpinning = false;
                 document.getElementById('spinButton').disabled = false;
-                setTimeout(()=>alert(`🎉 恭喜 ${currentUserName} 抽中: ${prizeName} 🎉`),30);
             }
         }
-        if(animFrame) cancelAnimationFrame(animFrame);
+        if (animFrame) cancelAnimationFrame(animFrame);
         animFrame = requestAnimationFrame(animate);
     }
 
-    function spinWheel() {
-        if(isSpinning) return;
-        if(!segments.length) return alert("请添加奖项");
-        const randomIdx = Math.floor(Math.random()*segments.length);
-        startSpinToPrize(randomIdx);
-    }
-
     function renderPrizeTags() {
-        const container = document.getElementById('prizeListContainer');
-        if(!container) return;
-        if(!segments.length) { container.innerHTML = '<div>暂无奖项，请添加</div>'; return; }
+        let container = document.getElementById('prizeListContainer');
+        if (!container) return;
         let html = '';
-        segments.forEach((seg,idx)=>{
+        segments.forEach((seg, idx) => {
             html += `<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${idx}" class="del-prize">❌</span></div>`;
         });
         container.innerHTML = html;
-        document.querySelectorAll('.del-prize').forEach(el=>{
-            el.addEventListener('click',(e)=>{
-                let idx = parseInt(el.getAttribute('data-idx'));
-                if(segments.length>1) { segments.splice(idx,1); segmentsRef.set(segments); }
-                else alert("至少保留一个奖项");
+        document.querySelectorAll('.del-prize').forEach(el => {
+            el.addEventListener('click', (e) => {
+                let idx = parseInt(el.dataset.idx);
+                if (segments.length > 1) {
+                    segments.splice(idx, 1);
+                    segmentsRef.set(segments);
+                } else { alert("至少保留一个奖项"); }
             });
         });
     }
 
     function addPrize() {
-        let newName = document.getElementById('newPrizeInput').value.trim();
-        if(!newName) return alert("请输入奖品名称");
-        if(newName.length>20) newName = newName.slice(0,20);
-        segments.push(newName);
+        let name = document.getElementById('newPrizeInput').value.trim();
+        if (!name) return alert("请输入奖品名称");
+        segments.push(name);
         segmentsRef.set(segments);
         document.getElementById('newPrizeInput').value = "";
     }
 
     function setUsername() {
         let name = document.getElementById('usernameInput').value.trim();
-        if(!name) return alert("请输入昵称");
+        if (!name) return alert("请输入昵称");
         currentUserName = name;
-        localStorage.setItem("sharedWheelUser", name);
-        updateUserDisplay();
+        localStorage.setItem("wheelUserName", name);
+        document.getElementById('currentUserDisplay').innerHTML = `当前抽奖人: ${escapeHtml(name)}`;
     }
 
-    function updateUserDisplay() {
-        document.getElementById('currentUserDisplay').innerHTML = currentUserName ? `🎲 当前抽奖人: <strong>${escapeHtml(currentUserName)}</strong>` : "⚠️ 未设置";
+    function clearHistory() {
+        if (confirm("确定清空所有抽奖记录吗？")) historyRef.remove();
     }
 
-    // 初始化加载本地用户名
-    const savedUser = localStorage.getItem("sharedWheelUser");
-    if(savedUser) { currentUserName = savedUser; document.getElementById('usernameInput').value = savedUser; updateUserDisplay(); }
-
-    window.onload = () => {
-        canvas = document.getElementById('wheelCanvas');
-        ctx = canvas.getContext('2d');
-        drawWheel();
-        window.addEventListener('resize',()=>drawWheel());
-        document.getElementById('spinButton').addEventListener('click', spinWheel);
-        document.getElementById('setUserBtn').addEventListener('click', setUsername);
-        document.getElementById('clearHistoryBtn').addEventListener('click', clearAllHistory);
-        document.getElementById('addPrizeBtn').addEventListener('click', addPrize);
-        document.getElementById('syncStatus').innerHTML = '☁️ 已连接云端，记录实时共享';
-    };
+    // 初始化
+    canvas = document.getElementById('wheelCanvas');
+    ctx = canvas.getContext('2d');
+    let savedName = localStorage.getItem("wheelUserName");
+    if (savedName) { currentUserName = savedName; document.getElementById('usernameInput').value = savedName; document.getElementById('currentUserDisplay').innerHTML = `当前抽奖人: ${escapeHtml(savedName)}`; }
+    document.getElementById('spinButton').onclick = startSpin;
+    document.getElementById('setUserBtn').onclick = setUsername;
+    document.getElementById('addPrizeBtn').onclick = addPrize;
+    document.getElementById('clearHistoryBtn').onclick = clearHistory;
+    window.addEventListener('resize', () => drawWheel());
+    drawWheel();
+    document.getElementById('syncStatus').innerHTML = "✅ 已连接云端，记录实时共享";
 </script>
 </body>
 </html>
