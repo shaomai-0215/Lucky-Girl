@@ -493,7 +493,13 @@
     document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
 }
     function playPauseMusic() { if (audioPlayer.paused) { audioPlayer.play().catch(e => console.log); isPlayingMusic = true; document.getElementById('playPauseBtn').innerText = '⏸️'; } else { audioPlayer.pause(); isPlayingMusic = false; document.getElementById('playPauseBtn').innerText = '▶️'; } }
-    function nextTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
+    function nextTrack() {
+    if (!currentPlaylist.length) return;
+    currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+    loadTrack(currentTrackIndex);
+    // 强制播放下一首，忽略之前的暂停状态
+    audioPlayer.play().catch(e => console.log("自动播放失败", e));
+}
     function prevTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
     // 管理员添加歌曲链接
     async function addSongByUrl() {
