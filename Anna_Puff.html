@@ -497,8 +497,8 @@
     if (!currentPlaylist.length) return;
     currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
     loadTrack(currentTrackIndex);
-    // 强制播放下一首，忽略之前的暂停状态
-    audioPlayer.play().catch(e => console.log("自动播放失败", e));
+    // 尝试自动播放，如果失败（比如未交互），静默处理
+    audioPlayer.play().catch(e => console.log("自动播放未授权，需要用户手动播放"));
 }
     function prevTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
     // 管理员添加歌曲链接
