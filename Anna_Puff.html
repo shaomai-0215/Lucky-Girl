@@ -4,269 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>小泡芙幸运🍀抽奖</title>
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
         * { box-sizing: border-box; user-select: none; }
-        body {
-            background: linear-gradient(145deg, #1e2b3c, #0f1a24);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            padding: 20px;
-            color: #eee;
-        }
-        .app-container {
-            max-width: 1500px;
-            margin: 0 auto;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
-            border-radius: 48px;
-            padding: 20px;
-        }
-        /* 选项卡 */
-        .tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            border-bottom: 2px solid #ffb347;
-            padding-bottom: 8px;
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            background: #2c4d3e;
-            border: none;
-            color: #ffd966;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 10px 24px;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .tab-btn.active {
-            background: #ffb347;
-            color: #1e2b3c;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
+        body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
+        .app-container { max-width: 1500px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 20px; }
+        .tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #ffb347; padding-bottom: 8px; flex-wrap: wrap; }
+        .tab-btn { background: #2c4d3e; border: none; color: #ffd966; font-size: 1.2rem; font-weight: bold; padding: 10px 24px; border-radius: 40px; cursor: pointer; }
+        .tab-btn.active { background: #ffb347; color: #1e2b3c; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        /* 转盘区域布局 */
-        .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-        .wheel-card, .stats-card, .gift-card {
-            background: rgba(0,0,0,0.25);
-            border-radius: 48px;
-            padding: 20px;
-        }
+        .dashboard { display: flex; flex-wrap: wrap; gap: 24px; }
+        .wheel-card, .stats-card, .gift-card { background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
         .wheel-card { flex: 2; min-width: 320px; }
         .stats-card { flex: 1.2; min-width: 260px; display: flex; flex-direction: column; gap: 20px; }
         .gift-card { flex: 1.2; min-width: 260px; }
-        canvas {
-            background: #2a3e4f;
-            border-radius: 50%;
-            width: 100%;
-            max-width: 450px;
-            aspect-ratio: 1;
-            cursor: pointer;
-            display: block;
-            margin: 0 auto;
-        }
-        .spin-btn {
-            background: linear-gradient(135deg, #ffb347, #ff7e05);
-            border: none;
-            color: white;
-            font-size: 1.6rem;
-            font-weight: bold;
-            padding: 12px 24px;
-            border-radius: 60px;
-            margin-top: 16px;
-            cursor: pointer;
-            width: 80%;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .prize-edit, .add-gift, .admin-manual, .admin-clear-history, .question-admin {
-            background: #101e26;
-            border-radius: 36px;
-            padding: 12px 16px;
-            margin-top: 20px;
-        }
-        .prize-list, .gift-list, .question-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 10px 0;
-        }
-        .prize-tag, .question-item {
-            background: #2c4d3e;
-            padding: 5px 12px;
-            border-radius: 40px;
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-        }
+        canvas { background: #2a3e4f; border-radius: 50%; width: 100%; max-width: 450px; aspect-ratio: 1; cursor: pointer; display: block; margin: 0 auto; }
+        .spin-btn { background: linear-gradient(135deg, #ffb347, #ff7e05); border: none; color: white; font-size: 1.6rem; font-weight: bold; padding: 12px 24px; border-radius: 60px; margin-top: 16px; cursor: pointer; width: 80%; display: block; margin-left: auto; margin-right: auto; }
+        .prize-edit, .add-gift, .admin-manual, .admin-clear-history, .question-admin { background: #101e26; border-radius: 36px; padding: 12px 16px; margin-top: 20px; }
+        .prize-list, .gift-list, .question-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .prize-tag, .question-item { background: #2c4d3e; padding: 5px 12px; border-radius: 40px; display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .score-value { font-size: 2rem; font-weight: bold; color: #ffd966; }
-        .score-history {
-            max-height: 250px;
-            overflow-y: auto;
-            background: #0f1a1f;
-            border-radius: 28px;
-            padding: 8px;
-            font-size: 0.75rem;
-        }
-        .history-item {
-            border-left: 3px solid #ffb347;
-            padding: 8px;
-            margin-bottom: 8px;
-            background: #1e2a32;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .history-content { flex: 1; }
-        .delete-record-btn {
-            background: #882d2d;
-            border: none;
-            border-radius: 30px;
-            color: white;
-            cursor: pointer;
-            padding: 4px 10px;
-            font-size: 0.7rem;
-            margin-left: 8px;
-        }
+        .score-history { max-height: 250px; overflow-y: auto; background: #0f1a1f; border-radius: 28px; padding: 8px; font-size: 0.75rem; }
+        .history-item { border-left: 3px solid #ffb347; padding: 8px; margin-bottom: 8px; background: #1e2a32; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .delete-record-btn { background: #882d2d; border: none; border-radius: 30px; color: white; cursor: pointer; padding: 4px 10px; font-size: 0.7rem; margin-left: 8px; }
         .admin-only { display: none; }
         button { cursor: pointer; background: #f39c12; border: none; border-radius: 30px; padding: 0 16px; }
         .clear-history-btn { background: #882d2d; color: white; }
         h3, h4 { margin: 0 0 8px 0; color: #ffd966; }
-        input, select, textarea {
-            background: #1f3a33;
-            border: none;
-            padding: 8px;
-            border-radius: 28px;
-            color: white;
-            width: 100%;
-            margin-bottom: 8px;
-        }
+        input, select, textarea { background: #1f3a33; border: none; padding: 8px; border-radius: 28px; color: white; width: 100%; margin-bottom: 8px; }
         .input-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .input-group input { flex: 2; margin-bottom: 0; }
         .manual-form { display: flex; gap: 8px; flex-wrap: wrap; }
         .manual-form input, .manual-form select { width: auto; flex: 1; margin-bottom: 0; }
         .sync-status { font-size: 0.7rem; text-align: center; margin-top: 12px; color: #aaffdd; }
-
-        /* 日历样式 (公历+农历/节日) */
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .calendar-header button {
-            background: #2c6e4f;
-            padding: 6px 12px;
-        }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            background: #0f1a1f;
-            border-radius: 28px;
-            padding: 16px;
-        }
-        .cal-weekday {
-            text-align: center;
-            font-weight: bold;
-            color: #ffd966;
-            padding: 8px;
-        }
-        .cal-day {
-            background: #1e2a32;
-            border-radius: 20px;
-            padding: 8px 4px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.1s;
-            min-height: 70px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .cal-day.has-event {
-            background: #ffb347;
-            color: #1e2b3c;
-            box-shadow: 0 0 0 2px #ffd966;
-        }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .calendar-header button { background: #2c6e4f; padding: 6px 12px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f1a1f; border-radius: 28px; padding: 16px; }
+        .cal-weekday { text-align: center; font-weight: bold; color: #ffd966; padding: 8px; }
+        .cal-day { background: #1e2a32; border-radius: 20px; padding: 8px 4px; text-align: center; cursor: pointer; transition: 0.1s; min-height: 70px; display: flex; flex-direction: column; justify-content: center; }
+        .cal-day.has-event { background: #ffb347; color: #1e2b3c; box-shadow: 0 0 0 2px #ffd966; }
         .cal-day.other-month { opacity: 0.4; }
         .cal-day .day-num { font-size: 1.2rem; font-weight: bold; }
-        .cal-day .lunar { font-size: 0.65rem; opacity: 0.8; margin-top: 4px; }
-        .cal-day .festival { font-size: 0.6rem; background: #d46b1e; display: inline-block; border-radius: 12px; padding: 1px 4px; margin-top: 4px; color: white; }
-        .selected-date-events {
-            margin-top: 20px;
-            background: #0f1a1f;
-            border-radius: 28px;
-            padding: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        /* 音乐播放器 */
-        .music-player {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
-        .music-toggle {
-            width: 56px;
-            height: 56px;
-            background: #ffb347;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            font-size: 28px;
-        }
-        .music-panel {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            width: 280px;
-            background: #1e2a32e6;
-            backdrop-filter: blur(12px);
-            border-radius: 28px;
-            padding: 16px;
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            border: 1px solid #ffb347;
-        }
+        .selected-date-events { margin-top: 20px; background: #0f1a1f; border-radius: 28px; padding: 12px; max-height: 200px; overflow-y: auto; }
+        .music-player { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
+        .music-toggle { width: 56px; height: 56px; background: #ffb347; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); font-size: 28px; }
+        .music-panel { position: absolute; bottom: 70px; right: 0; width: 280px; background: #1e2a32e6; backdrop-filter: blur(12px); border-radius: 28px; padding: 16px; display: none; flex-direction: column; gap: 12px; border: 1px solid #ffb347; }
         .music-panel.show { display: flex; }
-        .upload-btn {
-            background: #2c6e4f;
-            text-align: center;
-            padding: 6px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            position: relative;
-        }
-        .upload-btn input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
+        .upload-btn { background: #2c6e4f; text-align: center; padding: 6px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; position: relative; }
+        .upload-btn input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
         .custom-song { font-size: 0.7rem; text-align: center; cursor: pointer; text-decoration: underline; }
+        .draft-badge { background: #882d2d; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 20px; margin-left: 8px; }
+        .publish-btn { background: #2c6e4f; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -286,29 +76,30 @@
             </div>
             <div class="stats-card">
                 <div class="user-section" style="background:#0f1a1f; border-radius:32px; padding:15px;"><h3>🧑 抽奖人</h3><div class="input-group"><input type="text" id="usernameInput" placeholder="您的名字"><button id="setUserBtn">确认</button></div><div id="currentUserDisplay" style="margin-top:8px;"></div></div>
-                <div class="score-box" style="background:#1e3a2f; border-radius:32px; padding:16px; text-align:center;"><div>💰 当前总资产 (AUD)</div><div class="score-value" id="currentScoreDisplay">100.00</div></div>
-                <div><h3>📈 积分变动记录</h3><div class="score-history" id="scoreHistoryList">暂无记录</div><div class="admin-clear-history admin-only"><button id="clearHistoryBtn" class="clear-history-btn">🗑️ 清空所有积分记录</button></div><div class="admin-manual admin-only"><h4>✍️ 手动添加抽奖记录</h4><div class="manual-form"><input type="text" id="manualUserName" placeholder="用户名"><select id="manualPercent"><option value="10%">10%</option><option value="0%">0%</option><option value="20%">20%</option><option value="30%">30%</option><option value="50%">50%</option><option value="100%">100%</option></select><button id="manualAddBtn">➕ 添加记录</button></div></div></div>
+                <div class="score-box" style="background:#1e3a2f; border-radius:32px; padding:16px; text-align:center;"><div>💰 当前用户资产 (AUD)</div><div class="score-value" id="currentScoreDisplay">--</div></div>
+                <div><h3>📈 积分变动记录（所有人）</h3><div class="score-history" id="scoreHistoryList">暂无记录</div><div class="admin-clear-history admin-only"><button id="clearHistoryBtn" class="clear-history-btn">🗑️ 清空所有积分记录</button></div><div class="admin-manual admin-only"><h4>✍️ 管理员手动添加记录</h4><div class="manual-form"><input type="text" id="manualUserName" placeholder="用户名"><select id="manualPercent"><option value="10%">10%</option><option value="0%">0%</option><option value="20%">20%</option><option value="30%">30%</option><option value="50%">50%</option><option value="100%">100%</option></select><button id="manualAddBtn">➕ 添加记录</button></div></div></div>
             </div>
             <div class="gift-card"><h3>🎁 神秘礼盒 (点击揭开)</h3><div class="gift-list" id="giftList">加载中...</div><div class="add-gift admin-only"><h4>➕ 添加新礼物</h4><input type="text" id="giftName" placeholder="名称"><input type="text" id="giftValue" placeholder="价值"><textarea id="giftDetail" rows="2" placeholder="隐藏内容"></textarea><button id="addGiftBtn">📦 添加礼盒</button></div></div>
         </div>
     </div>
 
-    <!-- 问答互动界面 -->
+    <!-- 问答互动界面（无图片，仅草稿+发布） -->
     <div id="qaTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📝 每日问答</h3>
             <div class="question-list" id="questionList">加载中...</div>
             <div class="question-admin admin-only" style="margin-top: 20px;">
-                <h4>➕ 管理员添加问题</h4>
+                <h4>➕ 管理员添加新问题（草稿，不发布则其他人不可见）</h4>
                 <input type="text" id="newQuestionText" placeholder="问题内容">
                 <textarea id="newQuestionAnswer" rows="2" placeholder="答案 (点击后显示)"></textarea>
-                <button id="addQuestionBtn">添加问题</button>
+                <button id="addQuestionDraftBtn">📝 保存为草稿</button>
+                <small>草稿仅您可见，点击“发布”后所有人可见并可查看答案。</small>
             </div>
-            <small>点击任意问题即可显示答案，并记录查看行为。</small>
+            <small>点击任意已发布问题即可显示答案，并记录查看行为。</small>
         </div>
     </div>
 
-    <!-- 日历记录界面（新样式） -->
+    <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📆 活动日历</h3>
@@ -332,19 +123,9 @@
     <div class="music-toggle" id="musicToggle">🎵</div>
     <div class="music-panel" id="musicPanel">
         <div class="music-info" id="musicInfo">未播放</div>
-        <div class="music-controls" style="display: flex; gap: 16px; justify-content: center;">
-            <button id="prevBtn">⏮️</button>
-            <button id="playPauseBtn">▶️</button>
-            <button id="nextBtn">⏭️</button>
-        </div>
-        <div class="volume-slider" style="display: flex; align-items: center; gap: 8px;">
-            <span>🔊</span>
-            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
-        </div>
-        <div class="upload-btn" id="uploadBtn">
-            📁 上传本地音乐
-            <input type="file" id="musicFileInput" accept="audio/*">
-        </div>
+        <div class="music-controls"><button id="prevBtn">⏮️</button><button id="playPauseBtn">▶️</button><button id="nextBtn">⏭️</button></div>
+        <div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"></div>
+        <div class="upload-btn">📁 上传本地音乐<input type="file" id="musicFileInput" accept="audio/*"></div>
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
 </div>
@@ -357,7 +138,7 @@
         databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
         authDomain: "anna-puff.firebaseapp.com",
         projectId: "anna-puff",
-        storageBucket: "anna-puff.firebasestorage.app",
+        storageBucket: "anna-puff.appspot.com",
         messagingSenderId: "247577846134",
         appId: "1:247577846134:web:9555c1436be25bf7b0da57"
     };
@@ -366,7 +147,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const segmentsRef = db.ref('wheelSegments');
-    const currentScoreRef = db.ref('currentScore');
+    const userScoresRef = db.ref('userScores');
     const scoreHistoryRef = db.ref('scoreHistory');
     const giftsRef = db.ref('gifts');
     const questionsRef = db.ref('questions');
@@ -396,7 +177,62 @@
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
     }
 
-    // ---------- 转盘绘图与动画 ----------
+    // 独立资产逻辑（抽中0%归零）
+    async function getUserScore(user) {
+        const snap = await userScoresRef.child(user).once('value');
+        let val = snap.val();
+        return (val === null || typeof val !== 'number') ? 100.0 : val;
+    }
+    function getMultiplier(percentageStr) {
+        let percent = parseFloat(percentageStr);
+        if (isNaN(percent)) percent = 0;
+        if (percent === 0) return 0;
+        return 1 + percent / 100;
+    }
+    function updateUserScore(user, percentageStr, callback) {
+        const multiplier = getMultiplier(percentageStr);
+        userScoresRef.child(user).transaction(current => {
+            if(current === null) return 100.0 * multiplier;
+            return current * multiplier;
+        }, (error, committed, snapshot) => {
+            if(error || !committed) { callback(false); return; }
+            callback(true, snapshot.val());
+        });
+    }
+    function addHistoryRecord(userName, percentage, oldScore, newScore) {
+        scoreHistoryRef.push({
+            userName, percentage, oldScore, newScore,
+            timestamp: Date.now(),
+            dateStr: new Date().toLocaleDateString('zh-CN'),
+            timeStr: new Date().toLocaleTimeString('zh-CN')
+        });
+    }
+    function applyScoreForUser(userName, percentageStr, callback) {
+        getUserScore(userName).then(oldScore => {
+            updateUserScore(userName, percentageStr, (success, newScore) => {
+                if(success) {
+                    addHistoryRecord(userName, percentageStr, oldScore, newScore);
+                    callback(true, newScore);
+                } else callback(false);
+            });
+        }).catch(()=>callback(false));
+    }
+
+    // 订阅当前用户资产
+    let currentUserScoreListener = null;
+    function subscribeToCurrentUserScore() {
+        if(currentUserScoreListener) currentUserScoreListener.off();
+        if(currentUserName) {
+            currentUserScoreListener = userScoresRef.child(currentUserName).on('value', (snap) => {
+                let val = snap.val();
+                document.getElementById('currentScoreDisplay').innerText = (typeof val === 'number' ? val : 100).toFixed(2);
+            });
+        } else {
+            document.getElementById('currentScoreDisplay').innerText = '--';
+        }
+    }
+
+    // 转盘绘制与动画
     function drawWheel() {
         if(!ctx) return;
         let size = Math.min(canvas.clientWidth, canvas.clientHeight);
@@ -417,7 +253,6 @@
             let y = center + Math.sin(textAngle) * radius * 0.7;
             ctx.fillText(segments[i], x - ctx.measureText(segments[i]).width/2, y + 6);
         }
-        // 指针
         ctx.beginPath(); ctx.moveTo(center-14, center-radius-8); ctx.lineTo(center, center-radius+10); ctx.lineTo(center+14, center-radius-8);
         ctx.fillStyle = "#FFD966"; ctx.fill();
     }
@@ -429,24 +264,6 @@
             if(s<e){ if(p>=s && p<e) return i; } else { if(p>=s || p<e) return i; }
         }
         return 0;
-    }
-    function applyScoreTransaction(userName, percentageStr, callback) {
-        let percent = parseFloat(percentageStr)||0;
-        let multiplier = 1 + percent/100;
-        currentScoreRef.transaction(cur => cur===null ? 100 : cur * multiplier, (err, committed, snap) => {
-            if(err){ callback(false); return; }
-            if(committed){
-                currentScoreRef.once('value').then(oldSnap => {
-                    let oldVal = oldSnap.val() || 100;
-                    let newVal = snap.val();
-                    const recordId = scoreHistoryRef.push({
-                        userName, percentage:percentageStr, oldScore:oldVal, newScore:newVal,
-                        timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN')
-                    }).key;
-                    callback(true, newVal, recordId);
-                });
-            } else callback(false);
-        });
     }
     function startSpin(){
         if(isSpinning || !currentUserName){ alert("请先设置抽奖人姓名"); return; }
@@ -466,7 +283,7 @@
             else{
                 currentRotation = finalRot%twoPi; drawWheel();
                 let prize = segments[getCurrentPrizeIndex()];
-                applyScoreTransaction(currentUserName, prize, (success, newScore) => {
+                applyScoreForUser(currentUserName, prize, (success, newScore) => {
                     if(success){
                         alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`);
                         logActivity("spin", `抽中 ${prize}`);
@@ -496,52 +313,52 @@
     }
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
-    currentScoreRef.on('value', snap=>{ let val=snap.val(); document.getElementById('currentScoreDisplay').innerText=(typeof val==='number'?val:100).toFixed(2); });
-    // 积分记录列表（带删除按钮）
+
+    // 历史记录显示
     function renderScoreHistory(historyArr){
         let cont=document.getElementById('scoreHistoryList');
         if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; }
         let html='';
         historyArr.slice().reverse().forEach(item=>{
-            html+=`<div class="history-item" data-id="${item.id}">
-                        <div class="history-content">
-                            <strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br>
-                            <small>${item.dateStr} ${item.timeStr}</small>
-                        </div>
-                        <button class="delete-record-btn admin-only" data-id="${item.id}">🗑️ 删除</button>
-                    </div>`;
+            html+=`<div class="history-item" data-id="${item.id}"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br><small>${item.dateStr} ${item.timeStr}</small></div><button class="delete-record-btn admin-only" data-id="${item.id}">🗑️ 删除</button></div>`;
         });
         cont.innerHTML=html;
-        // 绑定删除事件
         document.querySelectorAll('.delete-record-btn').forEach(btn=>{
             btn.onclick=(e)=>{
                 e.stopPropagation();
                 if(currentUserName !== ADMIN_USERNAME) return;
                 let id = btn.dataset.id;
-                if(confirm("删除该条记录？不可恢复。")){
-                    scoreHistoryRef.child(id).remove();
-                    logActivity("admin_delete_record", `删除积分记录 ${id}`);
-                }
+                if(confirm("删除该条记录？不可恢复。")){ scoreHistoryRef.child(id).remove(); logActivity("admin_delete_record", `删除积分记录 ${id}`); }
             };
         });
     }
     scoreHistoryRef.on('value', snap=>{
         let data=snap.val();
         let arr=[];
-        if(data){
-            for(let [id,val] of Object.entries(data)){
-                arr.push({id, ...val});
-            }
-        }
+        if(data){ for(let [id,val] of Object.entries(data)) arr.push({id, ...val}); }
         arr.sort((a,b)=>a.timestamp - b.timestamp);
         renderScoreHistory(arr);
     });
+
     function adminManualAdd(){
         if(currentUserName!==ADMIN_USERNAME) return;
         let user=document.getElementById('manualUserName').value.trim();
         let percent=document.getElementById('manualPercent').value;
         if(!user){ alert("请输入用户名"); return; }
-        applyScoreTransaction(user, percent, (success)=>{ if(success){ alert(`已为 ${user} 添加记录`); logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`); document.getElementById('manualUserName').value=""; } else alert("添加失败"); });
+        getUserScore(user).then(oldScore => {
+            const multiplier = getMultiplier(percent);
+            userScoresRef.child(user).transaction(cur => {
+                if(cur === null) return 100.0 * multiplier;
+                return cur * multiplier;
+            }, (error, committed, snapshot) => {
+                if(error || !committed) { alert("添加失败"); return; }
+                const newScore = snapshot.val();
+                addHistoryRecord(user, percent, oldScore, newScore);
+                alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`);
+                logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`);
+                document.getElementById('manualUserName').value="";
+            });
+        }).catch(()=>alert("获取用户资产失败"));
     }
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); logActivity("admin_clear_history","清空所有积分记录"); alert("已清空"); } }
 
@@ -567,80 +384,106 @@
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // 问答
-    function renderQuestions(questionsObj){
-        let cont=document.getElementById('questionList');
-        if(!questionsObj||!Object.keys(questionsObj).length){ cont.innerHTML='<div>暂无问题，管理员可添加。</div>'; return; }
-        let html='';
-        for(let [id,q] of Object.entries(questionsObj)){
-            html+=`<div class="question-item"><strong>${escapeHtml(q.text)}</strong> <button class="show-answer" data-answer="${escapeHtml(q.answer)}">查看答案</button> <button class="delete-question admin-only" data-id="${id}">❌ 删除</button></div>`;
-        }
-        cont.innerHTML=html;
-        document.querySelectorAll('.show-answer').forEach(btn=>{
-            btn.onclick=()=>{ let ans=btn.dataset.answer; alert(`答案：${ans}`); logActivity("view_question",`查看问题`); };
-        });
-        document.querySelectorAll('.delete-question').forEach(btn=>{
-            btn.onclick=()=>{ if(currentUserName===ADMIN_USERNAME){ let id=btn.dataset.id; questionsRef.child(id).remove(); logActivity("admin_delete_question","删除问题"); } };
-        });
-    }
-    questionsRef.on('value', snap=>renderQuestions(snap.val()));
-    function addQuestion(){ if(currentUserName!==ADMIN_USERNAME) return; let text=document.getElementById('newQuestionText').value.trim(); let answer=document.getElementById('newQuestionAnswer').value.trim(); if(!text) return; questionsRef.push({text,answer,timestamp:Date.now()}); logActivity("admin_add_question",`添加问题: ${text}`); document.getElementById('newQuestionText').value=""; document.getElementById('newQuestionAnswer').value=""; }
-
-    // ---------- 日历（含农历和节日数据）----------
-    // 简单的农历映射（仅演示常用节日，完整需复杂库，这里做一个简化版，标注主要节日）
-    const festivalMap = {
-        "0101":"元旦",
-        "0210":"春节", "0211":"春节", "0212":"春节", "0213":"春节", "0214":"情人节",
-        "0308":"妇女节",
-        "0401":"愚人节",
-        "0501":"劳动节",
-        "0601":"儿童节",
-        "0701":"建党节",
-        "0801":"建军节",
-        "0910":"教师节",
-        "1001":"国庆节",
-        "1225":"圣诞节"
-    };
-    // 2026年端午、中秋等农历映射（固定日期近似）
-    const lunarFestival2026 = {
-        "2026-06-19":"端午节",
-        "2026-09-25":"中秋节",
-        "2026-02-17":"元宵节",
-        "2026-06-21":"父亲节"
-    };
-    function getLunarAndFestival(year, month, day){
-        let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        let festival = lunarFestival2026[dateStr] || festivalMap[`${String(month+1).padStart(2,'0')}${String(day).padStart(2,'0')}`] || "";
-        // 简化农历：只显示“初一”等，这里为了美观，显示公历日期即可，节日优先
-        let lunar = "";
-        if(festival) lunar = festival;
-        else {
-            // 简单农历占位，实际可调用API，为了不复杂，这里只显示“”
-        }
-        return { lunar, festival };
+    // ---------- 问答模块（草稿+发布，无图片） ----------
+    async function addQuestionDraft() {
+        if(currentUserName !== ADMIN_USERNAME) return;
+        const text = document.getElementById('newQuestionText').value.trim();
+        const answer = document.getElementById('newQuestionAnswer').value.trim();
+        if(!text) { alert("请输入问题内容"); return; }
+        const newQuestion = {
+            text: text,
+            answer: answer,
+            published: false,
+            timestamp: Date.now()
+        };
+        await questionsRef.push(newQuestion);
+        logActivity("admin_add_question_draft", `添加问题草稿: ${text}`);
+        document.getElementById('newQuestionText').value = '';
+        document.getElementById('newQuestionAnswer').value = '';
+        alert("问题已保存为草稿，您可在列表中点击“发布”使其对所有人可见。");
     }
 
-    let currentCalendarYear = new Date().getFullYear();
-    let currentCalendarMonth = new Date().getMonth();
+    async function publishQuestion(questionId) {
+        if(currentUserName !== ADMIN_USERNAME) return;
+        await questionsRef.child(questionId).update({ published: true });
+        logActivity("admin_publish_question", `发布问题 ${questionId}`);
+        alert("问题已发布");
+    }
+
+    async function deleteQuestion(questionId) {
+        if(currentUserName !== ADMIN_USERNAME) return;
+        if(confirm("永久删除该问题？")) {
+            await questionsRef.child(questionId).remove();
+            logActivity("admin_delete_question", `删除问题 ${questionId}`);
+        }
+    }
+
+    function renderQuestions(questionsObj) {
+        const container = document.getElementById('questionList');
+        if(!container) return;
+        if(!questionsObj || Object.keys(questionsObj).length === 0) {
+            container.innerHTML = '<div>暂无问题，管理员可添加。</div>';
+            return;
+        }
+        let html = '';
+        for(let [id, q] of Object.entries(questionsObj)) {
+            const isAdmin = (currentUserName === ADMIN_USERNAME);
+            if(!isAdmin && !q.published) continue;
+            const publishBadge = (q.published ? '' : `<span class="draft-badge">草稿</span>`);
+            const publishBtn = (!q.published && isAdmin) ? `<button class="publish-btn" data-id="${id}">发布</button>` : '';
+            const deleteBtn = (isAdmin) ? `<button class="delete-question" data-id="${id}">❌ 删除</button>` : '';
+            html += `<div class="question-item">
+                        <strong>${escapeHtml(q.text)}</strong> ${publishBadge}
+                        <button class="show-answer" data-answer="${escapeHtml(q.answer)}">查看答案</button>
+                        ${publishBtn} ${deleteBtn}
+                    </div>`;
+        }
+        container.innerHTML = html;
+        // 绑定查看答案事件
+        document.querySelectorAll('.show-answer').forEach(btn => {
+            btn.onclick = () => {
+                const ans = btn.getAttribute('data-answer');
+                alert(`答案：${ans}`);
+                logActivity("view_question", `查看问题`);
+            };
+        });
+        // 绑定发布按钮
+        document.querySelectorAll('.publish-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = btn.dataset.id;
+                publishQuestion(id);
+            };
+        });
+        // 绑定删除按钮
+        document.querySelectorAll('.delete-question').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = btn.dataset.id;
+                deleteQuestion(id);
+            };
+        });
+    }
+    questionsRef.on('value', snap => renderQuestions(snap.val()));
+
+    // ---------- 日历部分 ----------
+    let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
-
-    function buildCalendar(year, month){
+    function buildCalendar(year, month) {
         const firstDay = new Date(year, month, 1);
-        const startWeekday = firstDay.getDay(); // 0周日
+        const startWeekday = firstDay.getDay();
         const daysInMonth = new Date(year, month+1, 0).getDate();
         const prevMonthDays = new Date(year, month, 0).getDate();
         const weekdays = ["日","一","二","三","四","五","六"];
         let gridHtml = `<div class="calendar-grid">`;
         weekdays.forEach(w=> gridHtml+=`<div class="cal-weekday">${w}</div>`);
-        for(let i=0; i<42; i++){
+        for(let i=0; i<42; i++) {
             let dayNum, isCurrentMonth = true;
             let displayYear=year, displayMonth=month;
-            if(i < startWeekday){
+            if(i < startWeekday) {
                 dayNum = prevMonthDays - startWeekday + i + 1;
                 isCurrentMonth = false;
                 displayMonth = month-1;
                 if(displayMonth<0){ displayMonth=11; displayYear--; }
-            } else if(i >= startWeekday+daysInMonth){
+            } else if(i >= startWeekday+daysInMonth) {
                 dayNum = i - startWeekday - daysInMonth + 1;
                 isCurrentMonth = false;
                 displayMonth = month+1;
@@ -650,45 +493,33 @@
             }
             let dateObj = new Date(displayYear, displayMonth, dayNum);
             let dateStr = dateObj.toLocaleDateString('zh-CN');
-            let hasEvent = activityCache[dateStr] && activityCache[dateStr].length>0;
-            let { lunar, festival } = getLunarAndFestival(displayYear, displayMonth, dayNum);
-            let festivalHtml = festival ? `<div class="festival">${festival}</div>` : "";
-            gridHtml += `<div class="cal-day ${isCurrentMonth?'':'other-month'} ${hasEvent?'has-event':''}" data-date="${dateStr}">
-                            <div class="day-num">${dayNum}</div>
-                            <div class="lunar">${lunar}</div>
-                            ${festivalHtml}
-                        </div>`;
+            let hasEvent = activityCache[dateStr] && activityCache[dateStr].length > 0;
+            gridHtml += `<div class="cal-day ${isCurrentMonth?'':'other-month'} ${hasEvent?'has-event':''}" data-date="${dateStr}"><div class="day-num">${dayNum}</div></div>`;
         }
         gridHtml += `</div>`;
         document.getElementById('calendarGrid').innerHTML = gridHtml;
         document.getElementById('currentYearMonth').innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
-        // 绑定点击事件
-        document.querySelectorAll('.cal-day').forEach(day=>{
-            day.addEventListener('click', ()=>{
+        document.querySelectorAll('.cal-day').forEach(day => {
+            day.addEventListener('click', () => {
                 let date = day.dataset.date;
                 let events = activityCache[date] || [];
                 let container = document.getElementById('selectedDateEvents');
-                if(!events.length){
-                    container.innerHTML = `<p>📅 ${date} 无活动记录</p>`;
-                    return;
-                }
+                if(!events.length){ container.innerHTML = `<p>📅 ${date} 无活动记录</p>`; return; }
                 let html = `<h4>${date} 活动记录</h4>`;
-                events.forEach(ev=>{
+                events.forEach(ev => {
                     html += `<div class="history-item"><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small></div>`;
                 });
                 container.innerHTML = html;
             });
         });
     }
-
-    // 监听活动日志刷新日历
-    activityLogRef.on('value', snap=>{
+    activityLogRef.on('value', snap => {
         let data = snap.val();
         activityCache = {};
-        if(data){
-            Object.values(data).forEach(ev=>{
+        if(data) {
+            Object.values(data).forEach(ev => {
                 let date = ev.dateStr;
-                if(!activityCache[date]) activityCache[date]=[];
+                if(!activityCache[date]) activityCache[date] = [];
                 activityCache[date].push(ev);
             });
         }
@@ -721,6 +552,8 @@
         localStorage.setItem("wheelUserName", name);
         document.getElementById('currentUserDisplay').innerHTML = `✅ 当前抽奖人: ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`;
         updateAdminUI();
+        subscribeToCurrentUserScore();
+        questionsRef.once('value').then(snap => renderQuestions(snap.val()));
     }
     function loadUserName(){
         let saved = localStorage.getItem("wheelUserName");
@@ -729,7 +562,12 @@
             document.getElementById('usernameInput').value = saved;
             document.getElementById('currentUserDisplay').innerHTML = `✅ 当前抽奖人: ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`;
             updateAdminUI();
-        } else updateAdminUI();
+            subscribeToCurrentUserScore();
+        } else {
+            updateAdminUI();
+            document.getElementById('currentScoreDisplay').innerText = '--';
+        }
+        questionsRef.once('value').then(snap => renderQuestions(snap.val()));
     }
 
     // 选项卡切换
@@ -739,10 +577,13 @@
         document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
         document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
         if(tabId === 'calendar') buildCalendar(currentCalendarYear, currentCalendarMonth);
+        if(tabId === 'qa') {
+            questionsRef.once('value').then(snap => renderQuestions(snap.val()));
+        }
     }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
 
-    // 音乐播放器
+    // 音乐播放器（与之前相同）
     const defaultPlaylist = [
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
@@ -828,8 +669,8 @@
         document.getElementById('addGiftBtn').onclick = addGift;
         document.getElementById('manualAddBtn').onclick = adminManualAdd;
         document.getElementById('clearHistoryBtn').onclick = adminClearHistory;
-        document.getElementById('addQuestionBtn').onclick = addQuestion;
-        document.getElementById('syncStatus').innerHTML = "✅ 所有功能已启动（含新日历、音乐、删除记录）";
+        document.getElementById('addQuestionDraftBtn').onclick = addQuestionDraft;
+        document.getElementById('syncStatus').innerHTML = "✅ 独立资产+0%归零+草稿问答+日历事件（无图片）";
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
