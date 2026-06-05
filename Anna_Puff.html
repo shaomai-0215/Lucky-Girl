@@ -28,6 +28,7 @@
         .score-value { font-size: 2rem; font-weight: bold; color: #ffd966; }
         .score-history { max-height: 250px; overflow-y: auto; background: #0f1a1f; border-radius: 28px; padding: 8px; font-size: 0.75rem; }
         .history-item { border-left: 3px solid #ffb347; padding: 8px; margin-bottom: 8px; background: #1e2a32; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .history-content { flex: 1; }
         .delete-record-btn { background: #882d2d; border: none; border-radius: 30px; color: white; cursor: pointer; padding: 4px 10px; font-size: 0.7rem; margin-left: 8px; }
         .admin-only { display: none; }
         button { cursor: pointer; background: #f39c12; border: none; border-radius: 30px; padding: 0 16px; }
@@ -57,6 +58,57 @@
         .custom-song { font-size: 0.7rem; text-align: center; cursor: pointer; text-decoration: underline; }
         .draft-badge { background: #882d2d; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 20px; margin-left: 8px; }
         .publish-btn { background: #2c6e4f; margin-left: 8px; }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background-color: #1e2a32;
+            margin: 20% auto;
+            padding: 20px;
+            border-radius: 48px;
+            width: 280px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            border: 1px solid #ffb347;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            color: #ffd966;
+        }
+        .modal-asset {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffb347;
+            margin: 15px 0;
+        }
+        .close-modal {
+            background: #2c6e4f;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .clickable-username {
+            cursor: pointer;
+            color: #ffd966;
+            text-decoration: underline;
+            transition: 0.1s;
+        }
+        .clickable-username:hover {
+            color: #ffaa33;
+        }
     </style>
 </head>
 <body>
@@ -83,7 +135,7 @@
         </div>
     </div>
 
-    <!-- 问答互动界面（无图片，仅草稿+发布） -->
+    <!-- 问答互动界面 -->
     <div id="qaTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📝 每日问答</h3>
@@ -116,6 +168,15 @@
     </div>
 
     <div class="sync-status" id="syncStatus">☁️ 连接云端同步中...</div>
+</div>
+
+<!-- 模态框：显示其他用户资产 -->
+<div id="userAssetModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalUserName">用户</h3>
+        <div class="modal-asset" id="modalAssetValue">--</div>
+        <button class="close-modal" onclick="closeModal()">关闭</button>
+    </div>
 </div>
 
 <!-- 音乐播放器 -->
@@ -176,6 +237,35 @@
         const isAdmin = (currentUserName === ADMIN_USERNAME);
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
     }
+
+    // 模态框相关函数
+    function showUserAsset(userName) {
+        const modal = document.getElementById('userAssetModal');
+        const modalName = document.getElementById('modalUserName');
+        const modalValue = document.getElementById('modalAssetValue');
+        modalName.innerText = userName;
+        modalValue.innerText = '加载中...';
+        modal.style.display = 'block';
+        // 从 Firebase 读取该用户资产
+        userScoresRef.child(userName).once('value').then(snap => {
+            let val = snap.val();
+            let asset = (val !== null && typeof val === 'number') ? val : 100.0;
+            modalValue.innerText = asset.toFixed(2) + ' AUD';
+        }).catch(err => {
+            modalValue.innerText = '读取失败';
+            console.error(err);
+        });
+    }
+    window.closeModal = function() {
+        document.getElementById('userAssetModal').style.display = 'none';
+    };
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+        const modal = document.getElementById('userAssetModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 
     // 独立资产逻辑（抽中0%归零）
     async function getUserScore(user) {
@@ -314,15 +404,30 @@
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
 
-    // 历史记录显示
+    // 历史记录显示（用户名可点击查看资产）
     function renderScoreHistory(historyArr){
         let cont=document.getElementById('scoreHistoryList');
         if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; }
         let html='';
         historyArr.slice().reverse().forEach(item=>{
-            html+=`<div class="history-item" data-id="${item.id}"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br><small>${item.dateStr} ${item.timeStr}</small></div><button class="delete-record-btn admin-only" data-id="${item.id}">🗑️ 删除</button></div>`;
+            html+=`<div class="history-item" data-id="${item.id}">
+                        <div class="history-content">
+                            <span class="clickable-username" data-user="${escapeHtml(item.userName)}">${escapeHtml(item.userName)}</span> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br>
+                            <small>${item.dateStr} ${item.timeStr}</small>
+                        </div>
+                        <button class="delete-record-btn admin-only" data-id="${item.id}">🗑️ 删除</button>
+                    </div>`;
         });
         cont.innerHTML=html;
+        // 绑定用户名点击事件
+        document.querySelectorAll('.clickable-username').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const userName = el.getAttribute('data-user');
+                showUserAsset(userName);
+            });
+        });
+        // 绑定删除按钮
         document.querySelectorAll('.delete-record-btn').forEach(btn=>{
             btn.onclick=(e)=>{
                 e.stopPropagation();
@@ -670,7 +775,7 @@
         document.getElementById('manualAddBtn').onclick = adminManualAdd;
         document.getElementById('clearHistoryBtn').onclick = adminClearHistory;
         document.getElementById('addQuestionDraftBtn').onclick = addQuestionDraft;
-        document.getElementById('syncStatus').innerHTML = "✅ 独立资产+0%归零+草稿问答+日历事件（无图片）";
+        document.getElementById('syncStatus').innerHTML = "✅ 点击用户名即可查看他人实时资产";
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
