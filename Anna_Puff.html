@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>小泡芙幸运🍀抽奖</title>
+    <title>互动平台 - 实时资产看板</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
@@ -62,8 +62,14 @@
         .modal-content h3 { margin-top: 0; color: #ffd966; }
         .modal-asset { font-size: 2rem; font-weight: bold; color: #ffb347; margin: 15px 0; }
         .close-modal { background: #2c6e4f; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
-        .clickable-username, .clickable-asset { cursor: pointer; color: #ffd966; text-decoration: underline; }
-        .clickable-username:hover, .clickable-asset:hover { color: #ffaa33; }
+        .clickable-username { cursor: pointer; color: #ffd966; text-decoration: underline; }
+        .clickable-username:hover { color: #ffaa33; }
+        .asset-list { max-height: 300px; overflow-y: auto; background: #0f1a1f; border-radius: 28px; padding: 8px; }
+        .asset-item { display: flex; justify-content: space-between; align-items: center; background: #1e2a32; margin-bottom: 6px; padding: 6px 12px; border-radius: 28px; border-left: 3px solid #ffb347; }
+        .asset-name { font-weight: bold; color: #ffd966; }
+        .asset-amount { font-family: monospace; font-size: 1.1rem; color: #ffaa66; }
+        .clickable-asset { cursor: pointer; text-decoration: underline; }
+        .clickable-asset:hover { color: #ffaa33; }
     </style>
 </head>
 <body>
@@ -88,17 +94,8 @@
             </div>
             <div class="asset-card">
                 <h3>👥 用户资产实时看板</h3>
-                <div class="asset-list" id="assetList">
-                    <div>加载中...</div>
-                </div>
+                <div class="asset-list" id="assetList"><div>加载中...</div></div>
                 <small>资产实时更新，点击用户名可查看更多详情</small>
-            </div>
-        </div>
-        <div style="margin-top: 20px;">
-            <div class="gift-card" style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
-                <h3>🎁 神秘礼盒 (点击揭开)</h3>
-                <div class="gift-list" id="giftList">加载中...</div>
-                <div class="add-gift admin-only"><h4>➕ 添加新礼物</h4><input type="text" id="giftName" placeholder="名称"><input type="text" id="giftValue" placeholder="价值"><textarea id="giftDetail" rows="2" placeholder="隐藏内容"></textarea><button id="addGiftBtn">📦 添加礼盒</button></div>
             </div>
         </div>
     </div>
@@ -139,7 +136,7 @@
 </div>
 
 <!-- 模态框 -->
-<div id="userAssetModal" class="modal">
+<div id="userAssetModal" class="modal" style="display:none;">
     <div class="modal-content">
         <h3 id="modalUserName">用户</h3>
         <div class="modal-asset" id="modalAssetValue">--</div>
@@ -161,7 +158,7 @@
 
 <script>
     // ========== 配置 ==========
-    const ADMIN_USERNAME = "烧卖";   // 请修改成您的管理员名字
+    const ADMIN_USERNAME = "烧賣";   // 请修改成您的管理员名字
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
         databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -209,7 +206,10 @@
     // ---------- 资产看板 ----------
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
-        if (!container) return;
+        if (!container) {
+            console.error("assetList element not found");
+            return;
+        }
         if (!scores || Object.keys(scores).length === 0) {
             container.innerHTML = '<div>暂无用户数据</div>';
             return;
@@ -232,8 +232,13 @@
             });
         });
     }
-    userScoresRef.on('value', (snap) => renderAssetBoard(snap.val()));
 
+    userScoresRef.on('value', (snap) => {
+        const scores = snap.val();
+        renderAssetBoard(scores);
+    });
+
+    // 模态框资产查看
     let currentModalListener = null;
     function showUserAsset(userName) {
         const modal = document.getElementById('userAssetModal');
@@ -263,7 +268,7 @@
         if (event.target === modal) closeModal();
     };
 
-    // ---------- 独立资产逻辑 ----------
+    // 独立资产逻辑
     async function getUserScore(user) {
         const snap = await userScoresRef.child(user).once('value');
         let val = snap.val();
@@ -304,16 +309,19 @@
         }).catch(()=>callback(false));
     }
 
+    // 订阅当前用户资产
     let currentUserScoreListener = null;
     function subscribeToCurrentUserScore() {
         if (currentUserScoreListener) currentUserScoreListener.off();
         if (currentUserName) {
             currentUserScoreListener = userScoresRef.child(currentUserName).on('value', (snap) => {
                 let val = snap.val();
-                document.getElementById('currentScoreDisplay').innerText = (typeof val === 'number' ? val : 100).toFixed(2);
+                const display = document.getElementById('currentScoreDisplay');
+                if (display) display.innerText = (typeof val === 'number' ? val : 100).toFixed(2);
             });
         } else {
-            document.getElementById('currentScoreDisplay').innerText = '--';
+            const display = document.getElementById('currentScoreDisplay');
+            if (display) display.innerText = '--';
         }
     }
 
@@ -399,7 +407,7 @@
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
 
-    // 历史记录显示
+    // 历史记录
     function renderScoreHistory(historyArr){
         let cont=document.getElementById('scoreHistoryList');
         if(!cont) return;
@@ -461,7 +469,7 @@
     }
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); logActivity("admin_clear_history","清空所有积分记录"); alert("已清空"); } }
 
-    // 礼物管理
+    // 礼物
     function renderGifts(giftsObj){
         let cont=document.getElementById('giftList');
         if(!cont) return;
@@ -484,7 +492,7 @@
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // 问答模块
+    // 问答
     async function addQuestionDraft() {
         if(currentUserName !== ADMIN_USERNAME) return;
         const text = document.getElementById('newQuestionText').value.trim();
@@ -542,7 +550,7 @@
     }
     questionsRef.on('value', snap => renderQuestions(snap.val()));
 
-    // 日历部分
+    // 日历
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
     function buildCalendar(year, month) {
@@ -575,13 +583,16 @@
             gridHtml += `<div class="cal-day ${isCurrentMonth?'':'other-month'} ${hasEvent?'has-event':''}" data-date="${dateStr}"><div class="day-num">${dayNum}</div></div>`;
         }
         gridHtml += `</div>`;
-        document.getElementById('calendarGrid').innerHTML = gridHtml;
-        document.getElementById('currentYearMonth').innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
+        const grid = document.getElementById('calendarGrid');
+        if (grid) grid.innerHTML = gridHtml;
+        const yearMonthSpan = document.getElementById('currentYearMonth');
+        if (yearMonthSpan) yearMonthSpan.innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
         document.querySelectorAll('.cal-day').forEach(day => {
             day.addEventListener('click', () => {
                 let date = day.dataset.date;
                 let events = activityCache[date] || [];
                 let container = document.getElementById('selectedDateEvents');
+                if(!container) return;
                 if(!events.length){ container.innerHTML = `<p>📅 ${date} 无活动记录</p>`; return; }
                 let html = `<h4>${date} 活动记录</h4>`;
                 events.forEach(ev => {
@@ -618,9 +629,12 @@
         currentCalendarMonth = today.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
     }
-    document.getElementById('prevMonthBtn').addEventListener('click',()=>changeMonth(-1));
-    document.getElementById('nextMonthBtn').addEventListener('click',()=>changeMonth(1));
-    document.getElementById('todayBtn').addEventListener('click',goToday);
+    const prevBtn = document.getElementById('prevMonthBtn');
+    if (prevBtn) prevBtn.addEventListener('click',()=>changeMonth(-1));
+    const nextBtn = document.getElementById('nextMonthBtn');
+    if (nextBtn) nextBtn.addEventListener('click',()=>changeMonth(1));
+    const todayBtn = document.getElementById('todayBtn');
+    if (todayBtn) todayBtn.addEventListener('click',goToday);
 
     // 用户管理
     function setUsername(){
@@ -628,7 +642,8 @@
         if(!name) return;
         currentUserName = name;
         localStorage.setItem("wheelUserName", name);
-        document.getElementById('currentUserDisplay').innerHTML = `✅ 当前抽奖人: ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`;
+        const displayDiv = document.getElementById('currentUserDisplay');
+        if (displayDiv) displayDiv.innerHTML = `✅ 当前抽奖人: ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`;
         updateAdminUI();
         subscribeToCurrentUserScore();
         questionsRef.once('value').then(snap => renderQuestions(snap.val()));
@@ -637,13 +652,16 @@
         let saved = localStorage.getItem("wheelUserName");
         if(saved){
             currentUserName = saved;
-            document.getElementById('usernameInput').value = saved;
-            document.getElementById('currentUserDisplay').innerHTML = `✅ 当前抽奖人: ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`;
+            const input = document.getElementById('usernameInput');
+            if (input) input.value = saved;
+            const displayDiv = document.getElementById('currentUserDisplay');
+            if (displayDiv) displayDiv.innerHTML = `✅ 当前抽奖人: ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`;
             updateAdminUI();
             subscribeToCurrentUserScore();
         } else {
             updateAdminUI();
-            document.getElementById('currentScoreDisplay').innerText = '--';
+            const display = document.getElementById('currentScoreDisplay');
+            if (display) display.innerText = '--';
         }
         questionsRef.once('value').then(snap => renderQuestions(snap.val()));
     }
@@ -651,9 +669,11 @@
     // 选项卡切换
     function switchTab(tabId){
         document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-        document.getElementById(tabId+'Tab').classList.add('active');
+        const tab = document.getElementById(tabId+'Tab');
+        if (tab) tab.classList.add('active');
         document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-        document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+        const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
         if(tabId === 'calendar') buildCalendar(currentCalendarYear, currentCalendarMonth);
         if(tabId === 'qa') questionsRef.once('value').then(snap => renderQuestions(snap.val()));
     }
@@ -670,23 +690,26 @@
     let audioPlayer = new Audio();
     let isPlayingMusic = false;
     function loadTrack(index){
-        if(currentPlaylist.length===0){ document.getElementById('musicInfo').innerText="无音乐"; return; }
+        if(currentPlaylist.length===0){ const info = document.getElementById('musicInfo'); if(info) info.innerText="无音乐"; return; }
         let url = currentPlaylist[index];
         audioPlayer.src = url;
         audioPlayer.load();
         if(isPlayingMusic) audioPlayer.play().catch(e=>console.log);
         let fileName = url.split('/').pop().split('?')[0];
-        document.getElementById('musicInfo').innerHTML = `🎵 ${fileName}`;
+        const info = document.getElementById('musicInfo');
+        if (info) info.innerHTML = `🎵 ${fileName}`;
     }
     function playPauseMusic(){
         if(audioPlayer.paused){
             audioPlayer.play().catch(e=>console.log);
             isPlayingMusic=true;
-            document.getElementById('playPauseBtn').innerText='⏸️';
+            const btn = document.getElementById('playPauseBtn');
+            if (btn) btn.innerText='⏸️';
         } else {
             audioPlayer.pause();
             isPlayingMusic=false;
-            document.getElementById('playPauseBtn').innerText='▶️';
+            const btn = document.getElementById('playPauseBtn');
+            if (btn) btn.innerText='▶️';
         }
     }
     function nextTrack(){
@@ -719,18 +742,28 @@
         alert("已恢复默认歌单");
     }
     audioPlayer.volume = 0.5;
-    document.getElementById('volumeSlider').addEventListener('input',e=>audioPlayer.volume=parseFloat(e.target.value));
-    document.getElementById('playPauseBtn').addEventListener('click',playPauseMusic);
-    document.getElementById('nextBtn').addEventListener('click',nextTrack);
-    document.getElementById('prevBtn').addEventListener('click',prevTrack);
-    document.getElementById('musicFileInput').addEventListener('change',e=>{ if(e.target.files.length) handleMusicUpload(e.target.files[0]); e.target.value=''; });
-    document.getElementById('useDefaultBtn').addEventListener('click',restoreDefault);
-    document.getElementById('musicToggle').addEventListener('click',()=>document.getElementById('musicPanel').classList.toggle('show'));
+    const volumeSlider = document.getElementById('volumeSlider');
+    if (volumeSlider) volumeSlider.addEventListener('input',e=>audioPlayer.volume=parseFloat(e.target.value));
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    if (playPauseBtn) playPauseBtn.addEventListener('click',playPauseMusic);
+    const nextBtnMusic = document.getElementById('nextBtn');
+    if (nextBtnMusic) nextBtnMusic.addEventListener('click',nextTrack);
+    const prevBtnMusic = document.getElementById('prevBtn');
+    if (prevBtnMusic) prevBtnMusic.addEventListener('click',prevTrack);
+    const musicFileInput = document.getElementById('musicFileInput');
+    if (musicFileInput) musicFileInput.addEventListener('change',e=>{ if(e.target.files.length) handleMusicUpload(e.target.files[0]); e.target.value=''; });
+    const useDefaultBtn = document.getElementById('useDefaultBtn');
+    if (useDefaultBtn) useDefaultBtn.addEventListener('click',restoreDefault);
+    const musicToggle = document.getElementById('musicToggle');
+    if (musicToggle) musicToggle.addEventListener('click',()=>{
+        const panel = document.getElementById('musicPanel');
+        if (panel) panel.classList.toggle('show');
+    });
     audioPlayer.addEventListener('ended',nextTrack);
     loadTrack(0);
     audioPlayer.pause();
     isPlayingMusic=false;
-    document.getElementById('playPauseBtn').innerText='▶️';
+    if (playPauseBtn) playPauseBtn.innerText='▶️';
 
     // 初始化
     window.onload = () => {
@@ -739,14 +772,22 @@
         loadUserName();
         drawWheel();
         window.addEventListener('resize',()=>drawWheel());
-        document.getElementById('spinButton').onclick = startSpin;
-        document.getElementById('setUserBtn').onclick = setUsername;
-        document.getElementById('addPrizeBtn').onclick = addPrize;
-        document.getElementById('addGiftBtn').onclick = addGift;
-        document.getElementById('manualAddBtn').onclick = adminManualAdd;
-        document.getElementById('clearHistoryBtn').onclick = adminClearHistory;
-        document.getElementById('addQuestionDraftBtn').onclick = addQuestionDraft;
-        document.getElementById('syncStatus').innerHTML = "✅ 完整版已加载，资产看板实时更新";
+        const spinBtn = document.getElementById('spinButton');
+        if (spinBtn) spinBtn.onclick = startSpin;
+        const setUserBtn = document.getElementById('setUserBtn');
+        if (setUserBtn) setUserBtn.onclick = setUsername;
+        const addPrizeBtn = document.getElementById('addPrizeBtn');
+        if (addPrizeBtn) addPrizeBtn.onclick = addPrize;
+        const addGiftBtn = document.getElementById('addGiftBtn');
+        if (addGiftBtn) addGiftBtn.onclick = addGift;
+        const manualAddBtn = document.getElementById('manualAddBtn');
+        if (manualAddBtn) manualAddBtn.onclick = adminManualAdd;
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        if (clearHistoryBtn) clearHistoryBtn.onclick = adminClearHistory;
+        const addQuestionDraftBtn = document.getElementById('addQuestionDraftBtn');
+        if (addQuestionDraftBtn) addQuestionDraftBtn.onclick = addQuestionDraft;
+        const syncStatus = document.getElementById('syncStatus');
+        if (syncStatus) syncStatus.innerHTML = "✅ 实时资产看板已启用，所有用户资产自动更新";
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
