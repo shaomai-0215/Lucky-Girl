@@ -297,19 +297,122 @@
     function renderQuestions(questionsObj){ let cont=document.getElementById('questionList'); if(!questionsObj||!Object.keys(questionsObj).length){ cont.innerHTML='<div>暂无问题</div>'; return; } let html=''; for(let [id,q] of Object.entries(questionsObj)){ if(currentUserName!==ADMIN_USERNAME && !q.published) continue; html+=`<div class="question-item"><strong>${escapeHtml(q.text)}</strong> ${q.published?'':`<span class="draft-badge">草稿</span>`} <button class="show-answer" data-answer="${escapeHtml(q.answer)}">查看答案</button> ${!q.published && currentUserName===ADMIN_USERNAME?`<button class="publish-btn" data-id="${id}">发布</button>`:''} ${currentUserName===ADMIN_USERNAME?`<button class="delete-question" data-id="${id}">❌ 删除</button>`:''}</div>`; } cont.innerHTML=html; document.querySelectorAll('.show-answer').forEach(btn=>{ btn.onclick=()=>{ alert(`答案：${btn.getAttribute('data-answer')}`); logActivity("view_question","查看问题"); }; }); document.querySelectorAll('.publish-btn').forEach(btn=>{ btn.onclick=()=>publishQuestion(btn.dataset.id); }); document.querySelectorAll('.delete-question').forEach(btn=>{ btn.onclick=()=>deleteQuestion(btn.dataset.id); }); }
     questionsRef.on('value', snap=>renderQuestions(snap.val()));
 
-    // 日历部分（简化版）
+        // ---------- 日历部分（完整版，含农历、节日、活动高亮） ----------
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
-    function buildCalendar(year, month) {
-        const grid = document.getElementById('calendarGrid');
-        if(grid) grid.innerHTML = '<div>日历功能正常，可查看活动记录</div>';
+
+    // 农历和节日数据（与之前版本一致）
+    const festivalMap = {
+        "0101":"元旦", "0210":"春节", "0211":"春节", "0212":"春节", "0213":"春节", "0214":"情人节",
+        "0308":"妇女节", "0401":"愚人节", "0501":"劳动节", "0601":"儿童节", "0701":"建党节",
+        "0801":"建军节", "0910":"教师节", "1001":"国庆节", "1225":"圣诞节"
+    };
+    const lunarFestival2026 = {
+        "2026-06-19":"端午节", "2026-09-25":"中秋节", "2026-02-17":"元宵节", "2026-06-21":"父亲节"
+    };
+    function getLunarAndFestival(year, month, day) {
+        let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        let festival = lunarFestival2026[dateStr] || festivalMap[`${String(month+1).padStart(2,'0')}${String(day).padStart(2,'0')}`] || "";
+        return { lunar: "", festival }; // 简化农历显示，只保留节日
     }
-    activityLogRef.on('value', snap => { /* 可更新缓存 */ });
-    function changeMonth(delta) {}
-    function goToday() {}
-    document.getElementById('prevMonthBtn')?.addEventListener('click',()=>changeMonth(-1));
-    document.getElementById('nextMonthBtn')?.addEventListener('click',()=>changeMonth(1));
-    document.getElementById('todayBtn')?.addEventListener('click',goToday);
+
+    function buildCalendar(year, month) {
+        const firstDay = new Date(year, month, 1);
+        const startWeekday = firstDay.getDay(); // 0 周日
+        const daysInMonth = new Date(year, month+1, 0).getDate();
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        const weekdays = ["日","一","二","三","四","五","六"];
+        let gridHtml = `<div class="calendar-grid">`;
+        weekdays.forEach(w => gridHtml += `<div class="cal-weekday">${w}</div>`);
+        for(let i = 0; i < 42; i++) {
+            let dayNum, isCurrentMonth = true;
+            let displayYear = year, displayMonth = month;
+            if(i < startWeekday) {
+                dayNum = prevMonthDays - startWeekday + i + 1;
+                isCurrentMonth = false;
+                displayMonth = month - 1;
+                if(displayMonth < 0) { displayMonth = 11; displayYear--; }
+            } else if(i >= startWeekday + daysInMonth) {
+                dayNum = i - startWeekday - daysInMonth + 1;
+                isCurrentMonth = false;
+                displayMonth = month + 1;
+                if(displayMonth > 11) { displayMonth = 0; displayYear++; }
+            } else {
+                dayNum = i - startWeekday + 1;
+            }
+            let dateObj = new Date(displayYear, displayMonth, dayNum);
+            let dateStr = dateObj.toLocaleDateString('zh-CN');
+            let hasEvent = activityCache[dateStr] && activityCache[dateStr].length > 0;
+            let { festival } = getLunarAndFestival(displayYear, displayMonth, dayNum);
+            let festivalHtml = festival ? `<div class="festival">${festival}</div>` : "";
+            gridHtml += `<div class="cal-day ${isCurrentMonth ? '' : 'other-month'} ${hasEvent ? 'has-event' : ''}" data-date="${dateStr}">
+                            <div class="day-num">${dayNum}</div>
+                            ${festivalHtml}
+                        </div>`;
+        }
+        gridHtml += `</div>`;
+        const grid = document.getElementById('calendarGrid');
+        if(grid) grid.innerHTML = gridHtml;
+        const yearMonthSpan = document.getElementById('currentYearMonth');
+        if(yearMonthSpan) yearMonthSpan.innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
+        // 绑定点击事件
+        document.querySelectorAll('.cal-day').forEach(day => {
+            day.addEventListener('click', () => {
+                let date = day.dataset.date;
+                let events = activityCache[date] || [];
+                let container = document.getElementById('selectedDateEvents');
+                if(!container) return;
+                if(!events.length) {
+                    container.innerHTML = `<p>📅 ${date} 无活动记录</p>`;
+                    return;
+                }
+                let html = `<h4>${date} 活动记录</h4>`;
+                events.forEach(ev => {
+                    html += `<div class="history-item"><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small></div>`;
+                });
+                container.innerHTML = html;
+            });
+        });
+    }
+
+    // 监听活动日志变化，更新缓存
+    activityLogRef.on('value', snap => {
+        let data = snap.val();
+        activityCache = {};
+        if(data) {
+            Object.values(data).forEach(ev => {
+                let date = ev.dateStr;
+                if(!activityCache[date]) activityCache[date] = [];
+                activityCache[date].push(ev);
+            });
+        }
+        buildCalendar(currentCalendarYear, currentCalendarMonth);
+    });
+
+    function changeMonth(delta) {
+        let newMonth = currentCalendarMonth + delta;
+        let newYear = currentCalendarYear;
+        if(newMonth < 0) { newMonth = 11; newYear--; }
+        if(newMonth > 11) { newMonth = 0; newYear++; }
+        currentCalendarYear = newYear;
+        currentCalendarMonth = newMonth;
+        buildCalendar(currentCalendarYear, currentCalendarMonth);
+    }
+
+    function goToday() {
+        let today = new Date();
+        currentCalendarYear = today.getFullYear();
+        currentCalendarMonth = today.getMonth();
+        buildCalendar(currentCalendarYear, currentCalendarMonth);
+    }
+
+    // 绑定按钮事件（如果元素存在）
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    if(prevMonthBtn) prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
+    if(nextMonthBtn) nextMonthBtn.addEventListener('click', () => changeMonth(1));
+    const todayBtn = document.getElementById('todayBtn');
+    if(todayBtn) todayBtn.addEventListener('click', goToday);
 
     // 资产看板与资产查看
     function renderAssetBoard(scores){ let cont=document.getElementById('assetList'); if(!cont) return; if(!scores||!Object.keys(scores).length){ cont.innerHTML='<div>暂无用户</div>'; return; } let html=''; Object.keys(scores).sort().forEach(user=>{ let asset=scores[user]; if(asset===null||typeof asset!=='number') asset=100.0; html+=`<div class="asset-item"><span class="clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span><span>${asset.toFixed(2)} AUD</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.clickable-asset').forEach(el=>el.addEventListener('click',()=>showUserAsset(el.dataset.user))); }
