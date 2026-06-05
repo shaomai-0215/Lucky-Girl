@@ -112,21 +112,36 @@
     </div>
 
     <!-- 问答互动界面 -->
-    <div id="qaTab" class="tab-content">
-        <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
-            <h3>📝 每日问答</h3>
-            <div class="question-list" id="questionList">加载中...</div>
-            <div class="question-admin admin-only" style="margin-top: 20px;">
-                <h4>➕ 管理员添加新问题（草稿，不发布则其他人不可见）</h4>
-                <input type="text" id="newQuestionText" placeholder="问题内容">
-                <textarea id="newQuestionAnswer" rows="2" placeholder="答案 (点击后显示)"></textarea>
-                <button id="addQuestionDraftBtn">📝 保存为草稿</button>
-                <small>草稿仅您可见，点击“发布”后所有人可见并可查看答案。</small>
+<div id="qaTab" class="tab-content">
+    <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
+        <!-- 问答区域 -->
+        <h3>📝 每日问答</h3>
+        <div class="question-list" id="questionList">加载中...</div>
+        <div class="question-admin admin-only" style="margin-top: 20px;">
+            <h4>➕ 管理员添加新问题（草稿，不发布则其他人不可见）</h4>
+            <input type="text" id="newQuestionText" placeholder="问题内容">
+            <textarea id="newQuestionAnswer" rows="2" placeholder="答案 (点击后显示)"></textarea>
+            <button id="addQuestionDraftBtn">📝 保存为草稿</button>
+            <small>草稿仅您可见，点击“发布”后所有人可见并可查看答案。</small>
+        </div>
+        <small>点击任意已发布问题即可显示答案，并记录查看行为。</small>
+
+        <!-- 礼物模块（在问答页面内） -->
+        <div style="margin-top: 30px;">
+            <h3>🎁 神秘礼盒 (点击揭开)</h3>
+            <div class="gift-list" id="giftList">加载中...</div>
+            <div class="add-gift admin-only" style="margin-top: 15px;">
+                <h4>➕ 添加新礼物 (管理员)</h4>
+                <input type="text" id="giftName" placeholder="名称 (例: 幸运币)" style="margin-bottom: 8px;">
+                <input type="text" id="giftValue" placeholder="价值/数量 (例: 50 AUD)" style="margin-bottom: 8px;">
+                <textarea id="giftDetail" rows="2" placeholder="隐藏内容 (别人点开后才能看到)" style="margin-bottom: 8px;"></textarea>
+                <button id="addGiftBtn">📦 添加礼盒</button>
             </div>
-            <small>点击任意已发布问题即可显示答案，并记录查看行为。</small>
+            <small>点击礼盒即可揭开隐藏内容，管理员可添加新礼物。</small>
         </div>
     </div>
-
+</div>
+<!-- 礼物模块结束 -->
     <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
