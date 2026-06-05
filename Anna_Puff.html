@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>互动平台 - 实时资产看板</title>
+    <title>小泡芙幸运🍀抽奖</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
@@ -158,7 +158,7 @@
 
 <script>
     // ========== 配置 ==========
-    const ADMIN_USERNAME = "烧賣";   // 请修改成您的管理员名字
+    const ADMIN_USERNAME = "烧卖";   // 请修改成您的管理员名字
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
         databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -206,10 +206,7 @@
     // ---------- 资产看板 ----------
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
-        if (!container) {
-            console.error("assetList element not found");
-            return;
-        }
+        if (!container) return;
         if (!scores || Object.keys(scores).length === 0) {
             container.innerHTML = '<div>暂无用户数据</div>';
             return;
@@ -238,7 +235,7 @@
         renderAssetBoard(scores);
     });
 
-    // 模态框资产查看
+    // 模态框资产查看（修复 off 问题）
     let currentModalListener = null;
     function showUserAsset(userName) {
         const modal = document.getElementById('userAssetModal');
@@ -248,7 +245,11 @@
         modalName.innerText = userName;
         modalValue.innerText = '加载中...';
         modal.style.display = 'block';
-        if (currentModalListener) currentModalListener.off();
+        // 如果已有监听器且是 Firebase 引用，则取消监听
+        if (currentModalListener && typeof currentModalListener.off === 'function') {
+            currentModalListener.off();
+        }
+        // 重新监听
         currentModalListener = userScoresRef.child(userName).on('value', (snap) => {
             let val = snap.val();
             let asset = (val !== null && typeof val === 'number') ? val : 100.0;
@@ -256,10 +257,10 @@
         });
     }
     window.closeModal = function() {
-        if (currentModalListener) {
+        if (currentModalListener && typeof currentModalListener.off === 'function') {
             currentModalListener.off();
-            currentModalListener = null;
         }
+        currentModalListener = null;
         const modal = document.getElementById('userAssetModal');
         if (modal) modal.style.display = 'none';
     };
@@ -312,7 +313,9 @@
     // 订阅当前用户资产
     let currentUserScoreListener = null;
     function subscribeToCurrentUserScore() {
-        if (currentUserScoreListener) currentUserScoreListener.off();
+        if (currentUserScoreListener && typeof currentUserScoreListener.off === 'function') {
+            currentUserScoreListener.off();
+        }
         if (currentUserName) {
             currentUserScoreListener = userScoresRef.child(currentUserName).on('value', (snap) => {
                 let val = snap.val();
@@ -325,7 +328,7 @@
         }
     }
 
-    // 转盘绘制
+    // 转盘绘制与动画
     function drawWheel() {
         if(!ctx) return;
         let size = Math.min(canvas.clientWidth, canvas.clientHeight);
@@ -407,7 +410,7 @@
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
 
-    // 历史记录
+    // 历史记录显示
     function renderScoreHistory(historyArr){
         let cont=document.getElementById('scoreHistoryList');
         if(!cont) return;
