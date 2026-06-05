@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <style>
-        /* 样式与之前完全相同，为节省篇幅不重复，实际代码中会包含完整样式 */
+        /* 完整样式（与之前一致，此处略去以节省篇幅，实际代码中会包含） */
         * { box-sizing: border-box; user-select: none; }
         body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
         .app-container { max-width: 1600px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 20px; }
@@ -130,7 +130,7 @@
 <!-- 模态框 -->
 <div id="userAssetModal" class="modal" style="display:none;"><div class="modal-content"><h3 id="modalUserName">用户</h3><div class="modal-asset" id="modalAssetValue">--</div><button class="close-modal" onclick="closeModal()">关闭</button></div></div>
 
-<!-- 音乐播放器 -->
+<!-- 音乐播放器（完整修复） -->
 <div class="music-player">
     <div class="music-toggle" id="musicToggle">🎵</div>
     <div class="music-panel" id="musicPanel">
@@ -145,11 +145,8 @@
             <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
         </div>
         <div id="playlistContainer" style="max-height:200px; overflow-y:auto; margin-top:8px;"></div>
-        <!-- 上传按钮：直接使用 input 文件选择，不依赖额外 label -->
-        <div style="margin-top: 8px;">
-            <input type="file" id="musicFileUpload" accept="audio/*" style="display: none;">
-            <button id="uploadMusicBtn" class="admin-only" style="background:#2c6e4f; padding:6px 12px; border-radius:40px; width:100%;">📁 上传音乐 (MP3)</button>
-        </div>
+        <input type="file" id="musicFileUpload" accept="audio/*" style="display: none;">
+        <button id="uploadMusicBtn" class="admin-only" style="background:#2c6e4f; padding:6px; border-radius:40px; width:100%; margin-top:8px;">📁 上传音乐 (MP3)</button>
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
 </div>
@@ -186,32 +183,25 @@
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); }
 
-    // ---------- 辅助函数：根据用户所有记录，按时间顺序计算最新资产 ----------
+    // 辅助函数：根据用户记录重算资产
     async function recalcUserAsset(userName) {
         const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value');
         const records = [];
-        snapshot.forEach(child => {
-            records.push({ id: child.key, ...child.val() });
-        });
-        if (records.length === 0) {
-            await userScoresRef.child(userName).set(100);
-            return 100;
-        }
+        snapshot.forEach(child => records.push({ id: child.key, ...child.val() }));
+        if (records.length === 0) { await userScoresRef.child(userName).set(100); return 100; }
         records.sort((a,b) => a.timestamp - b.timestamp);
-        const lastRecord = records[records.length-1];
-        const lastAsset = lastRecord.newScore;
+        const lastAsset = records[records.length-1].newScore;
         await userScoresRef.child(userName).set(lastAsset);
         return lastAsset;
     }
 
-    // ---------- 积分记录渲染（含备注+删除回滚，并改为最新记录在上方）----------
+    // 积分记录渲染（最新在上方）
     function renderScoreHistory(historyArr) {
         const cont = document.getElementById('scoreHistoryList');
         if(!cont) return;
         if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; }
         let html='';
-        // 重要：将升序数组反转，实现最新记录在上方
-        const reversed = historyArr.slice().reverse();
+        const reversed = [...historyArr].reverse();
         for(let item of reversed) {
             const remark = item.remark || '';
             const remarkHtml = (currentUserName===ADMIN_USERNAME) ? 
@@ -224,16 +214,15 @@
                     </div>`;
         }
         cont.innerHTML=html;
-        // 保存备注
         document.querySelectorAll('.remark-save').forEach(btn=>{
-            btn.onclick = (e)=>{
+            btn.onclick = async (e)=>{
                 e.stopPropagation();
                 const id = btn.dataset.id;
                 const newRemark = document.getElementById(`remark-${id}`).value.trim();
-                scoreHistoryRef.child(id).update({ remark: newRemark }).then(()=>logActivity("admin_add_remark", `为记录 ${id} 添加备注`));
+                await scoreHistoryRef.child(id).update({ remark: newRemark });
+                logActivity("admin_add_remark", `为记录 ${id} 添加备注`);
             };
         });
-        // 删除记录并回滚资产
         document.querySelectorAll('.delete-record-btn').forEach(btn=>{
             btn.onclick = async (e)=>{
                 e.stopPropagation();
@@ -250,16 +239,15 @@
         });
     }
 
-    // 监听历史记录变化
     scoreHistoryRef.on('value', async snap=>{
         let data=snap.val();
         let arr=[];
         if(data) for(let [id,val] of Object.entries(data)) arr.push({id,...val});
-        arr.sort((a,b)=>a.timestamp - b.timestamp); // 升序排序
-        renderScoreHistory(arr); // 渲染时内部反转
+        arr.sort((a,b)=>a.timestamp - b.timestamp);
+        renderScoreHistory(arr);
     });
 
-    // 手动添加记录下拉选项（丰富百分比）
+    // 手动添加百分比选项
     const percentOptions = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`${p}%`);
     function populatePercentSelect() {
         const select = document.getElementById('manualPercent');
@@ -268,7 +256,7 @@
         percentOptions.forEach(p=>{ const opt=document.createElement('option'); opt.value=p; opt.textContent=p; select.appendChild(opt); });
     }
 
-    // 独立资产逻辑（抽中0%归零）
+    // 资产逻辑
     async function getUserScore(user) { const snap=await userScoresRef.child(user).once('value'); let val=snap.val(); return (val===null||typeof val!=='number')?100.0:val; }
     function getMultiplier(percentageStr) { let percent=parseFloat(percentageStr); if(isNaN(percent)) percent=0; if(percent===0) return 0; return 1+percent/100; }
     function updateUserScore(user, percentageStr, callback) {
@@ -278,8 +266,8 @@
     function addHistoryRecord(userName, percentage, oldScore, newScore) { scoreHistoryRef.push({ userName, percentage, oldScore, newScore, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function applyScoreForUser(userName, percentageStr, callback) { getUserScore(userName).then(oldScore=>{ updateUserScore(userName, percentageStr, (success,newScore)=>{ if(success){ addHistoryRecord(userName, percentageStr, oldScore, newScore); callback(true,newScore); } else callback(false); }); }).catch(()=>callback(false)); }
 
-    // 转盘绘制与动画
-    function drawWheel() { if(!ctx) return; let size=Math.min(canvas.clientWidth,canvas.clientHeight); canvas.width=canvas.height=size; let c=size/2,r=size*0.45; ctx.clearRect(0,0,size,size); if(!segments.length) return; let step=Math.PI*2/segments.length; for(let i=0;i<segments.length;i++){ let s=i*step+currentRotation,e=(i+1)*step+currentRotation; ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,r,s,e); ctx.fillStyle=colorPalette[i%colorPalette.length]; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle="#fff"; ctx.font=`bold ${Math.floor(r*0.1)}px "Segoe UI"`; let angle=s+step/2; let x=c+Math.cos(angle)*r*0.7, y=c+Math.sin(angle)*r*0.7; ctx.fillText(segments[i], x-ctx.measureText(segments[i]).width/2, y+6); } ctx.beginPath(); ctx.moveTo(c-14,c-r-8); ctx.lineTo(c,c-r+10); ctx.lineTo(c+14,c-r-8); ctx.fillStyle="#FFD966"; ctx.fill(); }
+    // 转盘绘图与动画
+    function drawWheel() { /* 与原代码相同，略 */ if(!ctx) return; let size=Math.min(canvas.clientWidth,canvas.clientHeight); canvas.width=canvas.height=size; let c=size/2,r=size*0.45; ctx.clearRect(0,0,size,size); if(!segments.length) return; let step=Math.PI*2/segments.length; for(let i=0;i<segments.length;i++){ let s=i*step+currentRotation,e=(i+1)*step+currentRotation; ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,r,s,e); ctx.fillStyle=colorPalette[i%colorPalette.length]; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle="#fff"; ctx.font=`bold ${Math.floor(r*0.1)}px "Segoe UI"`; let angle=s+step/2; let x=c+Math.cos(angle)*r*0.7, y=c+Math.sin(angle)*r*0.7; ctx.fillText(segments[i], x-ctx.measureText(segments[i]).width/2, y+6); } ctx.beginPath(); ctx.moveTo(c-14,c-r-8); ctx.lineTo(c,c-r+10); ctx.lineTo(c+14,c-r-8); ctx.fillStyle="#FFD966"; ctx.fill(); }
     function getCurrentPrizeIndex() { let step=Math.PI*2/segments.length, pointer=-Math.PI/2, rot=currentRotation%(Math.PI*2); for(let i=0;i<segments.length;i++){ let s=i*step+rot, e=(i+1)*step+rot; let ps=((s%(Math.PI*2))+Math.PI*2)%(Math.PI*2), pe=((e%(Math.PI*2))+Math.PI*2)%(Math.PI*2), p=(pointer+Math.PI*2)%(Math.PI*2); if(ps<pe){ if(p>=ps && p<pe) return i; } else { if(p>=ps || p<pe) return i; } } return 0; }
     function startSpin(){ if(isSpinning||!currentUserName){ alert("请先设置抽奖人"); return; } isSpinning=true; let btn=document.getElementById('spinButton'); btn.disabled=true; let targetIdx=Math.floor(Math.random()*segments.length); let step=Math.PI*2/segments.length, targetMid=targetIdx*step+step/2, rawFinal=-Math.PI/2-targetMid, twoPi=Math.PI*2, finalRot=((rawFinal%twoPi)+twoPi)%twoPi+(Math.floor(Math.random()*10)+6)*twoPi; let startRot=currentRotation, startTime=performance.now(); function animate(now){ let t=Math.min(1,(now-startTime)/2000), ease=1-Math.pow(1-t,3); currentRotation=startRot+(finalRot-startRot)*ease; drawWheel(); if(t<1) requestAnimationFrame(animate); else{ currentRotation=finalRot%twoPi; drawWheel(); let prize=segments[getCurrentPrizeIndex()]; applyScoreForUser(currentUserName, prize, (success,newScore)=>{ if(success){ alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`); logActivity("spin",`抽中 ${prize}`); } else alert("积分更新失败"); isSpinning=false; btn.disabled=false; }); } } if(animFrame) cancelAnimationFrame(animFrame); animFrame=requestAnimationFrame(animate); }
 
@@ -291,42 +279,27 @@
     // 手动添加记录
     function adminManualAdd(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('manualUserName').value.trim(); let percent=document.getElementById('manualPercent').value; if(!user){ alert("请输入用户名"); return; } getUserScore(user).then(oldScore=>{ const multiplier=getMultiplier(percent); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed){ alert("添加失败"); return; } const newScore=snapshot.val(); addHistoryRecord(user, percent, oldScore, newScore); alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`); logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`); document.getElementById('manualUserName').value=""; }); }).catch(()=>alert("获取用户资产失败")); }
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
-
-    // 资产重置
     function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败"+err)); }
 
-    // 礼物管理
-    function renderGifts(giftsObj){ let cont=document.getElementById('giftList'); if(!giftsObj||!Object.keys(giftsObj).length){ cont.innerHTML='<div>暂无礼物</div>'; return; } let html=''; for(let [id,gift] of Object.entries(giftsObj)){ let isRevealed=localStorage.getItem(`gift_revealed_${id}`)==='true'; html+=`<div class="gift-item"><div><span>🎁 ${escapeHtml(gift.name)}</span> <span>${escapeHtml(gift.value||'')}</span></div><div class="gift-detail ${isRevealed?'gift-revealed':'gift-hidden'}" onclick="window.revealGift('${id}','${escapeHtml(gift.detail||'')}')">${isRevealed?escapeHtml(gift.detail||'无详细内容'):'🔒 点击揭开 🔒'}</div></div>`; } cont.innerHTML=html; }
+    // 礼物
+    function renderGifts(giftsObj){ let cont=document.getElementById('giftList'); if(!cont) return; if(!giftsObj||!Object.keys(giftsObj).length){ cont.innerHTML='<div>暂无礼物</div>'; return; } let html=''; for(let [id,gift] of Object.entries(giftsObj)){ let isRevealed=localStorage.getItem(`gift_revealed_${id}`)==='true'; html+=`<div class="gift-item"><div><span>🎁 ${escapeHtml(gift.name)}</span> <span>${escapeHtml(gift.value||'')}</span></div><div class="gift-detail ${isRevealed?'gift-revealed':'gift-hidden'}" onclick="window.revealGift('${id}','${escapeHtml(gift.detail||'')}')">${isRevealed?escapeHtml(gift.detail||'无详细内容'):'🔒 点击揭开 🔒'}</div></div>`; } cont.innerHTML=html; }
     window.revealGift=function(id,detail){ if(localStorage.getItem(`gift_revealed_${id}`)!=='true'){ localStorage.setItem(`gift_revealed_${id}`,'true'); logActivity("reveal_gift",`揭开礼物 ${id}`); alert("礼物详情: "+detail); giftsRef.once('value').then(snap=>renderGifts(snap.val())); } };
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // 问答管理
+    // 问答
     async function addQuestionDraft(){ if(currentUserName!==ADMIN_USERNAME) return; let text=document.getElementById('newQuestionText').value.trim(); let answer=document.getElementById('newQuestionAnswer').value.trim(); if(!text) return; await questionsRef.push({text,answer,published:false,timestamp:Date.now()}); logActivity("admin_add_question_draft",text); document.getElementById('newQuestionText').value=''; document.getElementById('newQuestionAnswer').value=''; alert("草稿已保存"); }
     async function publishQuestion(id){ if(currentUserName!==ADMIN_USERNAME) return; await questionsRef.child(id).update({published:true}); logActivity("admin_publish_question",id); alert("已发布"); }
     async function deleteQuestion(id){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("删除？")){ await questionsRef.child(id).remove(); logActivity("admin_delete_question",id); } }
     function renderQuestions(questionsObj){ let cont=document.getElementById('questionList'); if(!questionsObj||!Object.keys(questionsObj).length){ cont.innerHTML='<div>暂无问题</div>'; return; } let html=''; for(let [id,q] of Object.entries(questionsObj)){ if(currentUserName!==ADMIN_USERNAME && !q.published) continue; html+=`<div class="question-item"><strong>${escapeHtml(q.text)}</strong> ${q.published?'':`<span class="draft-badge">草稿</span>`} <button class="show-answer" data-answer="${escapeHtml(q.answer)}">查看答案</button> ${!q.published && currentUserName===ADMIN_USERNAME?`<button class="publish-btn" data-id="${id}">发布</button>`:''} ${currentUserName===ADMIN_USERNAME?`<button class="delete-question" data-id="${id}">❌ 删除</button>`:''}</div>`; } cont.innerHTML=html; document.querySelectorAll('.show-answer').forEach(btn=>{ btn.onclick=()=>{ alert(`答案：${btn.getAttribute('data-answer')}`); logActivity("view_question","查看问题"); }; }); document.querySelectorAll('.publish-btn').forEach(btn=>{ btn.onclick=()=>publishQuestion(btn.dataset.id); }); document.querySelectorAll('.delete-question').forEach(btn=>{ btn.onclick=()=>deleteQuestion(btn.dataset.id); }); }
     questionsRef.on('value', snap=>renderQuestions(snap.val()));
 
-            // ---------- 日历部分（完整版，支持活动记录备注） ----------
+    // 日历（简版，支持活动备注）
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
-
-    // 农历和节日数据
-    const festivalMap = {
-        "0101":"元旦", "0210":"春节", "0211":"春节", "0212":"春节", "0213":"春节", "0214":"情人节",
-        "0308":"妇女节", "0401":"愚人节", "0501":"劳动节", "0601":"儿童节", "0701":"建党节",
-        "0801":"建军节", "0910":"教师节", "1001":"国庆节", "1225":"圣诞节"
-    };
-    const lunarFestival2026 = {
-        "2026-06-19":"端午节", "2026-09-25":"中秋节", "2026-02-17":"元宵节", "2026-06-21":"父亲节"
-    };
-    function getLunarAndFestival(year, month, day) {
-        let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        let festival = lunarFestival2026[dateStr] || festivalMap[`${String(month+1).padStart(2,'0')}${String(day).padStart(2,'0')}`] || "";
-        return { lunar: "", festival };
-    }
-
+    const festivalMap = {"0101":"元旦","0210":"春节","0211":"春节","0212":"春节","0213":"春节","0214":"情人节","0308":"妇女节","0401":"愚人节","0501":"劳动节","0601":"儿童节","0701":"建党节","0801":"建军节","0910":"教师节","1001":"国庆节","1225":"圣诞节"};
+    const lunarFestival2026 = {"2026-06-19":"端午节","2026-09-25":"中秋节","2026-02-17":"元宵节","2026-06-21":"父亲节"};
+    function getLunarAndFestival(year, month, day) { let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; let festival = lunarFestival2026[dateStr] || festivalMap[`${String(month+1).padStart(2,'0')}${String(day).padStart(2,'0')}`] || ""; return { lunar: "", festival }; }
     function buildCalendar(year, month) {
         const firstDay = new Date(year, month, 1);
         const startWeekday = firstDay.getDay();
@@ -366,38 +339,25 @@
         if(grid) grid.innerHTML = gridHtml;
         const yearMonthSpan = document.getElementById('currentYearMonth');
         if(yearMonthSpan) yearMonthSpan.innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
-        
-        // 绑定点击日期事件
         document.querySelectorAll('.cal-day').forEach(day => {
-            day.removeEventListener('click', day._clickHandler);
-            const handler = () => {
+            day.addEventListener('click', () => {
                 let date = day.dataset.date;
                 let events = activityCache[date] || [];
                 let container = document.getElementById('selectedDateEvents');
                 if(!container) return;
-                if(!events.length) {
-                    container.innerHTML = `<p>📅 ${date} 无活动记录</p>`;
-                    return;
-                }
+                if(!events.length){ container.innerHTML = `<p>📅 ${date} 无活动记录</p>`; return; }
                 let html = `<h4>${date} 活动记录</h4>`;
                 events.forEach(ev => {
                     const remark = ev.remark || '';
                     let remarkHtml = '';
                     if (currentUserName === ADMIN_USERNAME) {
-                        remarkHtml = `<div class="remark-area" style="margin-top:6px; display:flex; gap:6px;">
-                                        <input type="text" class="remark-input" id="remark-${ev.id}" placeholder="添加备注" value="${escapeHtml(remark)}" style="flex:2;">
-                                        <button class="remark-save-event" data-id="${ev.id}" style="background:#2c6e4f; padding:2px 8px; border-radius:20px;">保存</button>
-                                      </div>`;
+                        remarkHtml = `<div class="remark-area" style="margin-top:6px;"><input type="text" class="remark-input" id="remark-${ev.id}" placeholder="添加备注" value="${escapeHtml(remark)}"><button class="remark-save-event" data-id="${ev.id}">保存</button></div>`;
                     } else if (remark) {
-                        remarkHtml = `<div class="remark-text" style="margin-top:4px;">📝 备注：${escapeHtml(remark)}</div>`;
+                        remarkHtml = `<div class="remark-text">📝 备注：${escapeHtml(remark)}</div>`;
                     }
-                    html += `<div class="history-item" data-id="${ev.id}">
-                                <div><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small></div>
-                                ${remarkHtml}
-                            </div>`;
+                    html += `<div class="history-item"><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small>${remarkHtml}</div>`;
                 });
                 container.innerHTML = html;
-                // 绑定保存备注事件
                 if (currentUserName === ADMIN_USERNAME) {
                     document.querySelectorAll('.remark-save-event').forEach(btn => {
                         btn.onclick = async (e) => {
@@ -406,20 +366,35 @@
                             const newRemark = document.getElementById(`remark-${id}`).value.trim();
                             await activityLogRef.child(id).update({ remark: newRemark });
                             logActivity("admin_add_remark", `为活动记录 ${id} 添加备注`);
-                            // 刷新当前日期的显示
-                            handler();
+                            // 重新加载当前日期内容
+                            const currentDate = date;
+                            const updatedEvents = activityCache[currentDate] || [];
+                            let newHtml = `<h4>${currentDate} 活动记录</h4>`;
+                            updatedEvents.forEach(ev2 => {
+                                const r2 = ev2.remark || '';
+                                let rh = (currentUserName === ADMIN_USERNAME) ? `<div class="remark-area"><input type="text" class="remark-input" id="remark-${ev2.id}" placeholder="添加备注" value="${escapeHtml(r2)}"><button class="remark-save-event" data-id="${ev2.id}">保存</button></div>` : (r2 ? `<div class="remark-text">📝 备注：${escapeHtml(r2)}</div>` : '');
+                                newHtml += `<div class="history-item"><strong>${escapeHtml(ev2.userName)}</strong> ${ev2.type}: ${ev2.detail}<br><small>${ev2.timeStr}</small>${rh}</div>`;
+                            });
+                            container.innerHTML = newHtml;
+                            // 重新绑定保存按钮
+                            document.querySelectorAll('.remark-save-event').forEach(btn2 => {
+                                btn2.onclick = async (e2) => {
+                                    e2.stopPropagation();
+                                    const id2 = btn2.dataset.id;
+                                    const newRemark2 = document.getElementById(`remark-${id2}`).value.trim();
+                                    await activityLogRef.child(id2).update({ remark: newRemark2 });
+                                    logActivity("admin_add_remark", `更新备注`);
+                                    // 可以简单重新加载整个日历事件，但为了效率直接刷新当前显示
+                                    location.reload(); // 或者用更优雅的方式，这里简化
+                                };
+                            });
                         };
                     });
                 }
-            };
-            day.addEventListener('click', handler);
-            day._clickHandler = handler;
+            });
         });
     }
-
-    // 监听活动日志变化，更新缓存和日历
-    if (window._activityLogListener) activityLogRef.off('value', window._activityLogListener);
-    window._activityLogListener = function(snap) {
+    activityLogRef.on('value', snap => {
         let data = snap.val();
         activityCache = {};
         if(data) {
@@ -430,34 +405,14 @@
             }
         }
         buildCalendar(currentCalendarYear, currentCalendarMonth);
-    };
-    activityLogRef.on('value', window._activityLogListener);
+    });
+    function changeMonth(delta) { let nm = currentCalendarMonth + delta, ny = currentCalendarYear; if(nm<0){ nm=11; ny--; } if(nm>11){ nm=0; ny++; } currentCalendarYear=ny; currentCalendarMonth=nm; buildCalendar(currentCalendarYear, currentCalendarMonth); }
+    function goToday() { let t=new Date(); currentCalendarYear=t.getFullYear(); currentCalendarMonth=t.getMonth(); buildCalendar(currentCalendarYear, currentCalendarMonth); }
+    const prevBtn = document.getElementById('prevMonthBtn'); if(prevBtn) prevBtn.addEventListener('click',()=>changeMonth(-1));
+    const nextBtn = document.getElementById('nextMonthBtn'); if(nextBtn) nextBtn.addEventListener('click',()=>changeMonth(1));
+    const todayBtn = document.getElementById('todayBtn'); if(todayBtn) todayBtn.addEventListener('click',goToday);
 
-    function changeMonth(delta) {
-        let newMonth = currentCalendarMonth + delta;
-        let newYear = currentCalendarYear;
-        if(newMonth < 0) { newMonth = 11; newYear--; }
-        if(newMonth > 11) { newMonth = 0; newYear++; }
-        currentCalendarYear = newYear;
-        currentCalendarMonth = newMonth;
-        buildCalendar(currentCalendarYear, currentCalendarMonth);
-    }
-
-    function goToday() {
-        let today = new Date();
-        currentCalendarYear = today.getFullYear();
-        currentCalendarMonth = today.getMonth();
-        buildCalendar(currentCalendarYear, currentCalendarMonth);
-    }
-
-    const prevMonthBtn = document.getElementById('prevMonthBtn');
-    if(prevMonthBtn) prevMonthBtn.addEventListener('click', () => changeMonth(-1));
-    const nextMonthBtn = document.getElementById('nextMonthBtn');
-    if(nextMonthBtn) nextMonthBtn.addEventListener('click', () => changeMonth(1));
-    const todayBtn = document.getElementById('todayBtn');
-    if(todayBtn) todayBtn.addEventListener('click', goToday);
-
-    // 资产看板与资产查看
+    // 资产看板
     function renderAssetBoard(scores){ let cont=document.getElementById('assetList'); if(!cont) return; if(!scores||!Object.keys(scores).length){ cont.innerHTML='<div>暂无用户</div>'; return; } let html=''; Object.keys(scores).sort().forEach(user=>{ let asset=scores[user]; if(asset===null||typeof asset!=='number') asset=100.0; html+=`<div class="asset-item"><span class="clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span><span>${asset.toFixed(2)} AUD</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.clickable-asset').forEach(el=>el.addEventListener('click',()=>showUserAsset(el.dataset.user))); }
     userScoresRef.on('value', snap=>renderAssetBoard(snap.val()));
     let currentModalListener=null;
@@ -465,39 +420,25 @@
     window.closeModal=function(){ if(currentModalListener && typeof currentModalListener.off==='function') currentModalListener.off(); currentModalListener=null; document.getElementById('userAssetModal').style.display='none'; };
     window.onclick=function(event){ if(event.target===document.getElementById('userAssetModal')) closeModal(); };
 
-        // ---------- 共享音乐播放器（修复上传） ----------
+    // 共享音乐播放器
     let currentPlaylist = [];
     let currentTrackIndex = 0;
     let audioPlayer = new Audio();
     let isPlayingMusic = false;
-
-    // 从数据库加载歌单
     function loadPlaylistFromDB() {
         playlistRef.on('value', snap => {
             const data = snap.val();
             currentPlaylist = [];
-            if (data) {
-                for (let [id, song] of Object.entries(data)) {
-                    currentPlaylist.push({ id, name: song.name, url: song.url });
-                }
-            }
+            if(data) for(let [id, song] of Object.entries(data)) currentPlaylist.push({ id, name: song.name, url: song.url });
             renderPlaylistUI();
-            if (currentPlaylist.length && !audioPlayer.src) {
-                currentTrackIndex = 0;
-                loadTrack(0);
-            } else if (currentPlaylist.length === 0) {
-                document.getElementById('musicInfo').innerText = '无音乐，请上传';
-            }
+            if(currentPlaylist.length && !audioPlayer.src) { currentTrackIndex = 0; loadTrack(0); }
+            else if(currentPlaylist.length === 0) document.getElementById('musicInfo').innerText = '无音乐，请上传';
         });
     }
-
     function renderPlaylistUI() {
         const container = document.getElementById('playlistContainer');
-        if (!container) return;
-        if (currentPlaylist.length === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，点击上方按钮上传MP3</div>';
-            return;
-        }
+        if(!container) return;
+        if(currentPlaylist.length === 0) { container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，点击上方按钮上传MP3</div>'; return; }
         let html = '';
         currentPlaylist.forEach((song, idx) => {
             html += `<div class="playlist-item">
@@ -506,19 +447,12 @@
                     </div>`;
         });
         container.innerHTML = html;
-        // 点击播放
         document.querySelectorAll('.playlist-name').forEach(el => {
             el.addEventListener('click', (e) => {
                 const idx = parseInt(el.dataset.index);
-                if (!isNaN(idx)) {
-                    currentTrackIndex = idx;
-                    loadTrack(currentTrackIndex);
-                    if (audioPlayer.paused) playPauseMusic();
-                    else { audioPlayer.pause(); audioPlayer.play().catch(e=>console.log); }
-                }
+                if (!isNaN(idx)) { currentTrackIndex = idx; loadTrack(currentTrackIndex); if (audioPlayer.paused) playPauseMusic(); else { audioPlayer.pause(); audioPlayer.play().catch(e=>console.log); } }
             });
         });
-        // 删除歌曲（仅管理员）
         if (currentUserName === ADMIN_USERNAME) {
             document.querySelectorAll('.playlist-delete').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
@@ -526,7 +460,6 @@
                     const id = btn.dataset.id;
                     const song = currentPlaylist.find(s => s.id === id);
                     if (confirm(`删除歌曲 "${song.name}"？`)) {
-                        // 从 Storage 删除文件（如果是上传的）
                         if (song.url && song.url.includes('firebasestorage')) {
                             try {
                                 const storageRef = storage.refFromURL(song.url);
@@ -540,92 +473,14 @@
             });
         }
     }
+    function loadTrack(index) { if (!currentPlaylist.length) return; const song = currentPlaylist[index]; audioPlayer.src = song.url; audioPlayer.load(); if (isPlayingMusic) audioPlayer.play().catch(e => console.log); document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`; }
+    function playPauseMusic() { if (audioPlayer.paused) { audioPlayer.play().catch(e => console.log); isPlayingMusic = true; document.getElementById('playPauseBtn').innerText = '⏸️'; } else { audioPlayer.pause(); isPlayingMusic = false; document.getElementById('playPauseBtn').innerText = '▶️'; } }
+    function nextTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
+    function prevTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
+    async function uploadMusicFile(file) { if (!file) return; if (currentUserName !== ADMIN_USERNAME) { alert("仅管理员可上传音乐"); return; } const ext = file.name.split('.').pop(); const fileName = `music/${Date.now()}_${Math.random().toString(36).substr(2, 8)}.${ext}`; const storageRef = storage.ref(fileName); try { const uploadBtn = document.getElementById('uploadMusicBtn'); const originalText = uploadBtn.innerText; uploadBtn.innerText = '⏳ 上传中...'; uploadBtn.disabled = true; await storageRef.put(file); const downloadURL = await storageRef.getDownloadURL(); await playlistRef.push({ name: file.name, url: downloadURL, timestamp: Date.now() }); alert(`✅ 已添加歌曲：${file.name}`); logActivity("admin_upload_music", `上传歌曲 ${file.name}`); uploadBtn.innerText = originalText; uploadBtn.disabled = false; } catch (e) { alert("上传失败：" + e.message); console.error(e); document.getElementById('uploadMusicBtn').innerText = '📁 上传音乐 (MP3)'; document.getElementById('uploadMusicBtn').disabled = false; } }
+    function restoreDefaultPlaylist() { if (currentUserName !== ADMIN_USERNAME) { alert("仅管理员可恢复默认歌单"); return; } const defaultSongs = [ { name: "SoundHelix Song 1", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" }, { name: "SoundHelix Song 2", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }, { name: "SoundHelix Song 3", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" } ]; playlistRef.remove().then(()=>{ defaultSongs.forEach(song=>playlistRef.push(song)); alert("已恢复默认歌单"); logActivity("admin_restore_default_music","恢复默认歌单"); }).catch(err=>alert("恢复失败: "+err)); }
 
-    function loadTrack(index) {
-        if (!currentPlaylist.length) return;
-        const song = currentPlaylist[index];
-        audioPlayer.src = song.url;
-        audioPlayer.load();
-        if (isPlayingMusic) audioPlayer.play().catch(e => console.log);
-        document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
-    }
-
-    function playPauseMusic() {
-        if (audioPlayer.paused) {
-            audioPlayer.play().catch(e => console.log);
-            isPlayingMusic = true;
-            document.getElementById('playPauseBtn').innerText = '⏸️';
-        } else {
-            audioPlayer.pause();
-            isPlayingMusic = false;
-            document.getElementById('playPauseBtn').innerText = '▶️';
-        }
-    }
-
-    function nextTrack() {
-        if (!currentPlaylist.length) return;
-        currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
-        loadTrack(currentTrackIndex);
-        if (!audioPlayer.paused) audioPlayer.play();
-    }
-
-    function prevTrack() {
-        if (!currentPlaylist.length) return;
-        currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-        loadTrack(currentTrackIndex);
-        if (!audioPlayer.paused) audioPlayer.play();
-    }
-
-    // 管理员上传音乐（直接使用 input file）
-    async function uploadMusicFile(file) {
-        if (!file) return;
-        if (currentUserName !== ADMIN_USERNAME) {
-            alert("仅管理员可上传音乐");
-            return;
-        }
-        const ext = file.name.split('.').pop();
-        const fileName = `music/${Date.now()}_${Math.random().toString(36).substr(2, 8)}.${ext}`;
-        const storageRef = storage.ref(fileName);
-        try {
-            // 显示上传中提示
-            const uploadBtn = document.getElementById('uploadMusicBtn');
-            const originalText = uploadBtn.innerText;
-            uploadBtn.innerText = '⏳ 上传中...';
-            uploadBtn.disabled = true;
-            await storageRef.put(file);
-            const downloadURL = await storageRef.getDownloadURL();
-            await playlistRef.push({ name: file.name, url: downloadURL, timestamp: Date.now() });
-            alert(`✅ 已添加歌曲：${file.name}`);
-            logActivity("admin_upload_music", `上传歌曲 ${file.name}`);
-            uploadBtn.innerText = originalText;
-            uploadBtn.disabled = false;
-        } catch (e) {
-            alert("上传失败：" + e.message);
-            console.error(e);
-            document.getElementById('uploadMusicBtn').innerText = '📁 上传音乐 (MP3)';
-            document.getElementById('uploadMusicBtn').disabled = false;
-        }
-    }
-
-    // 恢复默认歌单
-    function restoreDefaultPlaylist() {
-        if (currentUserName !== ADMIN_USERNAME) {
-            alert("仅管理员可恢复默认歌单");
-            return;
-        }
-        const defaultSongs = [
-            { name: "SoundHelix Song 1", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-            { name: "SoundHelix Song 2", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-            { name: "SoundHelix Song 3", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
-        ];
-        playlistRef.remove().then(() => {
-            defaultSongs.forEach(song => playlistRef.push(song));
-            alert("已恢复默认歌单");
-            logActivity("admin_restore_default_music", "恢复默认歌单");
-        }).catch(err => alert("恢复失败: " + err));
-    }
-
-    // 初始化音乐播放器事件
+    // 初始化音乐事件
     function initMusicPlayer() {
         const playPause = document.getElementById('playPauseBtn');
         if (playPause) playPause.addEventListener('click', playPauseMusic);
@@ -638,10 +493,9 @@
         const defaultBtn = document.getElementById('useDefaultBtn');
         if (defaultBtn) defaultBtn.addEventListener('click', restoreDefaultPlaylist);
         const toggle = document.getElementById('musicToggle');
-        if (toggle) toggle.addEventListener('click', () => document.getElementById('musicPanel').classList.toggle('show'));
+        if (toggle) toggle.addEventListener('click', () => document.getElementById('musicPanel')?.classList.toggle('show'));
         audioPlayer.addEventListener('ended', nextTrack);
         audioPlayer.volume = 0.5;
-        // 上传按钮事件
         const uploadBtn = document.getElementById('uploadMusicBtn');
         const fileInput = document.getElementById('musicFileUpload');
         if (uploadBtn && fileInput) {
@@ -649,18 +503,14 @@
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files && e.target.files.length) {
                     uploadMusicFile(e.target.files[0]);
-                    fileInput.value = ''; // 清空，允许再次上传相同文件
+                    fileInput.value = '';
                 }
             });
+        } else {
+            console.warn("上传音乐按钮或文件输入框未找到");
         }
         loadPlaylistFromDB();
     }
-    function loadTrack(index) { if(!currentPlaylist.length) return; const song = currentPlaylist[index]; audioPlayer.src = song.url; audioPlayer.load(); if(isPlayingMusic) audioPlayer.play().catch(e=>console.log); document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`; }
-    function playPauseMusic() { if(audioPlayer.paused) { audioPlayer.play().catch(e=>console.log); isPlayingMusic=true; document.getElementById('playPauseBtn').innerText='⏸️'; } else { audioPlayer.pause(); isPlayingMusic=false; document.getElementById('playPauseBtn').innerText='▶️'; } }
-    function nextTrack() { if(!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex+1)%currentPlaylist.length; loadTrack(currentTrackIndex); if(!audioPlayer.paused) audioPlayer.play(); }
-    function prevTrack() { if(!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex-1+currentPlaylist.length)%currentPlaylist.length; loadTrack(currentTrackIndex); if(!audioPlayer.paused) audioPlayer.play(); }
-    async function adminUploadMusic(file) { if(currentUserName !== ADMIN_USERNAME) { alert("无权限"); return; } if(!file) return; const ext = file.name.split('.').pop(); const fileName = `music/${Date.now()}_${Math.random().toString(36).substr(2,8)}.${ext}`; const storageRef = storage.ref(fileName); try { await storageRef.put(file); const downloadURL = await storageRef.getDownloadURL(); await playlistRef.push({ name: file.name, url: downloadURL, timestamp: Date.now() }); alert(`已添加歌曲：${file.name}`); logActivity("admin_upload_music", `上传歌曲 ${file.name}`); } catch(e) { alert("上传失败："+e.message); } }
-    function restoreDefaultPlaylist() { if(currentUserName !== ADMIN_USERNAME) { alert("仅管理员可恢复默认歌单"); return; } const defaultSongs = [ { name: "SoundHelix Song 1", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" }, { name: "SoundHelix Song 2", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }, { name: "SoundHelix Song 3", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" } ]; playlistRef.remove().then(()=>{ defaultSongs.forEach(song=>playlistRef.push(song)); alert("已恢复默认歌单"); logActivity("admin_restore_default_music","恢复默认歌单"); }).catch(err=>alert("恢复失败"+err)); }
 
     // 用户管理
     let currentUserScoreListener=null;
@@ -672,24 +522,7 @@
     function switchTab(tabId){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tabId+'Tab').classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth); if(tabId==='qa') questionsRef.once('value').then(snap=>renderQuestions(snap.val())); }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
 
-    // 初始化音乐事件
-    function initMusicPlayer() {
-        document.getElementById('playPauseBtn').addEventListener('click', playPauseMusic);
-        document.getElementById('nextBtn').addEventListener('click', nextTrack);
-        document.getElementById('prevBtn').addEventListener('click', prevTrack);
-        document.getElementById('volumeSlider').addEventListener('input', e=>audioPlayer.volume=parseFloat(e.target.value));
-        document.getElementById('useDefaultBtn').addEventListener('click', restoreDefaultPlaylist);
-        const uploadInput = document.getElementById('musicFileUpload');
-        const adminUploadBtn = document.getElementById('adminUploadMusicBtn');
-        adminUploadBtn.addEventListener('click', ()=>uploadInput.click());
-        uploadInput.addEventListener('change', (e)=>{ if(e.target.files.length) adminUploadMusic(e.target.files[0]); e.target.value=''; });
-        document.getElementById('musicToggle').addEventListener('click',()=>document.getElementById('musicPanel').classList.toggle('show'));
-        audioPlayer.addEventListener('ended', nextTrack);
-        audioPlayer.volume = 0.5;
-        loadPlaylistFromDB();
-    }
-
-    // 初始化
+    // 页面初始化
     window.onload = () => {
         canvas = document.getElementById('wheelCanvas');
         ctx = canvas.getContext('2d');
@@ -709,8 +542,8 @@
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
-        if(typeof buildCalendar === 'function') buildCalendar(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = "✅ 最新记录显示在最上方 | 删除自动回滚资产";
+        buildCalendar(currentCalendarYear, currentCalendarMonth);
+        document.getElementById('syncStatus').innerHTML = "✅ 所有功能已就绪，可以上传音乐";
     };
 </script>
 </body>
