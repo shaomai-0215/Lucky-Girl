@@ -175,14 +175,22 @@
     <div class="music-toggle" id="musicToggle">🎵</div>
     <div class="music-panel" id="musicPanel">
         <div class="music-info" id="musicInfo">未播放</div>
-        <div class="music-controls"><button id="prevBtn">⏮️</button><button id="playPauseBtn">▶️</button><button id="nextBtn">⏭️</button></div>
-        <div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"></div>
-        <div class="upload-btn">📁 上传本地音乐<input type="file" id="musicFileInput" accept="audio/*"></div>
+        <div class="music-controls">
+            <button id="prevBtn">⏮️</button>
+            <button id="playPauseBtn">▶️</button>
+            <button id="nextBtn">⏭️</button>
+        </div>
+        <div class="volume-slider">
+            <span>🔊</span>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <label class="upload-btn" style="background: #2c6e4f; text-align: center; padding: 6px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; display: block;">
+            📁 上传本地音乐
+            <input type="file" id="musicFileInput" accept="audio/*" style="display: none;">
+        </label>
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
 </div>
-
-<script>
     // ========== 配置 ==========
     const ADMIN_USERNAME = "烧卖";   // 已修正为您的管理员名字
     const firebaseConfig = {
