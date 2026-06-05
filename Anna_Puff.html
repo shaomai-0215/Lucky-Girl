@@ -297,11 +297,11 @@
     function renderQuestions(questionsObj){ let cont=document.getElementById('questionList'); if(!questionsObj||!Object.keys(questionsObj).length){ cont.innerHTML='<div>暂无问题</div>'; return; } let html=''; for(let [id,q] of Object.entries(questionsObj)){ if(currentUserName!==ADMIN_USERNAME && !q.published) continue; html+=`<div class="question-item"><strong>${escapeHtml(q.text)}</strong> ${q.published?'':`<span class="draft-badge">草稿</span>`} <button class="show-answer" data-answer="${escapeHtml(q.answer)}">查看答案</button> ${!q.published && currentUserName===ADMIN_USERNAME?`<button class="publish-btn" data-id="${id}">发布</button>`:''} ${currentUserName===ADMIN_USERNAME?`<button class="delete-question" data-id="${id}">❌ 删除</button>`:''}</div>`; } cont.innerHTML=html; document.querySelectorAll('.show-answer').forEach(btn=>{ btn.onclick=()=>{ alert(`答案：${btn.getAttribute('data-answer')}`); logActivity("view_question","查看问题"); }; }); document.querySelectorAll('.publish-btn').forEach(btn=>{ btn.onclick=()=>publishQuestion(btn.dataset.id); }); document.querySelectorAll('.delete-question').forEach(btn=>{ btn.onclick=()=>deleteQuestion(btn.dataset.id); }); }
     questionsRef.on('value', snap=>renderQuestions(snap.val()));
 
-        // ---------- 日历部分（完整版，含农历、节日、活动高亮） ----------
+            // ---------- 日历部分（完整版，支持活动记录备注） ----------
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
 
-    // 农历和节日数据（与之前版本一致）
+    // 农历和节日数据
     const festivalMap = {
         "0101":"元旦", "0210":"春节", "0211":"春节", "0212":"春节", "0213":"春节", "0214":"情人节",
         "0308":"妇女节", "0401":"愚人节", "0501":"劳动节", "0601":"儿童节", "0701":"建党节",
@@ -313,12 +313,12 @@
     function getLunarAndFestival(year, month, day) {
         let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         let festival = lunarFestival2026[dateStr] || festivalMap[`${String(month+1).padStart(2,'0')}${String(day).padStart(2,'0')}`] || "";
-        return { lunar: "", festival }; // 简化农历显示，只保留节日
+        return { lunar: "", festival };
     }
 
     function buildCalendar(year, month) {
         const firstDay = new Date(year, month, 1);
-        const startWeekday = firstDay.getDay(); // 0 周日
+        const startWeekday = firstDay.getDay();
         const daysInMonth = new Date(year, month+1, 0).getDate();
         const prevMonthDays = new Date(year, month, 0).getDate();
         const weekdays = ["日","一","二","三","四","五","六"];
@@ -355,9 +355,11 @@
         if(grid) grid.innerHTML = gridHtml;
         const yearMonthSpan = document.getElementById('currentYearMonth');
         if(yearMonthSpan) yearMonthSpan.innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
-        // 绑定点击事件
+        
+        // 绑定点击日期事件
         document.querySelectorAll('.cal-day').forEach(day => {
-            day.addEventListener('click', () => {
+            day.removeEventListener('click', day._clickHandler);
+            const handler = () => {
                 let date = day.dataset.date;
                 let events = activityCache[date] || [];
                 let container = document.getElementById('selectedDateEvents');
@@ -368,26 +370,57 @@
                 }
                 let html = `<h4>${date} 活动记录</h4>`;
                 events.forEach(ev => {
-                    html += `<div class="history-item"><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small></div>`;
+                    const remark = ev.remark || '';
+                    let remarkHtml = '';
+                    if (currentUserName === ADMIN_USERNAME) {
+                        remarkHtml = `<div class="remark-area" style="margin-top:6px; display:flex; gap:6px;">
+                                        <input type="text" class="remark-input" id="remark-${ev.id}" placeholder="添加备注" value="${escapeHtml(remark)}" style="flex:2;">
+                                        <button class="remark-save-event" data-id="${ev.id}" style="background:#2c6e4f; padding:2px 8px; border-radius:20px;">保存</button>
+                                      </div>`;
+                    } else if (remark) {
+                        remarkHtml = `<div class="remark-text" style="margin-top:4px;">📝 备注：${escapeHtml(remark)}</div>`;
+                    }
+                    html += `<div class="history-item" data-id="${ev.id}">
+                                <div><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small></div>
+                                ${remarkHtml}
+                            </div>`;
                 });
                 container.innerHTML = html;
-            });
+                // 绑定保存备注事件
+                if (currentUserName === ADMIN_USERNAME) {
+                    document.querySelectorAll('.remark-save-event').forEach(btn => {
+                        btn.onclick = async (e) => {
+                            e.stopPropagation();
+                            const id = btn.dataset.id;
+                            const newRemark = document.getElementById(`remark-${id}`).value.trim();
+                            await activityLogRef.child(id).update({ remark: newRemark });
+                            logActivity("admin_add_remark", `为活动记录 ${id} 添加备注`);
+                            // 刷新当前日期的显示
+                            handler();
+                        };
+                    });
+                }
+            };
+            day.addEventListener('click', handler);
+            day._clickHandler = handler;
         });
     }
 
-    // 监听活动日志变化，更新缓存
-    activityLogRef.on('value', snap => {
+    // 监听活动日志变化，更新缓存和日历
+    if (window._activityLogListener) activityLogRef.off('value', window._activityLogListener);
+    window._activityLogListener = function(snap) {
         let data = snap.val();
         activityCache = {};
         if(data) {
-            Object.values(data).forEach(ev => {
+            for(let [id, ev] of Object.entries(data)) {
                 let date = ev.dateStr;
                 if(!activityCache[date]) activityCache[date] = [];
-                activityCache[date].push(ev);
-            });
+                activityCache[date].push({...ev, id: id});
+            }
         }
         buildCalendar(currentCalendarYear, currentCalendarMonth);
-    });
+    };
+    activityLogRef.on('value', window._activityLogListener);
 
     function changeMonth(delta) {
         let newMonth = currentCalendarMonth + delta;
@@ -406,7 +439,6 @@
         buildCalendar(currentCalendarYear, currentCalendarMonth);
     }
 
-    // 绑定按钮事件（如果元素存在）
     const prevMonthBtn = document.getElementById('prevMonthBtn');
     if(prevMonthBtn) prevMonthBtn.addEventListener('click', () => changeMonth(-1));
     const nextMonthBtn = document.getElementById('nextMonthBtn');
