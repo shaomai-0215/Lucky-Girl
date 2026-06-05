@@ -21,7 +21,7 @@
         .asset-card { flex: 1; min-width: 240px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
         canvas { background: #2a3e4f; border-radius: 50%; width: 100%; max-width: 450px; aspect-ratio: 1; cursor: pointer; display: block; margin: 0 auto; }
         .spin-btn { background: linear-gradient(135deg, #ffb347, #ff7e05); border: none; color: white; font-size: 1.6rem; font-weight: bold; padding: 12px 24px; border-radius: 60px; margin-top: 16px; cursor: pointer; width: 80%; display: block; margin-left: auto; margin-right: auto; }
-        .prize-edit, .add-gift, .admin-manual, .admin-clear-history, .question-admin { background: #101e26; border-radius: 36px; padding: 12px 16px; margin-top: 20px; }
+        .prize-edit, .add-gift, .admin-manual, .admin-clear-history, .question-admin, .admin-reset-asset { background: #101e26; border-radius: 36px; padding: 12px 16px; margin-top: 20px; }
         .prize-list, .gift-list, .question-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
         .prize-tag, .question-item { background: #2c4d3e; padding: 5px 12px; border-radius: 40px; display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .score-value { font-size: 2rem; font-weight: bold; color: #ffd966; }
@@ -70,6 +70,8 @@
         .asset-amount { font-family: monospace; font-size: 1.1rem; color: #ffaa66; }
         .clickable-asset { cursor: pointer; text-decoration: underline; }
         .clickable-asset:hover { color: #ffaa33; }
+        .reset-form { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .reset-form input, .reset-form select { flex: 1; margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -95,6 +97,15 @@
             <div class="asset-card">
                 <h3>👥 用户资产实时看板</h3>
                 <div class="asset-list" id="assetList"><div>加载中...</div></div>
+                <div class="admin-reset-asset admin-only">
+                    <h4>🔧 管理员资产重置</h4>
+                    <div class="reset-form">
+                        <input type="text" id="resetUserName" placeholder="用户名">
+                        <input type="number" id="resetAmount" placeholder="金额" step="0.01" value="100">
+                        <button id="resetAssetBtn">重置资产</button>
+                    </div>
+                    <small>直接修改指定用户的当前资产（不会生成历史记录）</small>
+                </div>
                 <small>资产实时更新，点击用户名可查看更多详情</small>
             </div>
         </div>
@@ -158,7 +169,7 @@
 
 <script>
     // ========== 配置 ==========
-    const ADMIN_USERNAME = "烧卖";   // 请修改成您的管理员名字
+    const ADMIN_USERNAME = "烧卖";   // 已修正为您的管理员名字
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
         databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -168,8 +179,6 @@
         messagingSenderId: "247577846134",
         appId: "1:247577846134:web:9555c1436be25bf7b0da57"
     };
-    // =============================================
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const segmentsRef = db.ref('wheelSegments');
@@ -179,7 +188,7 @@
     const questionsRef = db.ref('questions');
     const activityLogRef = db.ref('activityLog');
 
-    // ---------- 全局 ----------
+    // ---------- 全局变量 ----------
     let segments = ["10%","0%","20%","30%","50%","100%"];
     let currentRotation = 0, isSpinning = false, animFrame = null, currentUserName = "";
     let canvas, ctx;
@@ -188,15 +197,7 @@
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
     function logActivity(type, detail) {
         if(!currentUserName) currentUserName = "游客";
-        const now = new Date();
-        activityLogRef.push({
-            userName: currentUserName,
-            type: type,
-            detail: detail,
-            timestamp: now.getTime(),
-            dateStr: now.toLocaleDateString('zh-CN'),
-            timeStr: now.toLocaleTimeString('zh-CN')
-        });
+        activityLogRef.push({ userName: currentUserName, type, detail, timestamp: Date.now(), dateStr: new Date().toLocaleDateString('zh-CN'), timeStr: new Date().toLocaleTimeString('zh-CN') });
     }
     function updateAdminUI() {
         const isAdmin = (currentUserName === ADMIN_USERNAME);
@@ -207,69 +208,57 @@
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
         if (!container) return;
-        if (!scores || Object.keys(scores).length === 0) {
-            container.innerHTML = '<div>暂无用户数据</div>';
-            return;
-        }
+        if (!scores || Object.keys(scores).length === 0) { container.innerHTML = '<div>暂无用户数据</div>'; return; }
         let html = '';
-        const sortedUsers = Object.keys(scores).sort();
-        for (let user of sortedUsers) {
+        Object.keys(scores).sort().forEach(user => {
             let asset = scores[user];
             if (asset === null || typeof asset !== 'number') asset = 100.0;
-            html += `<div class="asset-item">
-                        <span class="asset-name clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span>
-                        <span class="asset-amount">${asset.toFixed(2)} AUD</span>
-                    </div>`;
-        }
+            html += `<div class="asset-item"><span class="asset-name clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span><span class="asset-amount">${asset.toFixed(2)} AUD</span></div>`;
+        });
         container.innerHTML = html;
         document.querySelectorAll('.clickable-asset').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const userName = el.getAttribute('data-user');
-                showUserAsset(userName);
-            });
+            el.addEventListener('click', () => showUserAsset(el.getAttribute('data-user')));
         });
     }
+    userScoresRef.on('value', snap => renderAssetBoard(snap.val()));
 
-    userScoresRef.on('value', (snap) => {
-        const scores = snap.val();
-        renderAssetBoard(scores);
-    });
-
-    // 模态框资产查看（修复 off 问题）
+    // 模态框资产查看
     let currentModalListener = null;
     function showUserAsset(userName) {
         const modal = document.getElementById('userAssetModal');
         if (!modal) return;
-        const modalName = document.getElementById('modalUserName');
-        const modalValue = document.getElementById('modalAssetValue');
-        modalName.innerText = userName;
-        modalValue.innerText = '加载中...';
+        document.getElementById('modalUserName').innerText = userName;
+        document.getElementById('modalAssetValue').innerText = '加载中...';
         modal.style.display = 'block';
-        // 如果已有监听器且是 Firebase 引用，则取消监听
-        if (currentModalListener && typeof currentModalListener.off === 'function') {
-            currentModalListener.off();
-        }
-        // 重新监听
-        currentModalListener = userScoresRef.child(userName).on('value', (snap) => {
+        if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off();
+        currentModalListener = userScoresRef.child(userName).on('value', snap => {
             let val = snap.val();
-            let asset = (val !== null && typeof val === 'number') ? val : 100.0;
-            modalValue.innerText = asset.toFixed(2) + ' AUD';
+            document.getElementById('modalAssetValue').innerText = ((typeof val === 'number') ? val : 100).toFixed(2) + ' AUD';
         });
     }
     window.closeModal = function() {
-        if (currentModalListener && typeof currentModalListener.off === 'function') {
-            currentModalListener.off();
-        }
+        if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off();
         currentModalListener = null;
         const modal = document.getElementById('userAssetModal');
         if (modal) modal.style.display = 'none';
     };
-    window.onclick = function(event) {
-        const modal = document.getElementById('userAssetModal');
-        if (event.target === modal) closeModal();
-    };
+    window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
 
-    // 独立资产逻辑
+    // 资产重置功能（管理员专用）
+    function resetUserAsset() {
+        if (currentUserName !== ADMIN_USERNAME) { alert("无权限"); return; }
+        const userName = document.getElementById('resetUserName').value.trim();
+        const amount = parseFloat(document.getElementById('resetAmount').value);
+        if (!userName) { alert("请输入用户名"); return; }
+        if (isNaN(amount)) { alert("请输入有效金额"); return; }
+        userScoresRef.child(userName).set(amount).then(() => {
+            alert(`已将 ${userName} 的资产设置为 ${amount.toFixed(2)} AUD`);
+            logActivity("admin_reset_asset", `重置 ${userName} 资产为 ${amount.toFixed(2)}`);
+            document.getElementById('resetUserName').value = '';
+        }).catch(err => alert("重置失败: " + err));
+    }
+
+    // ---------- 独立资产逻辑（抽中0%归零） ----------
     async function getUserScore(user) {
         const snap = await userScoresRef.child(user).once('value');
         let val = snap.val();
@@ -292,20 +281,13 @@
         });
     }
     function addHistoryRecord(userName, percentage, oldScore, newScore) {
-        scoreHistoryRef.push({
-            userName, percentage, oldScore, newScore,
-            timestamp: Date.now(),
-            dateStr: new Date().toLocaleDateString('zh-CN'),
-            timeStr: new Date().toLocaleTimeString('zh-CN')
-        });
+        scoreHistoryRef.push({ userName, percentage, oldScore, newScore, timestamp: Date.now(), dateStr: new Date().toLocaleDateString('zh-CN'), timeStr: new Date().toLocaleTimeString('zh-CN') });
     }
     function applyScoreForUser(userName, percentageStr, callback) {
         getUserScore(userName).then(oldScore => {
             updateUserScore(userName, percentageStr, (success, newScore) => {
-                if (success) {
-                    addHistoryRecord(userName, percentageStr, oldScore, newScore);
-                    callback(true, newScore);
-                } else callback(false);
+                if (success) { addHistoryRecord(userName, percentageStr, oldScore, newScore); callback(true, newScore); }
+                else callback(false);
             });
         }).catch(()=>callback(false));
     }
@@ -313,11 +295,9 @@
     // 订阅当前用户资产
     let currentUserScoreListener = null;
     function subscribeToCurrentUserScore() {
-        if (currentUserScoreListener && typeof currentUserScoreListener.off === 'function') {
-            currentUserScoreListener.off();
-        }
+        if (currentUserScoreListener && typeof currentUserScoreListener.off === 'function') currentUserScoreListener.off();
         if (currentUserName) {
-            currentUserScoreListener = userScoresRef.child(currentUserName).on('value', (snap) => {
+            currentUserScoreListener = userScoresRef.child(currentUserName).on('value', snap => {
                 let val = snap.val();
                 const display = document.getElementById('currentScoreDisplay');
                 if (display) display.innerText = (typeof val === 'number' ? val : 100).toFixed(2);
@@ -789,8 +769,10 @@
         if (clearHistoryBtn) clearHistoryBtn.onclick = adminClearHistory;
         const addQuestionDraftBtn = document.getElementById('addQuestionDraftBtn');
         if (addQuestionDraftBtn) addQuestionDraftBtn.onclick = addQuestionDraft;
+        const resetAssetBtn = document.getElementById('resetAssetBtn');
+        if (resetAssetBtn) resetAssetBtn.onclick = resetUserAsset;
         const syncStatus = document.getElementById('syncStatus');
-        if (syncStatus) syncStatus.innerHTML = "✅ 实时资产看板已启用，所有用户资产自动更新";
+        if (syncStatus) syncStatus.innerHTML = "✅ 实时资产看板已启用，管理员可重置资产";
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
