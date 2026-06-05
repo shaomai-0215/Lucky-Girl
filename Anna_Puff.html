@@ -435,39 +435,63 @@
             else if(currentPlaylist.length === 0) document.getElementById('musicInfo').innerText = '无音乐，请添加歌曲链接';
         });
     }
-    function renderPlaylistUI() {
-        const container = document.getElementById('playlistContainer');
-        if(!container) return;
-        if(currentPlaylist.length === 0) { container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>'; return; }
-        let html = '';
-        currentPlaylist.forEach((song, idx) => {
-            html += `<div class="playlist-item">
-                        <span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>
-                        ${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}
-                    </div>`;
-        });
-        container.innerHTML = html;
-        document.querySelectorAll('.playlist-name').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const idx = parseInt(el.dataset.index);
-                if (!isNaN(idx)) { currentTrackIndex = idx; loadTrack(currentTrackIndex); if (audioPlayer.paused) playPauseMusic(); else { audioPlayer.pause(); audioPlayer.play().catch(e=>console.log); } }
-            });
-        });
-        if (currentUserName === ADMIN_USERNAME) {
-            document.querySelectorAll('.playlist-delete').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const id = btn.dataset.id;
-                    const song = currentPlaylist.find(s => s.id === id);
-                    if (confirm(`删除歌曲 "${song.name}"？`)) {
-                        await playlistRef.child(id).remove();
-                        logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
-                    }
-                });
-            });
-        }
+   function renderPlaylistUI() {
+    const container = document.getElementById('playlistContainer');
+    if (!container) return;
+    if (currentPlaylist.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>';
+        return;
     }
-    function loadTrack(index) { if (!currentPlaylist.length) return; const song = currentPlaylist[index]; audioPlayer.src = song.url; audioPlayer.load(); if (isPlayingMusic) audioPlayer.play().catch(e => console.log); document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`; }
+    let html = '';
+    currentPlaylist.forEach((song, idx) => {
+        html += `<div class="playlist-item">
+                    <span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>
+                    ${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}
+                </div>`;
+    });
+    container.innerHTML = html;
+
+    // 绑定点击播放事件（关键修改）
+    document.querySelectorAll('.playlist-name').forEach(el => {
+        el.addEventListener('click', (e) => {
+            const idx = parseInt(el.dataset.index);
+            if (!isNaN(idx)) {
+                currentTrackIndex = idx;
+                loadTrack(currentTrackIndex);
+                // 强制播放，并处理自动播放策略
+                audioPlayer.play().then(() => {
+                    isPlayingMusic = true;
+                    document.getElementById('playPauseBtn').innerText = '⏸️';
+                }).catch(err => {
+                    console.error("播放失败:", err);
+                    alert("播放失败: " + err.message + "。请确保先点击页面任意位置再试。");
+                });
+            }
+        });
+    });
+
+    // 绑定删除按钮（仅管理员）
+    if (currentUserName === ADMIN_USERNAME) {
+        document.querySelectorAll('.playlist-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const song = currentPlaylist.find(s => s.id === id);
+                if (confirm(`删除歌曲 "${song.name}"？`)) {
+                    await playlistRef.child(id).remove();
+                    logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
+                }
+            });
+        });
+    }
+}
+   function loadTrack(index) {
+    if (!currentPlaylist.length) return;
+    const song = currentPlaylist[index];
+    audioPlayer.src = song.url;
+    audioPlayer.load();
+    document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
+}
     function playPauseMusic() { if (audioPlayer.paused) { audioPlayer.play().catch(e => console.log); isPlayingMusic = true; document.getElementById('playPauseBtn').innerText = '⏸️'; } else { audioPlayer.pause(); isPlayingMusic = false; document.getElementById('playPauseBtn').innerText = '▶️'; } }
     function nextTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
     function prevTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
@@ -499,25 +523,50 @@
     }
 
     // 初始化音乐事件
-    function initMusicPlayer() {
-        const playPause = document.getElementById('playPauseBtn');
-        if (playPause) playPause.addEventListener('click', playPauseMusic);
-        const next = document.getElementById('nextBtn');
-        if (next) next.addEventListener('click', nextTrack);
-        const prev = document.getElementById('prevBtn');
-        if (prev) prev.addEventListener('click', prevTrack);
-        const volume = document.getElementById('volumeSlider');
-        if (volume) volume.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
-        const defaultBtn = document.getElementById('useDefaultBtn');
-        if (defaultBtn) defaultBtn.addEventListener('click', restoreDefaultPlaylist);
-        const toggle = document.getElementById('musicToggle');
-        if (toggle) toggle.addEventListener('click', () => document.getElementById('musicPanel')?.classList.toggle('show'));
-        audioPlayer.addEventListener('ended', nextTrack);
-        audioPlayer.volume = 0.5;
-        const addSongBtn = document.getElementById('addSongByUrlBtn');
-        if (addSongBtn) addSongBtn.addEventListener('click', addSongByUrl);
-        loadPlaylistFromDB();
-    }
+   function initMusicPlayer() {
+    const playPause = document.getElementById('playPauseBtn');
+    if (playPause) playPause.addEventListener('click', playPauseMusic);
+    
+    const next = document.getElementById('nextBtn');
+    if (next) next.addEventListener('click', nextTrack);
+    
+    const prev = document.getElementById('prevBtn');
+    if (prev) prev.addEventListener('click', prevTrack);
+    
+    const volume = document.getElementById('volumeSlider');
+    if (volume) volume.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
+    
+    const defaultBtn = document.getElementById('useDefaultBtn');
+    if (defaultBtn) defaultBtn.addEventListener('click', restoreDefaultPlaylist);
+    
+    const toggle = document.getElementById('musicToggle');
+    if (toggle) toggle.addEventListener('click', () => document.getElementById('musicPanel').classList.toggle('show')); // 修复：缺少 'show'
+    
+    audioPlayer.addEventListener('ended', nextTrack);
+    audioPlayer.volume = 0.5;
+    
+    // 添加错误监听，捕获播放失败的原因
+    audioPlayer.onerror = () => {
+        const error = audioPlayer.error;
+        let errorMsg = "播放失败";
+        if (error) {
+            switch (error.code) {
+                case MediaError.MEDIA_ERR_ABORTED: errorMsg = "播放被中止"; break;
+                case MediaError.MEDIA_ERR_NETWORK: errorMsg = "网络错误"; break;
+                case MediaError.MEDIA_ERR_DECODE: errorMsg = "音频解码错误"; break;
+                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: errorMsg = "链接不支持或无效"; break;
+                default: errorMsg = error.message;
+            }
+        }
+        console.error("音频错误:", errorMsg);
+        alert("播放失败: " + errorMsg);
+    };
+    
+    const addSongBtn = document.getElementById('addSongByUrlBtn');
+    if (addSongBtn) addSongBtn.addEventListener('click', addSongByUrl);
+    
+    loadPlaylistFromDB();
+}
 
     // 用户管理
     let currentUserScoreListener=null;
