@@ -15,12 +15,7 @@
         .tab-btn.active { background: #ffb347; color: #1e2b3c; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        /* 三栏布局调整 */
-        .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
+        .dashboard { display: flex; flex-wrap: wrap; gap: 24px; }
         .wheel-card { flex: 2; min-width: 320px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
         .stats-card { flex: 1.4; min-width: 280px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         .asset-card { flex: 1; min-width: 240px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
@@ -62,41 +57,13 @@
         .custom-song { font-size: 0.7rem; text-align: center; cursor: pointer; text-decoration: underline; }
         .draft-badge { background: #882d2d; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 20px; margin-left: 8px; }
         .publish-btn { background: #2c6e4f; margin-left: 8px; }
-
-        /* 实时资产看板样式 */
-        .asset-list {
-            max-height: 300px;
-            overflow-y: auto;
-            background: #0f1a1f;
-            border-radius: 28px;
-            padding: 8px;
-        }
-        .asset-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1e2a32;
-            margin-bottom: 6px;
-            padding: 6px 12px;
-            border-radius: 28px;
-            border-left: 3px solid #ffb347;
-        }
-        .asset-name {
-            font-weight: bold;
-            color: #ffd966;
-        }
-        .asset-amount {
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: #ffaa66;
-        }
-        .clickable-asset {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .clickable-asset:hover {
-            color: #ffaa33;
-        }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-content { background-color: #1e2a32; margin: 20% auto; padding: 20px; border-radius: 48px; width: 280px; text-align: center; border: 1px solid #ffb347; }
+        .modal-content h3 { margin-top: 0; color: #ffd966; }
+        .modal-asset { font-size: 2rem; font-weight: bold; color: #ffb347; margin: 15px 0; }
+        .close-modal { background: #2c6e4f; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+        .clickable-username, .clickable-asset { cursor: pointer; color: #ffd966; text-decoration: underline; }
+        .clickable-username:hover, .clickable-asset:hover { color: #ffaa33; }
     </style>
 </head>
 <body>
@@ -125,6 +92,13 @@
                     <div>加载中...</div>
                 </div>
                 <small>资产实时更新，点击用户名可查看更多详情</small>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <div class="gift-card" style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
+                <h3>🎁 神秘礼盒 (点击揭开)</h3>
+                <div class="gift-list" id="giftList">加载中...</div>
+                <div class="add-gift admin-only"><h4>➕ 添加新礼物</h4><input type="text" id="giftName" placeholder="名称"><input type="text" id="giftValue" placeholder="价值"><textarea id="giftDetail" rows="2" placeholder="隐藏内容"></textarea><button id="addGiftBtn">📦 添加礼盒</button></div>
             </div>
         </div>
     </div>
@@ -164,8 +138,8 @@
     <div class="sync-status" id="syncStatus">☁️ 连接云端同步中...</div>
 </div>
 
-<!-- 可选模态框（保留，但资产看板已足够） -->
-<div id="userAssetModal" class="modal" style="display:none;">
+<!-- 模态框 -->
+<div id="userAssetModal" class="modal">
     <div class="modal-content">
         <h3 id="modalUserName">用户</h3>
         <div class="modal-asset" id="modalAssetValue">--</div>
@@ -232,15 +206,15 @@
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
     }
 
-    // ---------- 资产看板（实时监听所有用户资产） ----------
+    // ---------- 资产看板 ----------
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
+        if (!container) return;
         if (!scores || Object.keys(scores).length === 0) {
             container.innerHTML = '<div>暂无用户数据</div>';
             return;
         }
         let html = '';
-        // 按用户名排序显示
         const sortedUsers = Object.keys(scores).sort();
         for (let user of sortedUsers) {
             let asset = scores[user];
@@ -251,25 +225,19 @@
                     </div>`;
         }
         container.innerHTML = html;
-        // 绑定点击事件（可查看详细历史或弹窗）
         document.querySelectorAll('.clickable-asset').forEach(el => {
             el.addEventListener('click', (e) => {
                 const userName = el.getAttribute('data-user');
-                showUserAsset(userName); // 复用之前的弹窗函数
+                showUserAsset(userName);
             });
         });
     }
+    userScoresRef.on('value', (snap) => renderAssetBoard(snap.val()));
 
-    // 监听 userScores 变化，实时更新看板
-    userScoresRef.on('value', (snap) => {
-        const scores = snap.val();
-        renderAssetBoard(scores);
-    });
-
-    // 模态框相关（复用之前的，保留弹窗查看详情）
     let currentModalListener = null;
     function showUserAsset(userName) {
         const modal = document.getElementById('userAssetModal');
+        if (!modal) return;
         const modalName = document.getElementById('modalUserName');
         const modalValue = document.getElementById('modalAssetValue');
         modalName.innerText = userName;
@@ -287,7 +255,8 @@
             currentModalListener.off();
             currentModalListener = null;
         }
-        document.getElementById('userAssetModal').style.display = 'none';
+        const modal = document.getElementById('userAssetModal');
+        if (modal) modal.style.display = 'none';
     };
     window.onclick = function(event) {
         const modal = document.getElementById('userAssetModal');
@@ -335,7 +304,6 @@
         }).catch(()=>callback(false));
     }
 
-    // 订阅当前用户资产
     let currentUserScoreListener = null;
     function subscribeToCurrentUserScore() {
         if (currentUserScoreListener) currentUserScoreListener.off();
@@ -349,7 +317,7 @@
         }
     }
 
-    // 转盘绘制与动画
+    // 转盘绘制
     function drawWheel() {
         if(!ctx) return;
         let size = Math.min(canvas.clientWidth, canvas.clientHeight);
@@ -434,6 +402,7 @@
     // 历史记录显示
     function renderScoreHistory(historyArr){
         let cont=document.getElementById('scoreHistoryList');
+        if(!cont) return;
         if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; }
         let html='';
         historyArr.slice().reverse().forEach(item=>{
@@ -495,6 +464,7 @@
     // 礼物管理
     function renderGifts(giftsObj){
         let cont=document.getElementById('giftList');
+        if(!cont) return;
         if(!giftsObj||!Object.keys(giftsObj).length){ cont.innerHTML='<div>暂无礼物</div>'; return; }
         let html='';
         for(let [id,gift] of Object.entries(giftsObj)){
@@ -776,7 +746,7 @@
         document.getElementById('manualAddBtn').onclick = adminManualAdd;
         document.getElementById('clearHistoryBtn').onclick = adminClearHistory;
         document.getElementById('addQuestionDraftBtn').onclick = addQuestionDraft;
-        document.getElementById('syncStatus').innerHTML = "✅ 实时资产看板已启用，所有用户资产自动更新";
+        document.getElementById('syncStatus').innerHTML = "✅ 完整版已加载，资产看板实时更新";
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
