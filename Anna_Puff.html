@@ -130,15 +130,26 @@
 <!-- 模态框 -->
 <div id="userAssetModal" class="modal" style="display:none;"><div class="modal-content"><h3 id="modalUserName">用户</h3><div class="modal-asset" id="modalAssetValue">--</div><button class="close-modal" onclick="closeModal()">关闭</button></div></div>
 
-<!-- 音乐播放器（共享歌单） -->
+<!-- 音乐播放器 -->
 <div class="music-player">
     <div class="music-toggle" id="musicToggle">🎵</div>
     <div class="music-panel" id="musicPanel">
         <div class="music-info" id="musicInfo">未播放</div>
-        <div class="music-controls"><button id="prevBtn">⏮️</button><button id="playPauseBtn">▶️</button><button id="nextBtn">⏭️</button></div>
-        <div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"></div>
+        <div class="music-controls">
+            <button id="prevBtn">⏮️</button>
+            <button id="playPauseBtn">▶️</button>
+            <button id="nextBtn">⏭️</button>
+        </div>
+        <div class="volume-slider">
+            <span>🔊</span>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+        </div>
         <div id="playlistContainer" style="max-height:200px; overflow-y:auto; margin-top:8px;"></div>
-        <label class="upload-btn admin-only" id="adminUploadMusicBtn" style="background:#2c6e4f;">🎵 管理员上传音乐<input type="file" id="musicFileUpload" accept="audio/*" style="display:none;"></label>
+        <!-- 上传按钮：直接使用 input 文件选择，不依赖额外 label -->
+        <div style="margin-top: 8px;">
+            <input type="file" id="musicFileUpload" accept="audio/*" style="display: none;">
+            <button id="uploadMusicBtn" class="admin-only" style="background:#2c6e4f; padding:6px 12px; border-radius:40px; width:100%;">📁 上传音乐 (MP3)</button>
+        </div>
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
 </div>
@@ -454,51 +465,195 @@
     window.closeModal=function(){ if(currentModalListener && typeof currentModalListener.off==='function') currentModalListener.off(); currentModalListener=null; document.getElementById('userAssetModal').style.display='none'; };
     window.onclick=function(event){ if(event.target===document.getElementById('userAssetModal')) closeModal(); };
 
-    // 共享音乐播放器
+        // ---------- 共享音乐播放器（修复上传） ----------
     let currentPlaylist = [];
     let currentTrackIndex = 0;
     let audioPlayer = new Audio();
     let isPlayingMusic = false;
+
+    // 从数据库加载歌单
     function loadPlaylistFromDB() {
-        playlistRef.on('value', snap=>{
+        playlistRef.on('value', snap => {
             const data = snap.val();
             currentPlaylist = [];
-            if(data) for(let [id, song] of Object.entries(data)) currentPlaylist.push({ id, name: song.name, url: song.url });
+            if (data) {
+                for (let [id, song] of Object.entries(data)) {
+                    currentPlaylist.push({ id, name: song.name, url: song.url });
+                }
+            }
             renderPlaylistUI();
-            if(currentPlaylist.length && !audioPlayer.src) { currentTrackIndex = 0; loadTrack(0); }
-            else if(currentPlaylist.length === 0) document.getElementById('musicInfo').innerText = '无音乐，管理员可上传';
+            if (currentPlaylist.length && !audioPlayer.src) {
+                currentTrackIndex = 0;
+                loadTrack(0);
+            } else if (currentPlaylist.length === 0) {
+                document.getElementById('musicInfo').innerText = '无音乐，请上传';
+            }
         });
     }
+
     function renderPlaylistUI() {
         const container = document.getElementById('playlistContainer');
-        if(!container) return;
-        if(currentPlaylist.length === 0) { container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲</div>'; return; }
+        if (!container) return;
+        if (currentPlaylist.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，点击上方按钮上传MP3</div>';
+            return;
+        }
         let html = '';
         currentPlaylist.forEach((song, idx) => {
-            html += `<div class="playlist-item"><span class="playlist-name" data-index="${idx}">${escapeHtml(song.name)}</span>${currentUserName===ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}">🗑️</button>` : ''}</div>`;
+            html += `<div class="playlist-item">
+                        <span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>
+                        ${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}
+                    </div>`;
         });
         container.innerHTML = html;
-        document.querySelectorAll('.playlist-name').forEach(el=>{
-            el.addEventListener('click', (e)=>{
+        // 点击播放
+        document.querySelectorAll('.playlist-name').forEach(el => {
+            el.addEventListener('click', (e) => {
                 const idx = parseInt(el.dataset.index);
-                if(!isNaN(idx)) { currentTrackIndex = idx; loadTrack(currentTrackIndex); if(audioPlayer.paused) playPauseMusic(); else { audioPlayer.pause(); audioPlayer.play().catch(e=>console.log); } }
+                if (!isNaN(idx)) {
+                    currentTrackIndex = idx;
+                    loadTrack(currentTrackIndex);
+                    if (audioPlayer.paused) playPauseMusic();
+                    else { audioPlayer.pause(); audioPlayer.play().catch(e=>console.log); }
+                }
             });
         });
-        if(currentUserName === ADMIN_USERNAME) {
-            document.querySelectorAll('.playlist-delete').forEach(btn=>{
-                btn.addEventListener('click', async (e)=>{
+        // 删除歌曲（仅管理员）
+        if (currentUserName === ADMIN_USERNAME) {
+            document.querySelectorAll('.playlist-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     const id = btn.dataset.id;
-                    const song = currentPlaylist.find(s=>s.id===id);
-                    if(song && song.url.includes('firebasestorage')) {
-                        const storageRef = storage.refFromURL(song.url);
-                        await storageRef.delete().catch(console.error);
+                    const song = currentPlaylist.find(s => s.id === id);
+                    if (confirm(`删除歌曲 "${song.name}"？`)) {
+                        // 从 Storage 删除文件（如果是上传的）
+                        if (song.url && song.url.includes('firebasestorage')) {
+                            try {
+                                const storageRef = storage.refFromURL(song.url);
+                                await storageRef.delete();
+                            } catch (err) { console.warn("删除文件失败", err); }
+                        }
+                        await playlistRef.child(id).remove();
+                        logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
                     }
-                    await playlistRef.child(id).remove();
-                    logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
                 });
             });
         }
+    }
+
+    function loadTrack(index) {
+        if (!currentPlaylist.length) return;
+        const song = currentPlaylist[index];
+        audioPlayer.src = song.url;
+        audioPlayer.load();
+        if (isPlayingMusic) audioPlayer.play().catch(e => console.log);
+        document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
+    }
+
+    function playPauseMusic() {
+        if (audioPlayer.paused) {
+            audioPlayer.play().catch(e => console.log);
+            isPlayingMusic = true;
+            document.getElementById('playPauseBtn').innerText = '⏸️';
+        } else {
+            audioPlayer.pause();
+            isPlayingMusic = false;
+            document.getElementById('playPauseBtn').innerText = '▶️';
+        }
+    }
+
+    function nextTrack() {
+        if (!currentPlaylist.length) return;
+        currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+        loadTrack(currentTrackIndex);
+        if (!audioPlayer.paused) audioPlayer.play();
+    }
+
+    function prevTrack() {
+        if (!currentPlaylist.length) return;
+        currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+        loadTrack(currentTrackIndex);
+        if (!audioPlayer.paused) audioPlayer.play();
+    }
+
+    // 管理员上传音乐（直接使用 input file）
+    async function uploadMusicFile(file) {
+        if (!file) return;
+        if (currentUserName !== ADMIN_USERNAME) {
+            alert("仅管理员可上传音乐");
+            return;
+        }
+        const ext = file.name.split('.').pop();
+        const fileName = `music/${Date.now()}_${Math.random().toString(36).substr(2, 8)}.${ext}`;
+        const storageRef = storage.ref(fileName);
+        try {
+            // 显示上传中提示
+            const uploadBtn = document.getElementById('uploadMusicBtn');
+            const originalText = uploadBtn.innerText;
+            uploadBtn.innerText = '⏳ 上传中...';
+            uploadBtn.disabled = true;
+            await storageRef.put(file);
+            const downloadURL = await storageRef.getDownloadURL();
+            await playlistRef.push({ name: file.name, url: downloadURL, timestamp: Date.now() });
+            alert(`✅ 已添加歌曲：${file.name}`);
+            logActivity("admin_upload_music", `上传歌曲 ${file.name}`);
+            uploadBtn.innerText = originalText;
+            uploadBtn.disabled = false;
+        } catch (e) {
+            alert("上传失败：" + e.message);
+            console.error(e);
+            document.getElementById('uploadMusicBtn').innerText = '📁 上传音乐 (MP3)';
+            document.getElementById('uploadMusicBtn').disabled = false;
+        }
+    }
+
+    // 恢复默认歌单
+    function restoreDefaultPlaylist() {
+        if (currentUserName !== ADMIN_USERNAME) {
+            alert("仅管理员可恢复默认歌单");
+            return;
+        }
+        const defaultSongs = [
+            { name: "SoundHelix Song 1", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "SoundHelix Song 2", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { name: "SoundHelix Song 3", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+        ];
+        playlistRef.remove().then(() => {
+            defaultSongs.forEach(song => playlistRef.push(song));
+            alert("已恢复默认歌单");
+            logActivity("admin_restore_default_music", "恢复默认歌单");
+        }).catch(err => alert("恢复失败: " + err));
+    }
+
+    // 初始化音乐播放器事件
+    function initMusicPlayer() {
+        const playPause = document.getElementById('playPauseBtn');
+        if (playPause) playPause.addEventListener('click', playPauseMusic);
+        const next = document.getElementById('nextBtn');
+        if (next) next.addEventListener('click', nextTrack);
+        const prev = document.getElementById('prevBtn');
+        if (prev) prev.addEventListener('click', prevTrack);
+        const volume = document.getElementById('volumeSlider');
+        if (volume) volume.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
+        const defaultBtn = document.getElementById('useDefaultBtn');
+        if (defaultBtn) defaultBtn.addEventListener('click', restoreDefaultPlaylist);
+        const toggle = document.getElementById('musicToggle');
+        if (toggle) toggle.addEventListener('click', () => document.getElementById('musicPanel').classList.toggle('show'));
+        audioPlayer.addEventListener('ended', nextTrack);
+        audioPlayer.volume = 0.5;
+        // 上传按钮事件
+        const uploadBtn = document.getElementById('uploadMusicBtn');
+        const fileInput = document.getElementById('musicFileUpload');
+        if (uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length) {
+                    uploadMusicFile(e.target.files[0]);
+                    fileInput.value = ''; // 清空，允许再次上传相同文件
+                }
+            });
+        }
+        loadPlaylistFromDB();
     }
     function loadTrack(index) { if(!currentPlaylist.length) return; const song = currentPlaylist[index]; audioPlayer.src = song.url; audioPlayer.load(); if(isPlayingMusic) audioPlayer.play().catch(e=>console.log); document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`; }
     function playPauseMusic() { if(audioPlayer.paused) { audioPlayer.play().catch(e=>console.log); isPlayingMusic=true; document.getElementById('playPauseBtn').innerText='⏸️'; } else { audioPlayer.pause(); isPlayingMusic=false; document.getElementById('playPauseBtn').innerText='▶️'; } }
