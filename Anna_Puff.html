@@ -52,11 +52,8 @@
         .music-toggle { width: 56px; height: 56px; background: #ffb347; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); font-size: 28px; }
         .music-panel { position: absolute; bottom: 70px; right: 0; width: 280px; background: #1e2a32e6; backdrop-filter: blur(12px); border-radius: 28px; padding: 16px; display: none; flex-direction: column; gap: 12px; border: 1px solid #ffb347; }
         .music-panel.show { display: flex; }
-        .upload-btn { background: #2c6e4f; text-align: center; padding: 6px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; position: relative; }
-        .upload-btn input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-        .custom-song { font-size: 0.7rem; text-align: center; cursor: pointer; text-decoration: underline; }
-        .draft-badge { background: #882d2d; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 20px; margin-left: 8px; }
-        .publish-btn { background: #2c6e4f; margin-left: 8px; }
+        .upload-btn { background: #2c6e4f; text-align: center; padding: 6px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; display: inline-block; margin-top: 8px; }
+        .custom-song { font-size: 0.7rem; text-align: center; cursor: pointer; text-decoration: underline; margin-top: 8px; }
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
         .modal-content { background-color: #1e2a32; margin: 20% auto; padding: 20px; border-radius: 48px; width: 280px; text-align: center; border: 1px solid #ffb347; }
         .modal-content h3 { margin-top: 0; color: #ffd966; }
@@ -68,8 +65,6 @@
         .asset-item { display: flex; justify-content: space-between; align-items: center; background: #1e2a32; margin-bottom: 6px; padding: 6px 12px; border-radius: 28px; border-left: 3px solid #ffb347; }
         .asset-name { font-weight: bold; color: #ffd966; }
         .asset-amount { font-family: monospace; font-size: 1.1rem; color: #ffaa66; }
-        .clickable-asset { cursor: pointer; text-decoration: underline; }
-        .clickable-asset:hover { color: #ffaa33; }
         .reset-form { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
         .reset-form input, .reset-form select { flex: 1; margin-bottom: 0; }
     </style>
@@ -111,37 +106,36 @@
         </div>
     </div>
 
-    <!-- 问答互动界面 -->
-<div id="qaTab" class="tab-content">
-    <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
-        <!-- 问答区域 -->
-        <h3>📝 每日问答</h3>
-        <div class="question-list" id="questionList">加载中...</div>
-        <div class="question-admin admin-only" style="margin-top: 20px;">
-            <h4>➕ 管理员添加新问题（草稿，不发布则其他人不可见）</h4>
-            <input type="text" id="newQuestionText" placeholder="问题内容">
-            <textarea id="newQuestionAnswer" rows="2" placeholder="答案 (点击后显示)"></textarea>
-            <button id="addQuestionDraftBtn">📝 保存为草稿</button>
-            <small>草稿仅您可见，点击“发布”后所有人可见并可查看答案。</small>
-        </div>
-        <small>点击任意已发布问题即可显示答案，并记录查看行为。</small>
-
-        <!-- 礼物模块（在问答页面内） -->
-        <div style="margin-top: 30px;">
-            <h3>🎁 神秘礼盒 (点击揭开)</h3>
-            <div class="gift-list" id="giftList">加载中...</div>
-            <div class="add-gift admin-only" style="margin-top: 15px;">
-                <h4>➕ 添加新礼物 (管理员)</h4>
-                <input type="text" id="giftName" placeholder="名称 (例: 幸运币)" style="margin-bottom: 8px;">
-                <input type="text" id="giftValue" placeholder="价值/数量 (例: 50 AUD)" style="margin-bottom: 8px;">
-                <textarea id="giftDetail" rows="2" placeholder="隐藏内容 (别人点开后才能看到)" style="margin-bottom: 8px;"></textarea>
-                <button id="addGiftBtn">📦 添加礼盒</button>
+    <!-- 问答互动界面（包含礼物） -->
+    <div id="qaTab" class="tab-content">
+        <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
+            <h3>📝 每日问答</h3>
+            <div class="question-list" id="questionList">加载中...</div>
+            <div class="question-admin admin-only" style="margin-top: 20px;">
+                <h4>➕ 管理员添加新问题（草稿，不发布则其他人不可见）</h4>
+                <input type="text" id="newQuestionText" placeholder="问题内容">
+                <textarea id="newQuestionAnswer" rows="2" placeholder="答案 (点击后显示)"></textarea>
+                <button id="addQuestionDraftBtn">📝 保存为草稿</button>
+                <small>草稿仅您可见，点击“发布”后所有人可见并可查看答案。</small>
             </div>
-            <small>点击礼盒即可揭开隐藏内容，管理员可添加新礼物。</small>
+            <small>点击任意已发布问题即可显示答案，并记录查看行为。</small>
+
+            <!-- 礼物模块 -->
+            <div style="margin-top: 30px;">
+                <h3>🎁 神秘礼盒 (点击揭开)</h3>
+                <div class="gift-list" id="giftList">加载中...</div>
+                <div class="add-gift admin-only" style="margin-top: 15px;">
+                    <h4>➕ 添加新礼物 (管理员)</h4>
+                    <input type="text" id="giftName" placeholder="名称 (例: 幸运币)" style="margin-bottom: 8px;">
+                    <input type="text" id="giftValue" placeholder="价值/数量 (例: 50 AUD)" style="margin-bottom: 8px;">
+                    <textarea id="giftDetail" rows="2" placeholder="隐藏内容 (别人点开后才能看到)" style="margin-bottom: 8px;"></textarea>
+                    <button id="addGiftBtn">📦 添加礼盒</button>
+                </div>
+                <small>点击礼盒即可揭开隐藏内容，管理员可添加新礼物。</small>
+            </div>
         </div>
     </div>
-</div>
-<!-- 礼物模块结束 -->
+
     <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
@@ -169,7 +163,8 @@
         <button class="close-modal" onclick="closeModal()">关闭</button>
     </div>
 </div>
-<!-- 音乐播放器 -->
+
+<!-- 音乐播放器（修复版） -->
 <div class="music-player">
     <div class="music-toggle" id="musicToggle">🎵</div>
     <div class="music-panel" id="musicPanel">
@@ -190,8 +185,10 @@
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
 </div>
-    // ========== 配置 ==========
-    const ADMIN_USERNAME = "烧卖";   // 已修正为您的管理员名字
+
+<script>
+    // ========== Firebase 配置（请检查 apiKey 是否正确） ==========
+    const ADMIN_USERNAME = "烧卖";
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
         databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -201,6 +198,8 @@
         messagingSenderId: "247577846134",
         appId: "1:247577846134:web:9555c1436be25bf7b0da57"
     };
+    // =========================================================
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const segmentsRef = db.ref('wheelSegments');
@@ -266,7 +265,7 @@
     };
     window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
 
-    // 资产重置功能（管理员专用）
+    // 资产重置功能
     function resetUserAsset() {
         if (currentUserName !== ADMIN_USERNAME) { alert("无权限"); return; }
         const userName = document.getElementById('resetUserName').value.trim();
@@ -474,7 +473,7 @@
     }
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); logActivity("admin_clear_history","清空所有积分记录"); alert("已清空"); } }
 
-    // 礼物
+    // 礼物管理
     function renderGifts(giftsObj){
         let cont=document.getElementById('giftList');
         if(!cont) return;
@@ -684,7 +683,7 @@
     }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
 
-    // 音乐播放器
+    // 音乐播放器逻辑
     const defaultPlaylist = [
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
@@ -794,7 +793,7 @@
         const resetAssetBtn = document.getElementById('resetAssetBtn');
         if (resetAssetBtn) resetAssetBtn.onclick = resetUserAsset;
         const syncStatus = document.getElementById('syncStatus');
-        if (syncStatus) syncStatus.innerHTML = "✅ 实时资产看板已启用，管理员可重置资产";
+        if (syncStatus) syncStatus.innerHTML = "✅ 所有功能已就绪 - 资产重置面板已启用";
         let now = new Date();
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
