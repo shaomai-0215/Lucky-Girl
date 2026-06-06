@@ -29,6 +29,13 @@
         .score-value { font-size: 2rem; font-weight: bold; color: #ffd966; }
         .score-history { max-height: 300px; overflow-y: auto; background: #0f1a1f; border-radius: 28px; padding: 8px; font-size: 0.75rem; }
         .history-item { border-left: 3px solid #ffb347; padding: 8px; margin-bottom: 12px; background: #1e2a32; border-radius: 16px; }
+        .history-content { margin-bottom: 6px; }
+        .remark-area { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+        .history-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+        .remark-input { flex: 2; background: #2c3e2f; border: none; border-radius: 20px; padding: 4px 8px; color: white; font-size: 0.7rem; width: 70%; }
+        .remark-save { background: #2c6e4f; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .delete-record-btn { background: #882d2d; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; border: none; cursor: pointer; }
+        .remark-text { font-size: 0.7rem; color: #bbccdd; margin-top: 4px; word-break: break-word; }
         .admin-only { display: none; }
         button { cursor: pointer; background: #f39c12; border: none; border-radius: 30px; padding: 0 16px; }
         .clear-history-btn { background: #882d2d; color: white; }
@@ -39,7 +46,6 @@
         .manual-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .manual-form select { width: auto; flex: 1; margin-bottom: 0; }
         .sync-status { font-size: 0.7rem; text-align: center; margin-top: 12px; color: #aaffdd; }
-        /* 完整日历样式 */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .calendar-header button { background: #2c6e4f; padding: 6px 12px; border-radius: 30px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f1a1f; border-radius: 28px; padding: 16px; }
@@ -60,7 +66,114 @@
         .playlist-delete { background: #882d2d; border: none; border-radius: 20px; padding: 4px 10px; color: white; cursor: pointer; font-size: 0.7rem; margin-left: 8px; }
         .custom-song { font-size: 0.75rem; text-align: center; cursor: pointer; text-decoration: underline; margin-top: 10px; }
         #playlistContainer { max-height: 280px; overflow-y: auto; margin-top: 6px; }
-        /* 问答卡片样式 */
+
+        /* 问答统计看板样式 */
+        .quiz-stats-board {
+            background: #0f1a1fcc;
+            border-radius: 48px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .scoreboard {
+            display: flex;
+            gap: 30px;
+            background: #1e2a32;
+            padding: 12px 28px;
+            border-radius: 60px;
+        }
+        .score-correct {
+            color: #6bdb8e;
+            font-weight: bold;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        .score-wrong {
+            color: #e67e6b;
+            font-weight: bold;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        .score-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .quiz-history-list {
+            max-height: 280px;
+            overflow-y: auto;
+            background: #0f1a1f;
+            border-radius: 32px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .quiz-history-item {
+            background: #1e2a32;
+            border-radius: 40px;
+            padding: 8px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            border-left: 4px solid #ffb347;
+        }
+        .quiz-history-icon {
+            font-size: 1.3rem;
+            width: 40px;
+            text-align: center;
+        }
+        .quiz-history-text {
+            flex: 1;
+            font-size: 0.85rem;
+            word-break: break-word;
+        }
+        .quiz-history-time {
+            font-size: 0.7rem;
+            color: #aaccdd;
+        }
+        /* 烟花特效容器 */
+        .firework-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        /* 炸弹特效 */
+        .bomb-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, #ff4400, #8b0000);
+            border-radius: 50%;
+            animation: bombBlast 0.6s ease-out forwards;
+            pointer-events: none;
+            z-index: 10001;
+            opacity: 0.8;
+        }
+        @keyframes bombBlast {
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+        .shake {
+            animation: shakeScreen 0.2s ease-in-out 0s 2;
+        }
+        @keyframes shakeScreen {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(4px, -2px); }
+            75% { transform: translate(-4px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+        /* 通用卡片 */
         .qa-enhanced-card { background: #0f1a1fcc; border-radius: 32px; padding: 18px; margin-bottom: 20px; border-left: 5px solid #ffb347; }
         .qa-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
         .qa-question-text { font-size: 1.1rem; font-weight: bold; color: #ffd966; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -111,18 +224,30 @@
         </div>
     </div>
 
-    <!-- 问答互动界面 -->
+    <!-- 问答互动界面（新增统计看板+历史记录） -->
     <div id="qaTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📝 每日问答 <span style="font-size:0.7rem;">✨ 参与回答，赢取幸运</span></h3>
-            <div id="dynamicQuestionList">加载问题中...</div>
+            <!-- 统计看板 -->
+            <div class="quiz-stats-board" id="quizStatsBoard">
+                <div class="scoreboard">
+                    <div class="score-correct">✅ <span id="correctCount">0</span><div class="score-label">答对</div></div>
+                    <div class="score-wrong">❌ <span id="wrongCount">0</span><div class="score-label">答错</div></div>
+                </div>
+                <div style="font-size:0.8rem; opacity:0.7;">📊 你的答题记录</div>
+            </div>
+            <!-- 答题历史列表 -->
+            <div id="quizHistoryContainer" class="quiz-history-list">加载中...</div>
+            <!-- 问题列表 -->
+            <div id="dynamicQuestionList" style="margin-top:20px;">加载问题中...</div>
+            <!-- 管理员批阅面板 -->
             <div id="adminReviewPanel" class="admin-review-panel admin-only"><div class="admin-review-title">🔍 管理员批阅台 (✅ 正确 / ❌ 错误)</div><div id="adminAnswersContainer">等待加载...</div></div>
             <div class="question-admin admin-only" style="margin-top:20px;"><h4>➕ 管理员添加新问题</h4><input type="text" id="newQuestionText" placeholder="问题内容"><textarea id="newQuestionAnswer" rows="2" placeholder="正确答案"></textarea><button id="addQuestionDraftBtn">📝 发布新问题</button></div>
             <div style="margin-top:30px;"><h3>🎁 神秘礼盒</h3><div class="gift-list" id="giftList">加载中...</div><div class="add-gift admin-only" style="margin-top:15px;"><h4>➕ 添加新礼物</h4><input type="text" id="giftName" placeholder="名称"><input type="text" id="giftValue" placeholder="价值"><textarea id="giftDetail" rows="2" placeholder="隐藏内容"></textarea><button id="addGiftBtn">📦 添加礼盒</button></div></div>
         </div>
     </div>
 
-    <!-- 日历界面（完整版） -->
+    <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📆 活动日历</h3>
@@ -134,14 +259,13 @@
     <div class="sync-status" id="syncStatus">☁️ 连接云端同步中...</div>
 </div>
 
-<!-- 模态框 -->
 <div id="userAssetModal" class="modal" style="display:none;"><div class="modal-content"><h3 id="modalUserName">用户</h3><div class="modal-asset" id="modalAssetValue">--</div><button class="close-modal" onclick="closeModal()">关闭</button></div></div>
 
 <!-- 音乐播放器 -->
 <div class="music-player"><div class="music-toggle" id="musicToggle">🎵</div><div class="music-panel" id="musicPanel"><div class="music-info" id="musicInfo">未播放</div><div class="music-controls"><button id="prevBtn">⏮️</button><button id="playPauseBtn">▶️</button><button id="nextBtn">⏭️</button></div><div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"></div><div id="playlistContainer" style="max-height:280px; overflow-y:auto; margin-top:8px;"></div><div class="admin-only" style="margin-top:8px;"><input type="text" id="manualSongName" placeholder="歌曲名称" style="width:100%; margin-bottom:4px;"><input type="text" id="manualSongUrl" placeholder="歌曲下载链接" style="width:100%; margin-bottom:4px;"><button id="addSongByUrlBtn" style="width:100%;">➕ 添加歌曲链接</button></div><div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div></div></div>
 
 <script>
-    // ========== Firebase 配置（保持不变）==========
+    // ========== Firebase 配置 ==========
     const ADMIN_USERNAME = "烧卖";
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
@@ -172,9 +296,58 @@
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); }
 
-    // 资产与转盘（与原版相同，完整保留）
+    // 特效函数
+    function showFirework() {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'firework-canvas';
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particles = [];
+        for(let i=0;i<60;i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 6 + 2,
+                color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4 - 2,
+                life: 1
+            });
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let allDead = true;
+            for(let p of particles) {
+                if(p.life <= 0) continue;
+                allDead = false;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI*2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            }
+            if(allDead) canvas.remove();
+            else requestAnimationFrame(animate);
+        }
+        animate();
+        setTimeout(() => { if(canvas.parentNode) canvas.remove(); }, 1500);
+    }
+    function showBomb() {
+        const bombDiv = document.createElement('div');
+        bombDiv.className = 'bomb-effect';
+        document.body.appendChild(bombDiv);
+        document.body.classList.add('shake');
+        setTimeout(() => { document.body.classList.remove('shake'); }, 500);
+        setTimeout(() => { if(bombDiv.parentNode) bombDiv.remove(); }, 700);
+    }
+
+    // 资产与转盘（原有完整逻辑，精简但功能不变）
     async function recalcUserAsset(userName) { const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value'); const records = []; snapshot.forEach(child => records.push({ id: child.key, ...child.val() })); if (records.length === 0) { await userScoresRef.child(userName).set(100); return 100; } records.sort((a,b) => a.timestamp - b.timestamp); const lastAsset = records[records.length-1].newScore; await userScoresRef.child(userName).set(lastAsset); return lastAsset; }
-    function renderScoreHistory(historyArr) { const cont = document.getElementById('scoreHistoryList'); if(!cont) return; if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; } let html=''; const reversed = [...historyArr].reverse(); for(let item of reversed) { const remark = item.remark || ''; const remarkHtml = (currentUserName===ADMIN_USERNAME) ? `<div class="remark-area"><input type="text" class="remark-input" id="remark-${item.id}" placeholder="添加备注" value="${escapeHtml(remark)}"><button class="remark-save" data-id="${item.id}">保存</button></div>` : (remark ? `<div class="remark-text">📝 备注：${escapeHtml(remark)}</div>` : ''); html+=`<div class="history-item"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br><small>${item.dateStr} ${item.timeStr}</small></div>${remarkHtml}${currentUserName===ADMIN_USERNAME?`<button class="delete-record-btn" data-id="${item.id}" data-user="${escapeHtml(item.userName)}">🗑️ 删除</button>`:''}</div>`; } cont.innerHTML=html; document.querySelectorAll('.remark-save').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); const id = btn.dataset.id; const newRemark = document.getElementById(`remark-${id}`).value.trim(); await scoreHistoryRef.child(id).update({ remark: newRemark }); logActivity("admin_add_remark", `为记录 ${id} 添加备注`); }; }); document.querySelectorAll('.delete-record-btn').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); if(currentUserName!==ADMIN_USERNAME) return; const id = btn.dataset.id; const userName = btn.dataset.user; if(confirm(`删除该条记录？删除后 ${userName} 的资产将恢复到该记录之前的最新状态。`)){ await scoreHistoryRef.child(id).remove(); logActivity("admin_delete_record", `删除记录 ${id}`); await recalcUserAsset(userName); alert(`已删除记录，${userName} 的资产已恢复`); } }; }); }
+    function renderScoreHistory(historyArr) { /* 保持原样，但已修改按钮布局 */ const cont = document.getElementById('scoreHistoryList'); if(!cont) return; if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; } let html=''; const reversed = [...historyArr].reverse(); for(let item of reversed) { const remark = item.remark || ''; let remarkHtml = ''; if (currentUserName === ADMIN_USERNAME) { remarkHtml = `<div class="remark-area"><input type="text" class="remark-input" id="remark-${item.id}" placeholder="添加备注" value="${escapeHtml(remark)}"><button class="remark-save" data-id="${item.id}">保存</button></div>`; } else if (remark) { remarkHtml = `<div class="remark-text">📝 备注：${escapeHtml(remark)}</div>`; } let deleteBtn = ''; if (currentUserName === ADMIN_USERNAME) { deleteBtn = `<button class="delete-record-btn" data-id="${item.id}" data-user="${escapeHtml(item.userName)}">🗑️ 删除</button>`; } html += `<div class="history-item"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br><small>${item.dateStr} ${item.timeStr}</small></div>${remarkHtml}<div class="history-actions"><span></span>${deleteBtn ? `<div>${deleteBtn}</div>` : ''}</div></div>`; } cont.innerHTML = html; document.querySelectorAll('.remark-save').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); const id = btn.dataset.id; const newRemark = document.getElementById(`remark-${id}`).value.trim(); await scoreHistoryRef.child(id).update({ remark: newRemark }); logActivity("admin_add_remark", `为记录 ${id} 添加备注`); }; }); document.querySelectorAll('.delete-record-btn').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); if(currentUserName!==ADMIN_USERNAME) return; const id = btn.dataset.id; const userName = btn.dataset.user; if(confirm(`删除该条记录？删除后 ${userName} 的资产将恢复到该记录之前的最新状态。`)){ await scoreHistoryRef.child(id).remove(); logActivity("admin_delete_record", `删除记录 ${id}`); await recalcUserAsset(userName); alert(`已删除记录，${userName} 的资产已恢复`); } }; }); }
     scoreHistoryRef.on('value', async snap=>{ let data=snap.val(); let arr=[]; if(data) for(let [id,val] of Object.entries(data)) arr.push({id,...val}); arr.sort((a,b)=>a.timestamp - b.timestamp); renderScoreHistory(arr); });
     const percentOptions = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`${p}%`);
     function populatePercentSelect() { const select = document.getElementById('manualPercent'); if(!select) return; select.innerHTML = ''; percentOptions.forEach(p=>{ const opt=document.createElement('option'); opt.value=p; opt.textContent=p; select.appendChild(opt); }); }
@@ -197,8 +370,61 @@
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
     
-    // ========== 问答增强（完整保留）==========
-    async function renderAllQuestions() {
+    // ========== 问答统计与历史（核心新增） ==========
+    async function updateQuizStatsAndHistory() {
+        if(!currentUserName) return;
+        const questionsSnap = await questionsRef.once('value');
+        const questions = questionsSnap.val() || {};
+        const answersSnap = await questionAnswersRef.once('value');
+        const userAnswers = answersSnap.val() || {};
+        let correctTotal = 0, wrongTotal = 0;
+        let historyList = []; // { questionText, status, timestamp, qid }
+        for(let [qid, q] of Object.entries(questions)) {
+            if(!q.published) continue;
+            const userRec = userAnswers[qid]?.[currentUserName];
+            if(userRec && (userRec.status === 'correct' || userRec.status === 'wrong')) {
+                const status = userRec.status;
+                if(status === 'correct') correctTotal++;
+                else wrongTotal++;
+                const timestamp = userRec.reviewedAt || userRec.submittedAt || 0;
+                historyList.push({
+                    qid,
+                    questionText: q.text,
+                    status,
+                    timestamp,
+                    timeStr: timestamp ? new Date(timestamp).toLocaleString() : '未知'
+                });
+            }
+        }
+        // 按时间从新到旧排序
+        historyList.sort((a,b) => b.timestamp - a.timestamp);
+        document.getElementById('correctCount').innerText = correctTotal;
+        document.getElementById('wrongCount').innerText = wrongTotal;
+        const historyContainer = document.getElementById('quizHistoryContainer');
+        if(historyList.length === 0) {
+            historyContainer.innerHTML = '<div style="text-align:center; padding:20px;">暂无答题记录，参与问答后显示</div>';
+        } else {
+            let historyHtml = '';
+            for(let h of historyList) {
+                const icon = h.status === 'correct' ? '✅' : '❌';
+                const colorStyle = h.status === 'correct' ? 'color:#6bdb8e;' : 'color:#e67e6b;';
+                historyHtml += `<div class="quiz-history-item">
+                                    <div class="quiz-history-icon" style="${colorStyle}">${icon}</div>
+                                    <div class="quiz-history-text">${escapeHtml(h.questionText)}</div>
+                                    <div class="quiz-history-time">${h.timeStr}</div>
+                                </div>`;
+            }
+            historyContainer.innerHTML = historyHtml;
+        }
+    }
+    // 触发特效（根据状态）
+    function triggerEffect(status) {
+        if(status === 'correct') showFirework();
+        else if(status === 'wrong') showBomb();
+    }
+    // 修改renderAllQuestions，在正确/错误时调用统计更新并触发特效
+    let originalRenderAllQuestions = window.renderAllQuestions; // 备份，但我们会覆盖
+    window.renderAllQuestions = async function() {
         const questionsSnap = await questionsRef.once('value');
         const questions = questionsSnap.val() || {};
         if(!currentUserName) { document.getElementById('dynamicQuestionList').innerHTML = '<div style="padding:20px">请先在上方设置抽奖人姓名再参与问答~</div>'; return; }
@@ -238,15 +464,22 @@
                 const isAutoCorrect = (userAnswer.toLowerCase() === (question.answer || '').toLowerCase());
                 const status = isAutoCorrect ? 'correct' : 'pending';
                 await questionAnswersRef.child(qid).child(currentUserName).set({ answer: userAnswer, status: status, submittedAt: Date.now(), autoCorrect: isAutoCorrect, reviewerMark: null });
-                alert(isAutoCorrect ? "🎉 答案正确！管理员可再次确认。" : "答案已提交，等待管理员批阅~");
+                if(isAutoCorrect) {
+                    triggerEffect('correct');
+                    alert("🎉 答案正确！获得恭喜特效~");
+                } else {
+                    alert("答案已提交，等待管理员批阅~");
+                }
                 logActivity("answer_question", `问题:${question.text}`);
-                renderAllQuestions();
+                await renderAllQuestions();
+                await updateQuizStatsAndHistory();
                 if(currentUserName === ADMIN_USERNAME) renderAdminReviewPanel();
                 updateQATabRedDot();
             };
         });
-    }
-    async function renderAdminReviewPanel() {
+    };
+    // 修改管理员批阅面板，评判时触发特效并更新统计
+    window.renderAdminReviewPanel = async function() {
         if(currentUserName !== ADMIN_USERNAME) return;
         const answersSnap = await questionAnswersRef.once('value');
         const allAnswers = answersSnap.val() || {};
@@ -276,12 +509,31 @@
                 const newStatus = (mark === 'correct') ? 'correct' : 'wrong';
                 await questionAnswersRef.child(qid).child(uid).update({ status: newStatus, reviewerMark: mark, reviewedAt: Date.now() });
                 logActivity("admin_review", `评判用户${uid}的回答为${newStatus}`);
-                renderAdminReviewPanel();
-                renderAllQuestions();
+                // 触发特效如果评判的是当前登录用户
+                if(uid === currentUserName) {
+                    triggerEffect(newStatus);
+                }
+                await renderAdminReviewPanel();
+                await renderAllQuestions();
+                await updateQuizStatsAndHistory();
                 updateQATabRedDot();
             };
         });
-    }
+    };
+    // 监听数据变化，更新统计
+    questionsRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
+    questionAnswersRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
+    document.getElementById('addQuestionDraftBtn')?.addEventListener('click', async () => {
+        if(currentUserName!==ADMIN_USERNAME) return;
+        let text=document.getElementById('newQuestionText').value.trim();
+        let answer=document.getElementById('newQuestionAnswer').value.trim();
+        if(!text) return;
+        await questionsRef.push({ text, answer, published: true, timestamp: Date.now() });
+        logActivity("admin_add_question",text);
+        document.getElementById('newQuestionText').value=''; document.getElementById('newQuestionAnswer').value='';
+        alert("问题已发布并显示发布时间");
+        updateQATabRedDot();
+    });
     async function updateQATabRedDot() {
         if(!currentUserName) return;
         const questionsSnap = await questionsRef.once('value');
@@ -296,21 +548,8 @@
         if(existingBadge) existingBadge.remove();
         if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
     }
-    questionsRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQATabRedDot(); });
-    questionAnswersRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQATabRedDot(); });
-    document.getElementById('addQuestionDraftBtn')?.addEventListener('click', async () => {
-        if(currentUserName!==ADMIN_USERNAME) return;
-        let text=document.getElementById('newQuestionText').value.trim();
-        let answer=document.getElementById('newQuestionAnswer').value.trim();
-        if(!text) return;
-        await questionsRef.push({ text, answer, published: true, timestamp: Date.now() });
-        logActivity("admin_add_question",text);
-        document.getElementById('newQuestionText').value=''; document.getElementById('newQuestionAnswer').value='';
-        alert("问题已发布并显示发布时间");
-        updateQATabRedDot();
-    });
     
-    // ========== 完整日历功能（恢复原有逻辑）==========
+    // 日历部分（完整保留）
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
     const festivalMap = {"0101":"元旦","0210":"春节","0211":"春节","0212":"春节","0213":"春节","0214":"情人节","0308":"妇女节","0401":"愚人节","0501":"劳动节","0601":"儿童节","0701":"建党节","0801":"建军节","0910":"教师节","1001":"国庆节","1225":"圣诞节"};
@@ -379,26 +618,7 @@
                             const newRemark = document.getElementById(`remark-${id}`).value.trim();
                             await activityLogRef.child(id).update({ remark: newRemark });
                             logActivity("admin_add_remark", `为活动记录 ${id} 添加备注`);
-                            // 刷新显示
-                            const updatedEvents = activityCache[date] || [];
-                            let newHtml = `<h4>${date} 活动记录</h4>`;
-                            updatedEvents.forEach(ev2 => {
-                                const r2 = ev2.remark || '';
-                                let rh = (currentUserName === ADMIN_USERNAME) ? `<div class="remark-area"><input type="text" class="remark-input" id="remark-${ev2.id}" placeholder="添加备注" value="${escapeHtml(r2)}"><button class="remark-save-event" data-id="${ev2.id}">保存</button></div>` : (r2 ? `<div class="remark-text">📝 备注：${escapeHtml(r2)}</div>` : '');
-                                newHtml += `<div class="history-item"><strong>${escapeHtml(ev2.userName)}</strong> ${ev2.type}: ${ev2.detail}<br><small>${ev2.timeStr}</small>${rh}</div>`;
-                            });
-                            container.innerHTML = newHtml;
-                            // 重新绑定保存按钮
-                            document.querySelectorAll('.remark-save-event').forEach(btn2 => {
-                                btn2.onclick = async (e2) => {
-                                    e2.stopPropagation();
-                                    const id2 = btn2.dataset.id;
-                                    const newRemark2 = document.getElementById(`remark-${id2}`).value.trim();
-                                    await activityLogRef.child(id2).update({ remark: newRemark2 });
-                                    logActivity("admin_add_remark", `更新备注`);
-                                    location.reload();
-                                };
-                            });
+                            location.reload();
                         };
                     });
                 }
@@ -425,7 +645,7 @@
     window.closeModal=function(){ if(currentModalListener && typeof currentModalListener.off==='function') currentModalListener.off(); currentModalListener=null; document.getElementById('userAssetModal').style.display='none'; };
     window.onclick=function(event){ if(event.target===document.getElementById('userAssetModal')) closeModal(); };
     
-    // 音乐播放器（完整保留）
+    // 音乐播放器
     let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
     function loadPlaylistFromDB() { playlistRef.on('value', snap => { const data = snap.val(); currentPlaylist = []; if(data) for(let [id, song] of Object.entries(data)) currentPlaylist.push({ id, name: song.name, url: song.url }); renderPlaylistUI(); if(currentPlaylist.length && !audioPlayer.src) { currentTrackIndex = 0; loadTrack(0); } else if(currentPlaylist.length === 0) document.getElementById('musicInfo').innerText = '无音乐，请添加歌曲链接'; }); }
     function renderPlaylistUI() { const container = document.getElementById('playlistContainer'); if (!container) return; if (currentPlaylist.length === 0) { container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>'; return; } let html = ''; currentPlaylist.forEach((song, idx) => { html += `<div class="playlist-item"><span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}</div>`; }); container.innerHTML = html; document.querySelectorAll('.playlist-name').forEach(el => { el.addEventListener('click', (e) => { const idx = parseInt(el.dataset.index); if (!isNaN(idx)) { currentTrackIndex = idx; loadTrack(currentTrackIndex); audioPlayer.play().then(()=>{ document.getElementById('playPauseBtn').innerText = '⏸️'; }).catch(err => alert("播放失败: "+err.message+"，请先点击页面任意处")); } }); }); if (currentUserName === ADMIN_USERNAME) { document.querySelectorAll('.playlist-delete').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.dataset.id; const song = currentPlaylist.find(s => s.id === id); if (confirm(`删除歌曲 "${song.name}"？`)) { await playlistRef.child(id).remove(); logActivity("admin_delete_music", `删除歌曲 ${song.name}`); } }); }); } }
@@ -440,9 +660,9 @@
     // 用户管理
     let currentUserScoreListener=null;
     function subscribeToCurrentUserScore() { if(currentUserScoreListener && typeof currentUserScoreListener.off==='function') currentUserScoreListener.off(); if(currentUserName) { currentUserScoreListener = userScoresRef.child(currentUserName).on('value', snap=>{ let val=snap.val(); document.getElementById('currentScoreDisplay').innerText=(typeof val==='number'?val:100).toFixed(2); }); } else document.getElementById('currentScoreDisplay').innerText='--'; }
-    function setUsername(){ let name=document.getElementById('usernameInput').value.trim(); if(!name) return; currentUserName=name; localStorage.setItem("wheelUserName",name); document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); renderPlaylistUI(); updateQATabRedDot(); }
-    function loadUserName(){ let saved=localStorage.getItem("wheelUserName"); if(saved){ currentUserName=saved; document.getElementById('usernameInput').value=saved; document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); updateQATabRedDot(); } else { updateAdminUI(); document.getElementById('currentScoreDisplay').innerText='--'; renderAllQuestions(); } }
-    function switchTab(tabId){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tabId+'Tab').classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth); if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); } }
+    function setUsername(){ let name=document.getElementById('usernameInput').value.trim(); if(!name) return; currentUserName=name; localStorage.setItem("wheelUserName",name); document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); renderPlaylistUI(); updateQuizStatsAndHistory(); updateQATabRedDot(); }
+    function loadUserName(){ let saved=localStorage.getItem("wheelUserName"); if(saved){ currentUserName=saved; document.getElementById('usernameInput').value=saved; document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); updateQuizStatsAndHistory(); updateQATabRedDot(); } else { updateAdminUI(); document.getElementById('currentScoreDisplay').innerText='--'; renderAllQuestions(); } }
+    function switchTab(tabId){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tabId+'Tab').classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth); if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); } }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
     
     // 初始化
@@ -461,7 +681,7 @@
         let now = new Date();
         currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = "✅ 日历已恢复完整功能 | 问答红点 | 音乐面板加大";
+        document.getElementById('syncStatus').innerHTML = "✅ 新版：答对烟花💥答错炸弹 | 记分牌+历史记录 | 日历完整";
         updateQATabRedDot();
     };
 </script>
