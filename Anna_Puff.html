@@ -650,56 +650,49 @@
     document.getElementById('todayBtn')?.addEventListener('click',goToday);
     
     // 资产看板
-    function renderAssetBoard(scores) {
+   function renderAssetBoard(scores) {
     const container = document.getElementById('assetList');
-    if (!container) return;
+    if (!container) {
+        console.error("assetList 元素未找到");
+        return;
+    }
+    // 如果没有数据或数据为空
     if (!scores || Object.keys(scores).length === 0) {
-        container.innerHTML = '<div>暂无用户数据</div>';
+        container.innerHTML = '<div>暂无用户数据，请先进行抽奖</div>';
         return;
     }
     let html = '';
-    const sortedUsers = Object.keys(scores).sort();
-    for (let user of sortedUsers) {
-        let asset = scores[user];
-        if (asset === null || typeof asset !== 'number') asset = 100.0;
-        // 仅管理员可见删除按钮
-        const deleteBtnHtml = (currentUserName === ADMIN_USERNAME) 
-            ? `<button class="delete-user-btn" data-user="${escapeHtml(user)}" style="background:#882d2d; border:none; border-radius:30px; padding:2px 8px; margin-left:8px; font-size:0.7rem; cursor:pointer;">🗑️ 删除用户</button>`
+    for (const [user, asset] of Object.entries(scores)) {
+        let assetNum = (typeof asset === 'number') ? asset : 100.0;
+        const delBtn = (currentUserName === ADMIN_USERNAME)
+            ? `<button class="delete-user-btn" data-user="${escapeHtml(user)}" style="background:#882d2d; border:none; border-radius:30px; padding:2px 8px; margin-left:8px;">🗑️ 删除用户</button>`
             : '';
         html += `<div class="asset-item">
                     <span class="asset-name clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span>
-                    <span class="asset-amount">${asset.toFixed(2)} AUD</span>
-                    ${deleteBtnHtml}
+                    <span class="asset-amount">${assetNum.toFixed(2)} AUD</span>
+                    ${delBtn}
                 </div>`;
     }
     container.innerHTML = html;
-
-    // 绑定点击用户名查看资产
+    // 绑定查看资产
     document.querySelectorAll('.clickable-asset').forEach(el => {
         el.addEventListener('click', () => showUserAsset(el.dataset.user));
     });
-
-    // 绑定删除按钮事件（仅管理员）
+    // 绑定删除用户（仅管理员）
     if (currentUserName === ADMIN_USERNAME) {
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const userName = btn.dataset.user;
-                if (confirm(`⚠️ 确定要删除用户“${userName}”的所有资产和历史记录吗？此操作不可恢复！`)) {
+                if (confirm(`⚠️ 确定删除用户“${userName}”的所有数据吗？不可恢复！`)) {
                     try {
-                        // 删除用户资产
                         await userScoresRef.child(userName).remove();
-                        // 删除该用户的所有积分历史
-                        const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value');
-                        const updates = {};
-                        snapshot.forEach(child => {
-                            updates[child.key] = null;
-                        });
-                        await scoreHistoryRef.update(updates);
-                        alert(`已删除用户 “${userName}” 的所有数据。`);
-                        logActivity("admin_delete_user", `删除用户 ${userName} 的所有资产和记录`);
+                        // 删除该用户的历史记录
+                        const histSnap = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value');
+                        histSnap.forEach(child => child.ref.remove());
+                        alert(`已删除用户 “${userName}”`);
+                        logActivity("admin_delete_user", `删除用户 ${userName}`);
                     } catch (err) {
-                        console.error(err);
                         alert("删除失败: " + err.message);
                     }
                 }
@@ -744,9 +737,13 @@
         let now = new Date();
         currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = "✅ 新版：答对烟花💥答错炸弹 | 记分牌+历史记录 | 日历完整";
+        document.getElementById('syncStatus').innerHTML = ✅ 新版：答对烟花💥答错炸弹 | 记分牌+历史记录 | 日历完整";
         updateQATabRedDot();
-    };
+    };// 监听 userScores 变化，实时更新资产看板
+userScoresRef.on('value', (snap) => {
+    console.log("监听到 userScores 变化", snap.val());
+    renderAssetBoard(snap.val());
+});
 </script>
 </body>
 </html>
