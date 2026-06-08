@@ -164,17 +164,28 @@
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); }
 
     // 红点提示函数
-    function updateQATabRedDot() {
-        const qaTab = document.querySelector('.tab-btn[data-tab="qa"]');
-        if (!qaTab) return;
-        questionsRef.once('value', snap => {
-            let hasUnpublished = false;
-            snap.forEach(child => { if (child.val().published === false) hasUnpublished = true; });
-            if (hasUnpublished && currentUserName === ADMIN_USERNAME) {
-                if (!qaTab.querySelector('.red-dot')) { const dot = document.createElement('span'); dot.className = 'red-dot'; qaTab.appendChild(dot); }
-            } else { const dot = qaTab.querySelector('.red-dot'); if (dot) dot.remove(); }
+   function updateQATabRedDot() {
+    const qaTab = document.querySelector('.tab-btn[data-tab="qa"]');
+    if (!qaTab) return;
+    // 查询是否有未发布的问题（草稿）
+    questionsRef.once('value', snap => {
+        let hasUnpublished = false;
+        snap.forEach(child => {
+            if (child.val().published === false) hasUnpublished = true;
         });
-    }
+        if (hasUnpublished) {
+            // 有草稿时显示红点（所有用户可见）
+            if (!qaTab.querySelector('.red-dot')) {
+                const dot = document.createElement('span');
+                dot.className = 'red-dot';
+                qaTab.appendChild(dot);
+            }
+        } else {
+            const dot = qaTab.querySelector('.red-dot');
+            if (dot) dot.remove();
+        }
+    });
+}
 
     // 资产看板
     function renderAssetBoard(scores) {
