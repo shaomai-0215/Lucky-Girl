@@ -163,8 +163,8 @@
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); }
 
-    // 红点提示函数
-   function updateQATabRedDot() {
+    // 红点提示函数（所有用户可见）
+function updateQATabRedDot() {
     const qaTab = document.querySelector('.tab-btn[data-tab="qa"]');
     if (!qaTab) return;
     // 查询是否有未发布的问题（草稿）
