@@ -737,7 +737,7 @@
         let now = new Date();
         currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = ✅ 新版：答对烟花💥答错炸弹 | 记分牌+历史记录 | 日历完整";
+        document.getElementById('syncStatus').innerHTML = "新版: 答对烟花 答错炸弹 | 记分牌+历史记录 | 日历完成";
         updateQATabRedDot();
     };// 监听 userScores 变化，实时更新资产看板
 userScoresRef.on('value', (snap) => {
