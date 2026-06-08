@@ -7,7 +7,19 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
-    <style>
+    <style>.delete-user-btn {
+    background: #882d2d;
+    border: none;
+    border-radius: 30px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    color: white;
+}
+.delete-user-btn:hover {
+    background: #b33a3a;
+}
         * { box-sizing: border-box; user-select: none; }
         body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
         .app-container { max-width: 1600px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 20px; }
@@ -638,12 +650,63 @@
     document.getElementById('todayBtn')?.addEventListener('click',goToday);
     
     // 资产看板
-    function renderAssetBoard(scores){ let cont=document.getElementById('assetList'); if(!cont) return; if(!scores||!Object.keys(scores).length){ cont.innerHTML='<div>暂无用户</div>'; return; } let html=''; Object.keys(scores).sort().forEach(user=>{ let asset=scores[user]; if(asset===null||typeof asset!=='number') asset=100.0; html+=`<div class="asset-item"><span class="clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span><span>${asset.toFixed(2)} AUD</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.clickable-asset').forEach(el=>el.addEventListener('click',()=>showUserAsset(el.dataset.user))); }
-    userScoresRef.on('value', snap=>renderAssetBoard(snap.val()));
-    let currentModalListener=null;
-    function showUserAsset(userName){ let modal=document.getElementById('userAssetModal'); if(!modal) return; document.getElementById('modalUserName').innerText=userName; document.getElementById('modalAssetValue').innerText='加载中...'; modal.style.display='block'; if(currentModalListener && typeof currentModalListener.off==='function') currentModalListener.off(); currentModalListener=userScoresRef.child(userName).on('value', snap=>{ let val=snap.val(); document.getElementById('modalAssetValue').innerText=((typeof val==='number')?val:100).toFixed(2)+' AUD'; }); }
-    window.closeModal=function(){ if(currentModalListener && typeof currentModalListener.off==='function') currentModalListener.off(); currentModalListener=null; document.getElementById('userAssetModal').style.display='none'; };
-    window.onclick=function(event){ if(event.target===document.getElementById('userAssetModal')) closeModal(); };
+    function renderAssetBoard(scores) {
+    const container = document.getElementById('assetList');
+    if (!container) return;
+    if (!scores || Object.keys(scores).length === 0) {
+        container.innerHTML = '<div>暂无用户数据</div>';
+        return;
+    }
+    let html = '';
+    const sortedUsers = Object.keys(scores).sort();
+    for (let user of sortedUsers) {
+        let asset = scores[user];
+        if (asset === null || typeof asset !== 'number') asset = 100.0;
+        // 仅管理员可见删除按钮
+        const deleteBtnHtml = (currentUserName === ADMIN_USERNAME) 
+            ? `<button class="delete-user-btn" data-user="${escapeHtml(user)}" style="background:#882d2d; border:none; border-radius:30px; padding:2px 8px; margin-left:8px; font-size:0.7rem; cursor:pointer;">🗑️ 删除用户</button>`
+            : '';
+        html += `<div class="asset-item">
+                    <span class="asset-name clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span>
+                    <span class="asset-amount">${asset.toFixed(2)} AUD</span>
+                    ${deleteBtnHtml}
+                </div>`;
+    }
+    container.innerHTML = html;
+
+    // 绑定点击用户名查看资产
+    document.querySelectorAll('.clickable-asset').forEach(el => {
+        el.addEventListener('click', () => showUserAsset(el.dataset.user));
+    });
+
+    // 绑定删除按钮事件（仅管理员）
+    if (currentUserName === ADMIN_USERNAME) {
+        document.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const userName = btn.dataset.user;
+                if (confirm(`⚠️ 确定要删除用户“${userName}”的所有资产和历史记录吗？此操作不可恢复！`)) {
+                    try {
+                        // 删除用户资产
+                        await userScoresRef.child(userName).remove();
+                        // 删除该用户的所有积分历史
+                        const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value');
+                        const updates = {};
+                        snapshot.forEach(child => {
+                            updates[child.key] = null;
+                        });
+                        await scoreHistoryRef.update(updates);
+                        alert(`已删除用户 “${userName}” 的所有数据。`);
+                        logActivity("admin_delete_user", `删除用户 ${userName} 的所有资产和记录`);
+                    } catch (err) {
+                        console.error(err);
+                        alert("删除失败: " + err.message);
+                    }
+                }
+            });
+        });
+    }
+}
     
     // 音乐播放器
     let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
