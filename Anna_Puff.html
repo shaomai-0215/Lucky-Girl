@@ -127,7 +127,8 @@
         <div class="admin-only" style="margin-top:8px;"><input type="text" id="manualSongName" placeholder="歌曲名称"><input type="text" id="manualSongUrl" placeholder="歌曲下载链接"><button id="addSongByUrlBtn" style="width:100%;">➕ 添加歌曲链接</button></div>
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
-</div><script>
+</div>
+<script>
     // ========== Firebase 配置 ==========
     const ADMIN_USERNAME = "烧卖";
     const firebaseConfig = {
@@ -163,29 +164,18 @@
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); }
 
-    // 红点提示函数（所有用户可见）
-function updateQATabRedDot() {
-    const qaTab = document.querySelector('.tab-btn[data-tab="qa"]');
-    if (!qaTab) return;
-    // 查询是否有未发布的问题（草稿）
-    questionsRef.once('value', snap => {
-        let hasUnpublished = false;
-        snap.forEach(child => {
-            if (child.val().published === false) hasUnpublished = true;
+    // 红点提示函数
+    function updateQATabRedDot() {
+        const qaTab = document.querySelector('.tab-btn[data-tab="qa"]');
+        if (!qaTab) return;
+        questionsRef.once('value', snap => {
+            let hasUnpublished = false;
+            snap.forEach(child => { if (child.val().published === false) hasUnpublished = true; });
+            if (hasUnpublished && currentUserName === ADMIN_USERNAME) {
+                if (!qaTab.querySelector('.red-dot')) { const dot = document.createElement('span'); dot.className = 'red-dot'; qaTab.appendChild(dot); }
+            } else { const dot = qaTab.querySelector('.red-dot'); if (dot) dot.remove(); }
         });
-        if (hasUnpublished) {
-            // 有草稿时显示红点（所有用户可见）
-            if (!qaTab.querySelector('.red-dot')) {
-                const dot = document.createElement('span');
-                dot.className = 'red-dot';
-                qaTab.appendChild(dot);
-            }
-        } else {
-            const dot = qaTab.querySelector('.red-dot');
-            if (dot) dot.remove();
-        }
-    });
-}
+    }
 
     // 资产看板
     function renderAssetBoard(scores) {
@@ -649,7 +639,7 @@ function updateQATabRedDot() {
         currentCalendarYear = now.getFullYear();
         currentCalendarMonth = now.getMonth();
         loadActivityForMonth(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = "希望你每一天都能开开心心的度过";
+        document.getElementById('syncStatus').innerHTML = "希望你每天都能开开心心的度过";
         updateQATabRedDot();
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
     };
