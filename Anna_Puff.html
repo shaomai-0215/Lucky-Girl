@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; color: #eee; }
+        body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
         .app-container { max-width: 1400px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 16px; }
         .tabs { display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 2px solid #ffb347; padding-bottom: 8px; flex-wrap: wrap; }
         .tab-btn { background: #2c4d3e; border: none; color: #ffd966; font-size: 1rem; font-weight: bold; padding: 8px 20px; border-radius: 40px; cursor: pointer; transition: 0.2s; touch-action: manipulation; position: relative; }
@@ -61,14 +61,15 @@
         .playlist-delete { background: #882d2d; border: none; border-radius: 20px; padding: 2px 8px; color: white; font-size: 0.7rem; margin-left: 8px; }
         .custom-song { font-size: 0.7rem; text-align: center; cursor: pointer; text-decoration: underline; margin-top: 6px; }
         .delete-user-btn { background: #882d2d; border: none; border-radius: 30px; padding: 2px 8px; margin-left: 8px; font-size: 0.7rem; cursor: pointer; color: white; }
-        .delete-user-btn:hover { background: #b33a3a; }
         .asset-item { display: flex; justify-content: space-between; align-items: center; background: #1e2a32; margin-bottom: 6px; padding: 6px 10px; border-radius: 28px; border-left: 3px solid #ffb347; }
         .reset-form { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
         .reset-form input, .reset-form select { flex: 1; margin-bottom: 0; }
         .load-more-btn { background: #2c6e4f; border: none; border-radius: 30px; padding: 6px 12px; color: white; width: 100%; margin-top: 8px; font-size: 0.8rem; }
         @media (max-width: 768px) { body { padding: 12px; } .app-container { padding: 12px; } .tabs { gap: 8px; } .tab-btn { font-size: 0.9rem; padding: 6px 16px; } .dashboard { gap: 16px; } .wheel-card, .stats-card, .asset-card { padding: 12px; } .score-history { max-height: 250px; } }
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #1e2a32; margin: 30% auto; padding: 20px; border-radius: 48px; width: 260px; text-align: center; }
+        .modal-content { background-color: #1e2a32; margin: 30% auto; padding: 20px; border-radius: 48px; width: 280px; text-align: center; }
+        .answer-option { display: block; background: #2c4d3e; margin: 6px 0; padding: 6px; border-radius: 28px; cursor: pointer; text-align: left; padding-left: 12px; }
+        .answer-option:hover { background: #3a6b4f; }
     </style>
 </head>
 <body>
@@ -78,12 +79,13 @@
         <button class="tab-btn" data-tab="qa">❓ 问答</button>
         <button class="tab-btn" data-tab="calendar">📅 日历</button>
     </div>
+
     <!-- 转盘界面 -->
     <div id="wheelTab" class="tab-content active">
         <div class="dashboard">
             <div class="wheel-card">
                 <div style="text-align: center;"><canvas id="wheelCanvas" width="500" height="500"></canvas><div><button class="spin-btn" id="spinButton">🎡 旋转转盘 🎡</button></div></div>
-                <div class="prize-edit admin-only"><h4>🎁 编辑奖项 (管理员)</h4><div class="prize-list" id="prizeListContainer"></div><div class="add-prize"><input type="text" id="newPrizeInput" placeholder="例如 30%"><button id="addPrizeBtn">➕ 添加</button></div><small>修改后所有人同步</small></div>
+                <div class="prize-edit admin-only"><h4>🎁 编辑奖项</h4><div class="prize-list" id="prizeListContainer"></div><div class="add-prize"><input type="text" id="newPrizeInput" placeholder="例如 30%"><button id="addPrizeBtn">➕ 添加</button></div><small>修改后所有人同步</small></div>
             </div>
             <div class="stats-card">
                 <div class="user-section"><h3>🧑 抽奖人</h3><div class="input-group"><input type="text" id="usernameInput" placeholder="您的名字"><button id="setUserBtn">确认</button></div><div id="currentUserDisplay" style="margin-top:6px; font-size:0.8rem;"></div></div>
@@ -97,15 +99,17 @@
             </div>
         </div>
     </div>
-    <!-- 问答界面 -->
+
+    <!-- 问答互动界面（带答题积分） -->
     <div id="qaTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📝 每日问答</h3>
             <div class="question-list" id="questionList">加载中...</div>
-            <div class="question-admin admin-only" style="margin-top:16px;"><h4>➕ 添加新问题（草稿）</h4><input type="text" id="newQuestionText" placeholder="问题内容"><textarea id="newQuestionAnswer" rows="2" placeholder="答案"></textarea><button id="addQuestionDraftBtn">📝 保存草稿</button></div>
+            <div class="question-admin admin-only" style="margin-top:16px;"><h4>➕ 添加新问题</h4><input type="text" id="newQuestionText" placeholder="问题内容"><input type="text" id="newQuestionAnswer" placeholder="正确答案"><input type="number" id="newQuestionReward" placeholder="奖励积分 (AUD)" value="10"><button id="addQuestionDraftBtn">📝 保存草稿</button></div>
             <div style="margin-top:24px;"><h3>🎁 神秘礼盒</h3><div class="gift-list" id="giftList">加载中...</div><div class="add-gift admin-only" style="margin-top:12px;"><h4>➕ 添加新礼物</h4><input type="text" id="giftName" placeholder="名称"><input type="text" id="giftValue" placeholder="价值"><textarea id="giftDetail" rows="2" placeholder="隐藏内容"></textarea><button id="addGiftBtn">📦 添加</button></div></div>
         </div>
     </div>
+
     <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
@@ -116,7 +120,10 @@
     </div>
     <div class="sync-status" id="syncStatus">☁️ 连接中...</div>
 </div>
+
 <div id="userAssetModal" class="modal" style="display:none;"><div class="modal-content"><h3 id="modalUserName">用户</h3><div id="modalAssetValue" style="font-size:1.5rem; margin:10px 0;">--</div><button onclick="closeModal()">关闭</button></div></div>
+
+<!-- 音乐播放器 -->
 <div class="music-player">
     <div class="music-toggle" id="musicToggle">🎵</div>
     <div class="music-panel" id="musicPanel">
@@ -128,6 +135,7 @@
         <div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div>
     </div>
 </div>
+
 <script>
     // ========== Firebase 配置 ==========
     const ADMIN_USERNAME = "烧卖";
@@ -147,7 +155,7 @@
     const userScoresRef = db.ref('userScores');
     const scoreHistoryRef = db.ref('scoreHistory');
     const giftsRef = db.ref('gifts');
-    const questionsRef = db.ref('questions');
+    const questionsRef = db.ref('questions');      // 每个问题 { text, answer, reward, published, timestamp }
     const activityLogRef = db.ref('activityLog');
     const playlistRef = db.ref('playlist');
 
@@ -164,16 +172,25 @@
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); }
 
-    // 红点提示函数
+    // 红点提示函数（所有用户可见）
     function updateQATabRedDot() {
         const qaTab = document.querySelector('.tab-btn[data-tab="qa"]');
         if (!qaTab) return;
         questionsRef.once('value', snap => {
             let hasUnpublished = false;
-            snap.forEach(child => { if (child.val().published === false) hasUnpublished = true; });
-            if (hasUnpublished && currentUserName === ADMIN_USERNAME) {
-                if (!qaTab.querySelector('.red-dot')) { const dot = document.createElement('span'); dot.className = 'red-dot'; qaTab.appendChild(dot); }
-            } else { const dot = qaTab.querySelector('.red-dot'); if (dot) dot.remove(); }
+            snap.forEach(child => {
+                if (child.val().published === false) hasUnpublished = true;
+            });
+            if (hasUnpublished) {
+                if (!qaTab.querySelector('.red-dot')) {
+                    const dot = document.createElement('span');
+                    dot.className = 'red-dot';
+                    qaTab.appendChild(dot);
+                }
+            } else {
+                const dot = qaTab.querySelector('.red-dot');
+                if (dot) dot.remove();
+            }
         });
     }
 
@@ -181,7 +198,7 @@
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
         if (!container) return;
-        if (!scores || Object.keys(scores).length === 0) { container.innerHTML = '<div>暂无用户数据，请先抽奖</div>'; return; }
+        if (!scores || Object.keys(scores).length === 0) { container.innerHTML = '<div>暂无用户数据</div>'; return; }
         let html = '';
         for (let [user, asset] of Object.entries(scores)) {
             let assetNum = (typeof asset === 'number') ? asset : 100.0;
@@ -282,13 +299,8 @@
         userScoresRef.child(user).transaction(cur => cur===null ? 100*multiplier : cur*multiplier, (err,committed,snapshot) => { if (err || !committed) callback(false); else callback(true, snapshot.val()); });
     }
     function addHistoryRecord(userName, percentage, oldScore, newScore) { scoreHistoryRef.push({ userName, percentage, oldScore, newScore, timestamp: Date.now(), dateStr: new Date().toLocaleDateString('zh-CN'), timeStr: new Date().toLocaleTimeString('zh-CN') }); }
-    function applyScoreForUser(userName, percentageStr, callback) {
-        getUserScore(userName).then(oldScore => {
-            updateUserScore(userName, percentageStr, (success, newScore) => { if (success) { addHistoryRecord(userName, percentageStr, oldScore, newScore); callback(true, newScore); } else callback(false); });
-        }).catch(()=>callback(false));
-    }
 
-    // 转盘绘制与动画
+    // 转盘逻辑
     function drawWheel() {
         if (!ctx) return;
         let size = Math.min(canvas.clientWidth, canvas.clientHeight);
@@ -353,18 +365,26 @@
                 currentRotation = finalRot % twoPi;
                 drawWheel();
                 let prize = segments[getCurrentPrizeIndex()];
-                applyScoreForUser(currentUserName, prize, (success, newScore) => {
-                    if (success) alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`);
-                    else alert("积分更新失败");
-                    isSpinning = false;
-                    btn.disabled = false;
-                });
+                // 抽奖积分更新
+                getUserScore(currentUserName).then(oldScore => {
+                    const multiplier = getMultiplier(prize);
+                    updateUserScore(currentUserName, prize, (success, newScore) => {
+                        if (success) {
+                            addHistoryRecord(currentUserName, prize, oldScore, newScore);
+                            alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`);
+                            logActivity("spin", `抽中 ${prize}`);
+                        } else alert("积分更新失败");
+                        isSpinning = false;
+                        btn.disabled = false;
+                    });
+                }).catch(() => { isSpinning = false; btn.disabled = false; });
             }
         }
         if (animFrame) cancelAnimationFrame(animFrame);
         animFrame = requestAnimationFrame(animate);
     }
 
+    // 奖项编辑
     function renderPrizeTags() {
         let cont = document.getElementById('prizeListContainer');
         if (!cont) return;
@@ -383,13 +403,13 @@
         if (!user) { alert("请输入用户名"); return; }
         getUserScore(user).then(oldScore => {
             const multiplier = getMultiplier(percent);
-            userScoresRef.child(user).transaction(cur => cur===null ? 100*multiplier : cur*multiplier, (err,committed,snapshot) => {
-                if (err || !committed) { alert("添加失败"); return; }
-                const newScore = snapshot.val();
-                addHistoryRecord(user, percent, oldScore, newScore);
-                alert(`已为 ${user} 添加 ${percent} 记录，资产 → ${newScore.toFixed(2)}`);
-                logActivity("admin_manual_add", `为 ${user} 添加 ${percent}`);
-                document.getElementById('manualUserName').value = "";
+            updateUserScore(user, percent, (success, newScore) => {
+                if (success) {
+                    addHistoryRecord(user, percent, oldScore, newScore);
+                    alert(`已为 ${user} 添加 ${percent} 记录，资产 → ${newScore.toFixed(2)}`);
+                    logActivity("admin_manual_add", `为 ${user} 添加 ${percent}`);
+                    document.getElementById('manualUserName').value = "";
+                } else alert("添加失败");
             });
         }).catch(()=>alert("获取资产失败"));
     }
@@ -418,20 +438,77 @@
     giftsRef.on('value', snap => renderGifts(snap.val()));
     function addGift(){ if(currentUserName !== ADMIN_USERNAME) return; let name = document.getElementById('giftName').value.trim(); let value = document.getElementById('giftValue').value.trim(); let detail = document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // 问答
-    async function addQuestionDraft(){ if(currentUserName !== ADMIN_USERNAME) return; let text = document.getElementById('newQuestionText').value.trim(); let answer = document.getElementById('newQuestionAnswer').value.trim(); if(!text) return; await questionsRef.push({text,answer,published:false,timestamp:Date.now()}); logActivity("admin_add_question_draft",text); document.getElementById('newQuestionText').value=''; document.getElementById('newQuestionAnswer').value=''; alert("草稿已保存"); updateQATabRedDot(); }
-    async function publishQuestion(id){ if(currentUserName !== ADMIN_USERNAME) return; await questionsRef.child(id).update({published:true}); logActivity("admin_publish_question",id); alert("已发布"); updateQATabRedDot(); }
-    async function deleteQuestion(id){ if(currentUserName !== ADMIN_USERNAME) return; if(confirm("删除问题？")){ await questionsRef.child(id).remove(); logActivity("admin_delete_question",id); updateQATabRedDot(); } }
-    function renderQuestions(questionsObj) {
-        let cont = document.getElementById('questionList');
-        if (!questionsObj || !Object.keys(questionsObj).length) { cont.innerHTML = '<div>暂无问题</div>'; return; }
-        let html = '';
-        for (let [id,q] of Object.entries(questionsObj)) {
-            if (currentUserName !== ADMIN_USERNAME && !q.published) continue;
-            html += `<div class="question-item"><strong>${escapeHtml(q.text)}</strong> ${q.published?'':`<span class="draft-badge">草稿</span>`} <button class="show-answer" data-answer="${escapeHtml(q.answer)}">查看答案</button> ${!q.published && currentUserName===ADMIN_USERNAME?`<button class="publish-btn" data-id="${id}">发布</button>`:''} ${currentUserName===ADMIN_USERNAME?`<button class="delete-question" data-id="${id}">❌ 删除</button>`:''}</div>`;
+    // 问答模块（支持答题积分）
+    async function addQuestionDraft() {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        const text = document.getElementById('newQuestionText').value.trim();
+        const answer = document.getElementById('newQuestionAnswer').value.trim();
+        const reward = parseInt(document.getElementById('newQuestionReward').value) || 10;
+        if (!text || !answer) { alert("请填写问题和正确答案"); return; }
+        await questionsRef.push({ text, answer, reward, published: false, timestamp: Date.now() });
+        logActivity("admin_add_question_draft", text);
+        document.getElementById('newQuestionText').value = '';
+        document.getElementById('newQuestionAnswer').value = '';
+        document.getElementById('newQuestionReward').value = '10';
+        alert("草稿已保存");
+        updateQATabRedDot();
+    }
+    async function publishQuestion(id) {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        await questionsRef.child(id).update({ published: true });
+        logActivity("admin_publish_question", id);
+        alert("已发布");
+        updateQATabRedDot();
+    }
+    async function deleteQuestion(id) {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        if (confirm("删除问题？")) {
+            await questionsRef.child(id).remove();
+            logActivity("admin_delete_question", id);
+            updateQATabRedDot();
         }
-        cont.innerHTML = html;
-        document.querySelectorAll('.show-answer').forEach(btn => btn.onclick = () => { alert(`答案：${btn.dataset.answer}`); logActivity("view_question","查看问题"); });
+    }
+    async function answerQuestion(questionId, userAnswer, reward) {
+        if (!currentUserName) { alert("请先设置抽奖人姓名"); return; }
+        const questionSnap = await questionsRef.child(questionId).once('value');
+        const q = questionSnap.val();
+        if (!q) return;
+        const isCorrect = (userAnswer.trim().toLowerCase() === q.answer.trim().toLowerCase());
+        if (isCorrect) {
+            // 答对：增加 reward 积分
+            const oldScore = await getUserScore(currentUserName);
+            const newScore = oldScore + reward;
+            await userScoresRef.child(currentUserName).set(newScore);
+            addHistoryRecord(currentUserName, `答对“${q.text}” +${reward}`, oldScore, newScore);
+            alert(`✅ 答对了！获得 ${reward} AUD，资产 → ${newScore.toFixed(2)}`);
+            logActivity("answer_correct", `问题: ${q.text}`);
+        } else {
+            alert(`❌ 答错了。正确答案是：${q.answer}`);
+            logActivity("answer_wrong", `问题: ${q.text}`);
+        }
+        // 刷新资产显示
+        const val = await getUserScore(currentUserName);
+        document.getElementById('currentScoreDisplay').innerText = val.toFixed(2);
+    }
+    function renderQuestions(questionsObj) {
+        const container = document.getElementById('questionList');
+        if (!container) return;
+        if (!questionsObj || Object.keys(questionsObj).length === 0) {
+            container.innerHTML = '<div>暂无问题</div>';
+            return;
+        }
+        let html = '';
+        for (let [id, q] of Object.entries(questionsObj)) {
+            if (currentUserName !== ADMIN_USERNAME && !q.published) continue;
+            const publishBadge = (q.published ? '' : `<span class="draft-badge">草稿</span>`);
+            const adminBtns = (currentUserName === ADMIN_USERNAME) ? `<button class="publish-btn" data-id="${id}">发布</button><button class="delete-question" data-id="${id}">❌ 删除</button>` : '';
+            html += `<div class="question-item">
+                        <div><strong>${escapeHtml(q.text)}</strong> ${publishBadge} (奖励: ${q.reward} AUD)</div>
+                        <div><input type="text" id="answer-${id}" placeholder="输入答案"><button onclick="answerQuestion('${id}', document.getElementById('answer-${id}').value, ${q.reward})">提交答案</button></div>
+                        ${adminBtns}
+                    </div>`;
+        }
+        container.innerHTML = html;
         document.querySelectorAll('.publish-btn').forEach(btn => btn.onclick = () => publishQuestion(btn.dataset.id));
         document.querySelectorAll('.delete-question').forEach(btn => btn.onclick = () => deleteQuestion(btn.dataset.id));
     }
