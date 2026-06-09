@@ -176,7 +176,6 @@
 <div class="music-player"><div class="music-toggle" id="musicToggle">🎵</div><div class="music-panel" id="musicPanel"><div class="music-info" id="musicInfo">未播放</div><div class="music-controls"><button id="prevBtn">⏮️</button><button id="playPauseBtn">▶️</button><button id="nextBtn">⏭️</button></div><div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"></div><div id="playlistContainer" style="max-height:280px; overflow-y:auto; margin-top:8px;"></div><div class="admin-only" style="margin-top:8px;"><input type="text" id="manualSongName" placeholder="歌曲名称" style="width:100%; margin-bottom:4px;"><input type="text" id="manualSongUrl" placeholder="歌曲下载链接" style="width:100%; margin-bottom:4px;"><button id="addSongByUrlBtn" style="width:100%;">➕ 添加歌曲链接</button></div><div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div></div></div>
 
 <script>
-    // Firebase 配置（请替换为您自己的项目信息）
     const ADMIN_USERNAME = "烧卖";
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
@@ -198,29 +197,36 @@
     const activityLogRef = db.ref('activityLog');
     const playlistRef = db.ref('playlist');
 
-    // 全局变量
     let segments = ["10%","0%","20%","30%","50%","100%"];
     let currentRotation = 0, isSpinning = false, animFrame = null, currentUserName = "";
     let canvas, ctx;
     const colorPalette = ["#F05454","#FFC069","#6ECB63","#5D9BEC","#E98A8A","#A366F5"];
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>m==='&'?'&amp;':m==='<'?'&lt;':m=='>'?'&gt;'); }
+    // 修复 escapeHtml 为安全写法
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            return '&gt;';
+        });
+    }
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); }
 
     // 特效
     function showFirework() {
-        const canvas = document.createElement('canvas');
-        canvas.className = 'firework-canvas';
-        document.body.appendChild(canvas);
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const fwCanvas = document.createElement('canvas');
+        fwCanvas.className = 'firework-canvas';
+        document.body.appendChild(fwCanvas);
+        const fwCtx = fwCanvas.getContext('2d');
+        fwCanvas.width = window.innerWidth;
+        fwCanvas.height = window.innerHeight;
         let particles = [];
-        for(let i=0;i<60;i++) particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, radius:Math.random()*6+2, color:`hsl(${Math.random()*360},100%,60%)`, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4-2, life:1 });
-        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); let allDead=true; for(let p of particles){ if(p.life<=0) continue; allDead=false; p.x+=p.vx; p.y+=p.vy; p.life-=0.02; ctx.beginPath(); ctx.arc(p.x,p.y,p.radius*p.life,0,Math.PI*2); ctx.fillStyle=p.color; ctx.fill(); } if(allDead) canvas.remove(); else requestAnimationFrame(animate); }
+        for(let i=0;i<60;i++) particles.push({ x:Math.random()*fwCanvas.width, y:Math.random()*fwCanvas.height, radius:Math.random()*6+2, color:`hsl(${Math.random()*360},100%,60%)`, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4-2, life:1 });
+        function animate() { fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height); let allDead=true; for(let p of particles){ if(p.life<=0) continue; allDead=false; p.x+=p.vx; p.y+=p.vy; p.life-=0.02; fwCtx.beginPath(); fwCtx.arc(p.x,p.y,p.radius*p.life,0,Math.PI*2); fwCtx.fillStyle=p.color; fwCtx.fill(); } if(allDead) fwCanvas.remove(); else requestAnimationFrame(animate); }
         animate();
-        setTimeout(()=>{ if(canvas.parentNode) canvas.remove(); },1500);
+        setTimeout(()=>{ if(fwCanvas.parentNode) fwCanvas.remove(); },1500);
     }
     function showBomb() {
         const bombDiv=document.createElement('div'); bombDiv.className='bomb-effect'; document.body.appendChild(bombDiv);
@@ -249,7 +255,6 @@
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
     function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败"+err)); }
 
-    // 礼物渲染（修复 click 事件避免引号崩溃）
     function renderGifts(giftsObj){
         let cont=document.getElementById('giftList');
         if(!cont) return;
@@ -279,7 +284,6 @@
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // 问答统计
     async function updateQuizStatsAndHistory() {
         if(!currentUserName) return;
         const questionsSnap = await questionsRef.once('value');
@@ -430,7 +434,6 @@
         updateQATabRedDot();
     });
 
-    // 日历
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
     const festivalMap = {"0101":"元旦","0210":"春节","0211":"春节","0212":"春节","0213":"春节","0214":"情人节","0308":"妇女节","0401":"愚人节","0501":"劳动节","0601":"儿童节","0701":"建党节","0801":"建军节","0910":"教师节","1001":"国庆节","1225":"圣诞节"};
@@ -506,7 +509,6 @@
     document.getElementById('nextMonthBtn')?.addEventListener('click',()=>changeMonth(1));
     document.getElementById('todayBtn')?.addEventListener('click',goToday);
 
-    // 资产看板
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
         if (!container) return;
@@ -553,7 +555,7 @@
     window.closeModal = function() { if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off(); currentModalListener = null; document.getElementById('userAssetModal').style.display = 'none'; };
     window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
 
-    // ========== 音乐播放器（自动播放优化版）==========
+    // ========== 音乐播放器（自动播放优化）==========
     let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
     let autoPlayTimer = null, firstInteractionHandler = null;
 
@@ -625,7 +627,6 @@
             </div>`;
         });
         container.innerHTML = html;
-
         document.querySelectorAll('.playlist-name').forEach(el => {
             el.addEventListener('click', (e) => {
                 const idx = parseInt(el.dataset.index);
@@ -640,7 +641,6 @@
                 }
             });
         });
-
         if (currentUserName === ADMIN_USERNAME) {
             document.querySelectorAll('.playlist-delete').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
