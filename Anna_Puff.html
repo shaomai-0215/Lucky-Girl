@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <style>
+        /* 样式保持不变，省略以节省篇幅，实际使用时请保留完整CSS */
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
         .app-container { max-width: 1600px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 20px; }
@@ -77,15 +78,16 @@
         .quiz-history-icon { font-size: 1.3rem; width: 40px; text-align: center; }
         .quiz-history-text { flex: 1; font-size: 0.85rem; word-break: break-word; }
         .quiz-history-time { font-size: 0.7rem; color: #aaccdd; }
-        /* 新增：所有用户答题统计板块 */
         .all-users-stats-board { background: #0f1a1fcc; border-radius: 32px; padding: 16px; margin-bottom: 20px; }
         .all-users-stats-board h4 { color: #ffd966; margin-bottom: 12px; }
-        .all-users-stats-list { max-height: 200px; overflow-y: auto; }
-        .user-stats-row { display: flex; justify-content: space-between; align-items: center; background: #1e2a32; margin-bottom: 6px; padding: 8px 16px; border-radius: 28px; }
-        .user-stats-name { font-weight: bold; color: #ffd966; }
-        .user-stats-counts { display: flex; gap: 20px; }
+        .all-users-stats-list { max-height: 250px; overflow-y: auto; }
+        .user-stats-row { display: flex; justify-content: space-between; align-items: center; background: #1e2a32; margin-bottom: 6px; padding: 8px 16px; border-radius: 28px; flex-wrap: wrap; gap: 8px; }
+        .user-stats-name { font-weight: bold; color: #ffd966; flex: 1; }
+        .user-stats-counts { display: flex; gap: 20px; align-items: center; }
         .stats-correct { color: #6bdb8e; }
         .stats-wrong { color: #e67e6b; }
+        .stats-action-btn { background: #2c6e4f; border: none; border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; color: white; cursor: pointer; }
+        .stats-action-btn.danger { background: #882d2d; }
         .firework-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; }
         .bomb-effect { position: fixed; top: 50%; left: 50%; width: 100px; height: 100px; transform: translate(-50%, -50%); background: radial-gradient(circle, #ff4400, #8b0000); border-radius: 50%; animation: bombBlast 0.6s ease-out forwards; pointer-events: none; z-index: 10001; opacity: 0.8; }
         @keyframes bombBlast { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(3); opacity: 0; } }
@@ -162,9 +164,8 @@
                 </div>
                 <div style="font-size:0.8rem; opacity:0.7;">📊 你的答题记录</div>
             </div>
-            <!-- 新增：所有用户答题统计板块 -->
             <div class="all-users-stats-board" id="allUsersStatsBoard">
-                <h4>🏆 所有用户答题统计</h4>
+                <h4>🏆 所有用户答题统计 <span style="font-size:0.7rem;">(管理员可调整)</span></h4>
                 <div class="all-users-stats-list" id="allUsersStatsList">加载中...</div>
             </div>
             <div id="quizHistoryContainer" class="quiz-history-list">加载中...</div>
@@ -283,7 +284,7 @@
     function renderPrizeTags(){ let cont=document.getElementById('prizeListContainer'); if(!cont) return; let html=''; segments.forEach((seg,i)=>{ html+=`<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${i}" class="del-prize">❌</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.del-prize').forEach(el=>{ el.onclick=()=>{ let idx=parseInt(el.dataset.idx); if(segments.length>1){ segments.splice(idx,1); segmentsRef.set(segments); logActivity("admin_edit_prize","删除奖项"); } else alert("至少保留一个"); }; }); }
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
-    function adminManualAdd(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('manualUserName').value.trim(); let percent=document.getElementById('manualPercent').value; if(!user){ alert("请输入用户名"); return; } getUserScore(user).then(oldScore=>{ const multiplier=getMultiplier(percent); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed){ alert("添加失败"); return; } const newScore=snapshot.val(); addHistoryRecord(user, percent, oldScore, newScore); alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`); logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`); document.getElementById('manualUserName').value=""; }); }).catch(()=>alert("获取用户资产失败")); }
+    function adminManualAdd(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('manualUserName').value.trim(); if(!user){ alert("请输入用户名"); return; } getUserScore(user).then(oldScore=>{ const multiplier=getMultiplier(percent); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed){ alert("添加失败"); return; } const newScore=snapshot.val(); addHistoryRecord(user, percent, oldScore, newScore); alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`); logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`); document.getElementById('manualUserName').value=""; }); }).catch(()=>alert("获取用户资产失败")); }
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
     function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败"+err)); }
 
@@ -316,11 +317,46 @@
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // ========== 新增：计算所有用户答题统计 ==========
+    // ========== 管理员手动调整答题统计 ==========
+    async function addManualQuizRecord(userName, status) {
+        const snap = await questionsRef.orderByChild('text').equalTo('__admin_manual_quiz__').once('value');
+        let manualQid = null;
+        if (snap.exists()) {
+            snap.forEach(child => { manualQid = child.key; return true; });
+        } else {
+            const newRef = await questionsRef.push({ text: '__admin_manual_quiz__', answer: '__ignore__', published: true, timestamp: Date.now() });
+            manualQid = newRef.key;
+        }
+        await questionAnswersRef.child(manualQid).child(userName).set({
+            answer: '__manual__',
+            status: status,
+            submittedAt: Date.now(),
+            autoCorrect: false,
+            reviewerMark: status,
+            reviewedAt: Date.now()
+        });
+        logActivity("admin_manual_quiz", `为 ${userName} 添加 ${status} 记录`);
+    }
+
+    async function deleteUserQuizRecords(userName) {
+        const answersSnap = await questionAnswersRef.once('value');
+        const allAnswers = answersSnap.val() || {};
+        const updates = {};
+        for (let qid in allAnswers) {
+            if (allAnswers[qid][userName]) {
+                updates[`${qid}/${userName}`] = null;
+            }
+        }
+        if (Object.keys(updates).length > 0) {
+            await questionAnswersRef.update(updates);
+            logActivity("admin_delete_quiz_user", `删除用户 ${userName} 所有答题记录`);
+        }
+    }
+
     function updateAllUsersQuizStats() {
         questionAnswersRef.once('value').then(snap => {
             const allAnswers = snap.val() || {};
-            const stats = {}; // { userName: { correct: 0, wrong: 0 } }
+            const stats = {};
             for (let qid in allAnswers) {
                 const answersForQ = allAnswers[qid];
                 for (let uid in answersForQ) {
@@ -338,23 +374,53 @@
                 listContainer.innerHTML = '<div style="text-align:center; padding:10px;">暂无答题数据</div>';
                 return;
             }
-            // 排序：按答对数降序
             const sortedUsers = Object.entries(stats).sort((a,b) => b[1].correct - a[1].correct);
             let html = '';
             for (let [user, count] of sortedUsers) {
+                const safeUser = encodeURIComponent(user);
+                let actionBtns = '';
+                if (currentUserName === ADMIN_USERNAME) {
+                    actionBtns = `<span style="display:flex; gap:4px; margin-left:10px; flex-wrap:wrap;">
+                        <button class="stats-action-btn" data-user="${safeUser}" data-action="add-correct">✅+1</button>
+                        <button class="stats-action-btn" data-user="${safeUser}" data-action="add-wrong" style="background:#c0392b;">❌+1</button>
+                        <button class="stats-action-btn danger" data-user="${safeUser}" data-action="delete-all">🗑️</button>
+                    </span>`;
+                }
                 html += `<div class="user-stats-row">
                     <span class="user-stats-name">${escapeHtml(user)}</span>
                     <span class="user-stats-counts">
                         <span class="stats-correct">✅ ${count.correct}</span>
                         <span class="stats-wrong">❌ ${count.wrong}</span>
                     </span>
+                    ${actionBtns}
                 </div>`;
             }
             listContainer.innerHTML = html;
         });
     }
 
-    // 在问答数据变化时更新
+    // 事件委托：处理管理员调整按钮
+    document.getElementById('allUsersStatsList')?.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const userName = decodeURIComponent(btn.dataset.user);
+        const action = btn.dataset.action;
+        if (!userName || !action) return;
+        if (action === 'add-correct') {
+            if (confirm(`为 ${userName} 添加一次答对记录？`)) {
+                await addManualQuizRecord(userName, 'correct');
+            }
+        } else if (action === 'add-wrong') {
+            if (confirm(`为 ${userName} 添加一次答错记录？`)) {
+                await addManualQuizRecord(userName, 'wrong');
+            }
+        } else if (action === 'delete-all') {
+            if (confirm(`确定删除 ${userName} 的所有答题记录吗？不可恢复！`)) {
+                await deleteUserQuizRecords(userName);
+            }
+        }
+    });
+
     questionAnswersRef.on('value', () => {
         updateAllUsersQuizStats();
     });
@@ -496,7 +562,6 @@
     }
 
     questionsRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
-    // questionAnswersRef 的监听已在上面设置
 
     document.getElementById('addQuestionDraftBtn')?.addEventListener('click', async () => {
         if(currentUserName!==ADMIN_USERNAME) return;
@@ -631,7 +696,7 @@
     window.closeModal = function() { if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off(); currentModalListener = null; document.getElementById('userAssetModal').style.display = 'none'; };
     window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
 
-    // ========== 音乐播放器（无默认歌单，自动尝试播放）==========
+    // ========== 音乐播放器 ==========
     let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
     let autoPlayAttempted = false;
 
@@ -796,8 +861,51 @@
 
     let currentUserScoreListener=null;
     function subscribeToCurrentUserScore() { if(currentUserScoreListener && typeof currentUserScoreListener.off==='function') currentUserScoreListener.off(); if(currentUserName) { currentUserScoreListener = userScoresRef.child(currentUserName).on('value', snap=>{ let val=snap.val(); document.getElementById('currentScoreDisplay').innerText=(typeof val==='number'?val:100).toFixed(2); }); } else document.getElementById('currentScoreDisplay').innerText='--'; }
-    function setUsername(){ let name=document.getElementById('usernameInput').value.trim(); if(!name) return; currentUserName=name; localStorage.setItem("wheelUserName",name); document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); updateQuizStatsAndHistory(); updateQATabRedDot(); renderPlaylistUI(); updateAllUsersQuizStats(); }
-    function loadUserName(){ let saved=localStorage.getItem("wheelUserName"); if(saved){ currentUserName=saved; document.getElementById('usernameInput').value=saved; document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); updateQuizStatsAndHistory(); updateQATabRedDot(); updateAllUsersQuizStats(); } else { updateAdminUI(); document.getElementById('currentScoreDisplay').innerText='--'; renderAllQuestions(); } }
+
+    // ==================== 新增：用户名格式化函数 ====================
+    function formatUserName(rawName) {
+        if (!rawName) return rawName;
+        return rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+    }
+
+    // ==================== 修改后的 setUsername 函数 ====================
+    function setUsername(){
+        let rawName = document.getElementById('usernameInput').value.trim();
+        if(!rawName) return;
+        // 将输入统一转换为首字母大写、其余小写的格式，例如 anna/ANNA -> Anna
+        let formattedName = formatUserName(rawName);
+        currentUserName = formattedName;
+        localStorage.setItem("wheelUserName", formattedName);
+        // 回显格式化后的名字
+        document.getElementById('usernameInput').value = formattedName;
+        document.getElementById('currentUserDisplay').innerHTML = `✅ ${escapeHtml(formattedName)}${formattedName===ADMIN_USERNAME?' (管理员)':''}`;
+        updateAdminUI();
+        subscribeToCurrentUserScore();
+        renderAllQuestions();
+        updateQuizStatsAndHistory();
+        updateQATabRedDot();
+        renderPlaylistUI();
+        updateAllUsersQuizStats();
+    }
+
+    function loadUserName(){
+        let saved = localStorage.getItem("wheelUserName");
+        if(saved){
+            currentUserName = saved;
+            document.getElementById('usernameInput').value = saved;
+            document.getElementById('currentUserDisplay').innerHTML = `✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`;
+            updateAdminUI();
+            subscribeToCurrentUserScore();
+            renderAllQuestions();
+            updateQuizStatsAndHistory();
+            updateQATabRedDot();
+            updateAllUsersQuizStats();
+        } else {
+            updateAdminUI();
+            document.getElementById('currentScoreDisplay').innerText = '--';
+            renderAllQuestions();
+        }
+    }
 
     function switchTab(tabId){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tabId+'Tab').classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth); if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateAllUsersQuizStats(); } }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
@@ -819,7 +927,7 @@
         let now = new Date();
         currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = "❀希望你每天都能开开心心的度过❀";
+        document.getElementById('syncStatus').innerHTML = "🌹❀希望你每天都能开开心心的度过❀🌹";
         updateQATabRedDot();
         updateAllUsersQuizStats();
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
