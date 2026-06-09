@@ -723,20 +723,196 @@
         }).catch(err => alert("恢复失败: " + err));
     }
 
-    function initMusicPlayer() {
-        document.getElementById('playPauseBtn')?.addEventListener('click', playPauseMusic);
-        document.getElementById('nextBtn')?.addEventListener('click', nextTrack);
-        document.getElementById('prevBtn')?.addEventListener('click', prevTrack);
-        document.getElementById('volumeSlider')?.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
-        document.getElementById('useDefaultBtn')?.addEventListener('click', restoreDefaultPlaylist);
-        document.getElementById('addSongByUrlBtn')?.addEventListener('click', addSongByUrl);
-        document.getElementById('musicToggle')?.addEventListener('click', () => {
-            document.getElementById('musicPanel').classList.toggle('show');
+    // ========== 音乐播放器（立即尝试自动播放，交互解锁增强）==========
+let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
+let autoPlayAttempted = false;
+
+function loadPlaylistFromDB() {
+    playlistRef.on('value', snap => {
+        const data = snap.val();
+        currentPlaylist = [];
+        if (data) {
+            for (let [id, song] of Object.entries(data)) {
+                currentPlaylist.push({ id, name: song.name, url: song.url });
+            }
+        }
+        renderPlaylistUI();
+
+        if (currentPlaylist.length > 0 && !audioPlayer.src) {
+            currentTrackIndex = 0;
+            loadTrack(0);
+            // 立即尝试自动播放（不再等待3秒）
+            attemptAutoPlay();
+        } else if (currentPlaylist.length === 0) {
+            document.getElementById('musicInfo').innerText = '无音乐，管理员可添加歌曲链接';
+        }
+    });
+}
+
+function attemptAutoPlay() {
+    if (!audioPlayer.src || autoPlayAttempted) return;
+    autoPlayAttempted = true;
+
+    // 如果之前已经记录过解锁成功，直接播；否则也尝试播
+    const unlocked = localStorage.getItem('audio_unlocked') === 'true';
+    if (unlocked) {
+        // 曾经解锁过，浏览器可能允许
+        audioPlayer.play().then(() => {
+            updatePlayState('playing');
+        }).catch(() => {
+            // 仍然被阻止，设置等待
+            waitForInteraction();
         });
-        audioPlayer.addEventListener('ended', nextTrack);
-        audioPlayer.volume = 0.5;
-        loadPlaylistFromDB();
+    } else {
+        // 第一次访问，直接尝试，失败则等待交互
+        audioPlayer.play().then(() => {
+            localStorage.setItem('audio_unlocked', 'true');
+            updatePlayState('playing');
+        }).catch(() => {
+            waitForInteraction();
+        });
     }
+}
+
+function waitForInteraction() {
+    document.getElementById('playPauseBtn').innerText = '▶️';
+    document.getElementById('musicInfo').innerHTML = '🔊 轻点页面任意处开始播放音乐';
+    document.addEventListener('click', unlockAudio, { once: true });
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+}
+
+function unlockAudio() {
+    audioPlayer.play().then(() => {
+        localStorage.setItem('audio_unlocked', 'true');
+        updatePlayState('playing');
+    }).catch(() => {});
+}
+
+function updatePlayState(state) {
+    if (state === 'playing') {
+        document.getElementById('playPauseBtn').innerText = '⏸️';
+        document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(currentPlaylist[currentTrackIndex]?.name || '')}`;
+    } else {
+        document.getElementById('playPauseBtn').innerText = '▶️';
+    }
+}
+
+function renderPlaylistUI() {
+    const container = document.getElementById('playlistContainer');
+    if (!container) return;
+    if (currentPlaylist.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>';
+        return;
+    }
+    let html = '';
+    currentPlaylist.forEach((song, idx) => {
+        html += `<div class="playlist-item">
+            <span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>
+            ${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}
+        </div>`;
+    });
+    container.innerHTML = html;
+
+    document.querySelectorAll('.playlist-name').forEach(el => {
+        el.addEventListener('click', (e) => {
+            const idx = parseInt(el.dataset.index);
+            if (!isNaN(idx) && idx !== currentTrackIndex) {
+                currentTrackIndex = idx;
+                loadTrack(currentTrackIndex);
+                audioPlayer.play().then(() => updatePlayState('playing')).catch(() => {});
+            } else if (!isNaN(idx)) {
+                playPauseMusic();
+            }
+        });
+    });
+
+    if (currentUserName === ADMIN_USERNAME) {
+        document.querySelectorAll('.playlist-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const song = currentPlaylist.find(s => s.id === id);
+                if (song && confirm(`删除歌曲 "${song.name}"？`)) {
+                    await playlistRef.child(id).remove();
+                    logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
+                }
+            });
+        });
+    }
+}
+
+function loadTrack(index) {
+    if (!currentPlaylist.length) return;
+    const song = currentPlaylist[index];
+    audioPlayer.src = song.url;
+    audioPlayer.load();
+    document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
+}
+
+function playPauseMusic() {
+    if (audioPlayer.paused) {
+        audioPlayer.play().then(() => updatePlayState('playing')).catch(() => waitForInteraction());
+    } else {
+        audioPlayer.pause();
+        updatePlayState('paused');
+    }
+}
+
+function nextTrack() {
+    if (!currentPlaylist.length) return;
+    currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+    loadTrack(currentTrackIndex);
+    audioPlayer.play().then(() => updatePlayState('playing')).catch(() => {});
+}
+
+function prevTrack() {
+    if (!currentPlaylist.length) return;
+    currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+    loadTrack(currentTrackIndex);
+    audioPlayer.play().then(() => updatePlayState('playing')).catch(() => {});
+}
+
+async function addSongByUrl() {
+    if (currentUserName !== ADMIN_USERNAME) return;
+    const name = document.getElementById('manualSongName').value.trim();
+    let url = document.getElementById('manualSongUrl').value.trim();
+    if (!name || !url) return alert("请输入名称和链接");
+    if (!url.startsWith('http')) return alert("链接需以http开头");
+    await playlistRef.push({ name: name, url: url, timestamp: Date.now() });
+    alert(`已添加歌曲：${name}`);
+    logActivity("admin_add_song_by_url", `添加歌曲 ${name}`);
+    document.getElementById('manualSongName').value = '';
+    document.getElementById('manualSongUrl').value = '';
+}
+
+function restoreDefaultPlaylist() {
+    if (currentUserName !== ADMIN_USERNAME) return;
+    const defaultSongs = [
+        { name: "夏日轻风", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { name: "星光漫游", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { name: "梦幻旅途", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+    ];
+    playlistRef.remove().then(() => {
+        defaultSongs.forEach(song => playlistRef.push(song));
+        alert("已恢复默认歌单");
+        logActivity("admin_restore_default_music", "恢复默认歌单");
+    }).catch(err => alert("恢复失败: " + err));
+}
+
+function initMusicPlayer() {
+    document.getElementById('playPauseBtn')?.addEventListener('click', playPauseMusic);
+    document.getElementById('nextBtn')?.addEventListener('click', nextTrack);
+    document.getElementById('prevBtn')?.addEventListener('click', prevTrack);
+    document.getElementById('volumeSlider')?.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
+    document.getElementById('useDefaultBtn')?.addEventListener('click', restoreDefaultPlaylist);
+    document.getElementById('addSongByUrlBtn')?.addEventListener('click', addSongByUrl);
+    document.getElementById('musicToggle')?.addEventListener('click', () => {
+        document.getElementById('musicPanel').classList.toggle('show');
+    });
+    audioPlayer.addEventListener('ended', nextTrack);
+    audioPlayer.volume = 0.5;
+    loadPlaylistFromDB();
+}
 
     // 用户管理
     let currentUserScoreListener=null;
