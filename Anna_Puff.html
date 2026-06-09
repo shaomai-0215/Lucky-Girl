@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>小泡芙幸运🍀抽奖（手机优化版）</title>
+    <title>小泡芙幸运🍀抽奖</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <style>
-        /* 手机优化样式 */
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
         .app-container { max-width: 1600px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 20px; }
-        .tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #ffb347; padding-bottom: 8px; flex-wrap: wrap; position: relative; }
+        .tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #ffb347; padding-bottom: 8px; flex-wrap: wrap; }
         .tab-btn { background: #2c4d3e; border: none; color: #ffd966; font-size: 1.2rem; font-weight: bold; padding: 10px 24px; border-radius: 40px; cursor: pointer; position: relative; touch-action: manipulation; }
         .tab-btn.active { background: #ffb347; color: #1e2b3c; }
         .tab-btn .red-dot-badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1e2b3c; pointer-events: none; }
@@ -67,8 +66,6 @@
         .playlist-delete { background: #882d2d; border: none; border-radius: 20px; padding: 4px 10px; color: white; cursor: pointer; font-size: 0.7rem; margin-left: 8px; }
         .custom-song { font-size: 0.75rem; text-align: center; cursor: pointer; text-decoration: underline; margin-top: 10px; }
         #playlistContainer { max-height: 280px; overflow-y: auto; margin-top: 6px; }
-
-        /* 问答统计看板样式 */
         .quiz-stats-board { background: #0f1a1fcc; border-radius: 48px; padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
         .scoreboard { display: flex; gap: 30px; background: #1e2a32; padding: 12px 28px; border-radius: 60px; }
         .score-correct { color: #6bdb8e; font-weight: bold; font-size: 1.8rem; text-align: center; }
@@ -79,13 +76,11 @@
         .quiz-history-icon { font-size: 1.3rem; width: 40px; text-align: center; }
         .quiz-history-text { flex: 1; font-size: 0.85rem; word-break: break-word; }
         .quiz-history-time { font-size: 0.7rem; color: #aaccdd; }
-        /* 特效 */
         .firework-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; }
         .bomb-effect { position: fixed; top: 50%; left: 50%; width: 100px; height: 100px; transform: translate(-50%, -50%); background: radial-gradient(circle, #ff4400, #8b0000); border-radius: 50%; animation: bombBlast 0.6s ease-out forwards; pointer-events: none; z-index: 10001; opacity: 0.8; }
         @keyframes bombBlast { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(3); opacity: 0; } }
         .shake { animation: shakeScreen 0.2s ease-in-out 0s 2; }
         @keyframes shakeScreen { 0% { transform: translate(0, 0); } 25% { transform: translate(4px, -2px); } 75% { transform: translate(-4px, 2px); } 100% { transform: translate(0, 0); } }
-        /* 卡片 */
         .qa-enhanced-card { background: #0f1a1fcc; border-radius: 32px; padding: 18px; margin-bottom: 20px; border-left: 5px solid #ffb347; }
         .qa-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
         .qa-question-text { font-size: 1.1rem; font-weight: bold; color: #ffd966; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -119,7 +114,6 @@
         .draft-badge { background: #aa6f20; border-radius: 20px; padding: 2px 8px; font-size: 0.7rem; margin-left: 8px; }
         .delete-user-btn { background: #882d2d; border: none; border-radius: 30px; padding: 2px 8px; margin-left: 8px; font-size: 0.7rem; cursor: pointer; color: white; }
         .delete-user-btn:hover { background: #b33a3a; }
-        /* 手机媒体查询 */
         @media (max-width: 768px) {
             body { padding: 12px; }
             .app-container { padding: 12px; }
@@ -140,7 +134,6 @@
         <button class="tab-btn" data-tab="calendar">📅 日历记录</button>
     </div>
 
-    <!-- 转盘游戏界面 -->
     <div id="wheelTab" class="tab-content active">
         <div class="dashboard">
             <div class="wheel-card"><div style="text-align: center;"><canvas id="wheelCanvas" width="600" height="600"></canvas><div><button class="spin-btn" id="spinButton">🎡 旋转转盘 🎡</button></div></div><div class="prize-edit admin-only"><h4>🎁 编辑奖项 (管理员)</h4><div class="prize-list" id="prizeListContainer"></div><div class="add-prize"><input type="text" id="newPrizeInput" placeholder="例如 30%"><button id="addPrizeBtn">➕ 添加</button></div><small>修改后所有人同步</small></div></div>
@@ -149,7 +142,6 @@
         </div>
     </div>
 
-    <!-- 问答互动界面 -->
     <div id="qaTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📝 每日问答 <span style="font-size:0.7rem;">✨ 参与回答，赢取幸运</span></h3>
@@ -168,7 +160,6 @@
         </div>
     </div>
 
-    <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📆 活动日历</h3>
@@ -182,11 +173,10 @@
 
 <div id="userAssetModal" class="modal" style="display:none;"><div class="modal-content"><h3 id="modalUserName">用户</h3><div class="modal-asset" id="modalAssetValue">--</div><button class="close-modal" onclick="closeModal()">关闭</button></div></div>
 
-<!-- 音乐播放器 -->
 <div class="music-player"><div class="music-toggle" id="musicToggle">🎵</div><div class="music-panel" id="musicPanel"><div class="music-info" id="musicInfo">未播放</div><div class="music-controls"><button id="prevBtn">⏮️</button><button id="playPauseBtn">▶️</button><button id="nextBtn">⏭️</button></div><div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"></div><div id="playlistContainer" style="max-height:280px; overflow-y:auto; margin-top:8px;"></div><div class="admin-only" style="margin-top:8px;"><input type="text" id="manualSongName" placeholder="歌曲名称" style="width:100%; margin-bottom:4px;"><input type="text" id="manualSongUrl" placeholder="歌曲下载链接" style="width:100%; margin-bottom:4px;"><button id="addSongByUrlBtn" style="width:100%;">➕ 添加歌曲链接</button></div><div class="custom-song" id="useDefaultBtn">↺ 恢复默认歌单</div></div></div>
 
 <script>
-    // ========== Firebase 配置 ==========
+    // Firebase 配置（请替换为您自己的项目信息）
     const ADMIN_USERNAME = "烧卖";
     const firebaseConfig = {
         apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
@@ -208,16 +198,17 @@
     const activityLogRef = db.ref('activityLog');
     const playlistRef = db.ref('playlist');
 
-    // ---------- 全局 ----------
+    // 全局变量
     let segments = ["10%","0%","20%","30%","50%","100%"];
     let currentRotation = 0, isSpinning = false, animFrame = null, currentUserName = "";
     let canvas, ctx;
     const colorPalette = ["#F05454","#FFC069","#6ECB63","#5D9BEC","#E98A8A","#A366F5"];
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>m==='&'?'&amp;':m==='<'?'&lt;':m=='>'?'&gt;'); }
     function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); }
 
-    // 特效函数
+    // 特效
     function showFirework() {
         const canvas = document.createElement('canvas');
         canvas.className = 'firework-canvas';
@@ -226,47 +217,18 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         let particles = [];
-        for(let i=0;i<60;i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: Math.random() * 6 + 2,
-                color: `hsl(${Math.random() * 360}, 100%, 60%)`,
-                vx: (Math.random() - 0.5) * 4,
-                vy: (Math.random() - 0.5) * 4 - 2,
-                life: 1
-            });
-        }
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let allDead = true;
-            for(let p of particles) {
-                if(p.life <= 0) continue;
-                allDead = false;
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.02;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI*2);
-                ctx.fillStyle = p.color;
-                ctx.fill();
-            }
-            if(allDead) canvas.remove();
-            else requestAnimationFrame(animate);
-        }
+        for(let i=0;i<60;i++) particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, radius:Math.random()*6+2, color:`hsl(${Math.random()*360},100%,60%)`, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4-2, life:1 });
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); let allDead=true; for(let p of particles){ if(p.life<=0) continue; allDead=false; p.x+=p.vx; p.y+=p.vy; p.life-=0.02; ctx.beginPath(); ctx.arc(p.x,p.y,p.radius*p.life,0,Math.PI*2); ctx.fillStyle=p.color; ctx.fill(); } if(allDead) canvas.remove(); else requestAnimationFrame(animate); }
         animate();
-        setTimeout(() => { if(canvas.parentNode) canvas.remove(); }, 1500);
+        setTimeout(()=>{ if(canvas.parentNode) canvas.remove(); },1500);
     }
     function showBomb() {
-        const bombDiv = document.createElement('div');
-        bombDiv.className = 'bomb-effect';
-        document.body.appendChild(bombDiv);
-        document.body.classList.add('shake');
-        setTimeout(() => { document.body.classList.remove('shake'); }, 500);
-        setTimeout(() => { if(bombDiv.parentNode) bombDiv.remove(); }, 700);
+        const bombDiv=document.createElement('div'); bombDiv.className='bomb-effect'; document.body.appendChild(bombDiv);
+        document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'),500);
+        setTimeout(()=>{ if(bombDiv.parentNode) bombDiv.remove(); },700);
     }
 
-    // 资产与转盘逻辑（含手机优化：动画圈数减少，时长缩短）
+    // 资产与转盘
     async function recalcUserAsset(userName) { const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value'); const records = []; snapshot.forEach(child => records.push({ id: child.key, ...child.val() })); if (records.length === 0) { await userScoresRef.child(userName).set(100); return 100; } records.sort((a,b) => a.timestamp - b.timestamp); const lastAsset = records[records.length-1].newScore; await userScoresRef.child(userName).set(lastAsset); return lastAsset; }
     function renderScoreHistory(historyArr) { const cont = document.getElementById('scoreHistoryList'); if(!cont) return; if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; } let html=''; const reversed = [...historyArr].reverse(); for(let item of reversed) { const remark = item.remark || ''; let remarkHtml = ''; if (currentUserName === ADMIN_USERNAME) { remarkHtml = `<div class="remark-area"><input type="text" class="remark-input" id="remark-${item.id}" placeholder="添加备注" value="${escapeHtml(remark)}"><button class="remark-save" data-id="${item.id}">保存</button></div>`; } else if (remark) { remarkHtml = `<div class="remark-text">📝 备注：${escapeHtml(remark)}</div>`; } let deleteBtn = ''; if (currentUserName === ADMIN_USERNAME) { deleteBtn = `<button class="delete-record-btn" data-id="${item.id}" data-user="${escapeHtml(item.userName)}">🗑️ 删除</button>`; } html += `<div class="history-item"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br><small>${item.dateStr} ${item.timeStr}</small></div>${remarkHtml}<div class="history-actions"><span></span>${deleteBtn ? `<div>${deleteBtn}</div>` : ''}</div></div>`; } cont.innerHTML = html; document.querySelectorAll('.remark-save').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); const id = btn.dataset.id; const newRemark = document.getElementById(`remark-${id}`).value.trim(); await scoreHistoryRef.child(id).update({ remark: newRemark }); logActivity("admin_add_remark", `为记录 ${id} 添加备注`); }; }); document.querySelectorAll('.delete-record-btn').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); if(currentUserName!==ADMIN_USERNAME) return; const id = btn.dataset.id; const userName = btn.dataset.user; if(confirm(`删除该条记录？删除后 ${userName} 的资产将恢复到该记录之前的最新状态。`)){ await scoreHistoryRef.child(id).remove(); logActivity("admin_delete_record", `删除记录 ${id}`); await recalcUserAsset(userName); alert(`已删除记录，${userName} 的资产已恢复`); } }; }); }
     scoreHistoryRef.on('value', async snap=>{ let data=snap.val(); let arr=[]; if(data) for(let [id,val] of Object.entries(data)) arr.push({id,...val}); arr.sort((a,b)=>a.timestamp - b.timestamp); renderScoreHistory(arr); });
@@ -279,20 +241,45 @@
     function applyScoreForUser(userName, percentageStr, callback) { getUserScore(userName).then(oldScore=>{ updateUserScore(userName, percentageStr, (success,newScore)=>{ if(success){ addHistoryRecord(userName, percentageStr, oldScore, newScore); callback(true,newScore); } else callback(false); }); }).catch(()=>callback(false)); }
     function drawWheel() { if(!ctx) return; let size=Math.min(canvas.clientWidth,canvas.clientHeight); canvas.width=canvas.height=size; let c=size/2,r=size*0.45; ctx.clearRect(0,0,size,size); if(!segments.length) return; let step=Math.PI*2/segments.length; for(let i=0;i<segments.length;i++){ let s=i*step+currentRotation,e=(i+1)*step+currentRotation; ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,r,s,e); ctx.fillStyle=colorPalette[i%colorPalette.length]; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle="#fff"; ctx.font=`bold ${Math.floor(r*0.1)}px "Segoe UI"`; let angle=s+step/2; let x=c+Math.cos(angle)*r*0.7, y=c+Math.sin(angle)*r*0.7; ctx.fillText(segments[i], x-ctx.measureText(segments[i]).width/2, y+6); } ctx.beginPath(); ctx.moveTo(c-14,c-r-8); ctx.lineTo(c,c-r+10); ctx.lineTo(c+14,c-r-8); ctx.fillStyle="#FFD966"; ctx.fill(); }
     function getCurrentPrizeIndex() { let step=Math.PI*2/segments.length, pointer=-Math.PI/2, rot=currentRotation%(Math.PI*2); for(let i=0;i<segments.length;i++){ let s=i*step+rot, e=(i+1)*step+rot; let ps=((s%(Math.PI*2))+Math.PI*2)%(Math.PI*2), pe=((e%(Math.PI*2))+Math.PI*2)%(Math.PI*2), p=(pointer+Math.PI*2)%(Math.PI*2); if(ps<pe){ if(p>=ps && p<pe) return i; } else { if(p>=ps || p<pe) return i; } } return 0; }
-    // 手机优化：减少动画圈数和时长
-    function startSpin(){ if(isSpinning||!currentUserName){ alert("请先设置抽奖人"); return; } isSpinning=true; let btn=document.getElementById('spinButton'); btn.disabled=true; let targetIdx=Math.floor(Math.random()*segments.length); let step=Math.PI*2/segments.length, targetMid=targetIdx*step+step/2, rawFinal=-Math.PI/2-targetMid, twoPi=Math.PI*2; let finalRot=((rawFinal%twoPi)+twoPi)%twoPi+(Math.floor(Math.random()*5)+4)*twoPi; // 圈数 4~8 圈（原 6~15） let startRot=currentRotation, startTime=performance.now(); const duration=1200; // 动画时长 1.2 秒（原 2 秒） function animate(now){ let t=Math.min(1,(now-startTime)/duration), ease=1-Math.pow(1-t,3); currentRotation=startRot+(finalRot-startRot)*ease; drawWheel(); if(t<1) requestAnimationFrame(animate); else{ currentRotation=finalRot%twoPi; drawWheel(); let prize=segments[getCurrentPrizeIndex()]; applyScoreForUser(currentUserName, prize, (success,newScore)=>{ if(success){ alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`); logActivity("spin",`抽中 ${prize}`); } else alert("积分更新失败"); isSpinning=false; btn.disabled=false; }); } } if(animFrame) cancelAnimationFrame(animFrame); animFrame=requestAnimationFrame(animate); }
+    function startSpin(){ if(isSpinning||!currentUserName){ alert("请先设置抽奖人"); return; } isSpinning=true; let btn=document.getElementById('spinButton'); btn.disabled=true; let targetIdx=Math.floor(Math.random()*segments.length); let step=Math.PI*2/segments.length, targetMid=targetIdx*step+step/2, rawFinal=-Math.PI/2-targetMid, twoPi=Math.PI*2; let finalRot=((rawFinal%twoPi)+twoPi)%twoPi+(Math.floor(Math.random()*5)+4)*twoPi; let startRot=currentRotation, startTime=performance.now(); const duration=1200; function animate(now){ let t=Math.min(1,(now-startTime)/duration), ease=1-Math.pow(1-t,3); currentRotation=startRot+(finalRot-startRot)*ease; drawWheel(); if(t<1) requestAnimationFrame(animate); else{ currentRotation=finalRot%twoPi; drawWheel(); let prize=segments[getCurrentPrizeIndex()]; applyScoreForUser(currentUserName, prize, (success,newScore)=>{ if(success){ alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`); logActivity("spin",`抽中 ${prize}`); } else alert("积分更新失败"); isSpinning=false; btn.disabled=false; }); } } if(animFrame) cancelAnimationFrame(animFrame); animFrame=requestAnimationFrame(animate); }
     function renderPrizeTags(){ let cont=document.getElementById('prizeListContainer'); if(!cont) return; let html=''; segments.forEach((seg,i)=>{ html+=`<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${i}" class="del-prize">❌</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.del-prize').forEach(el=>{ el.onclick=()=>{ let idx=parseInt(el.dataset.idx); if(segments.length>1){ segments.splice(idx,1); segmentsRef.set(segments); logActivity("admin_edit_prize","删除奖项"); } else alert("至少保留一个"); }; }); }
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
     function adminManualAdd(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('manualUserName').value.trim(); let percent=document.getElementById('manualPercent').value; if(!user){ alert("请输入用户名"); return; } getUserScore(user).then(oldScore=>{ const multiplier=getMultiplier(percent); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed){ alert("添加失败"); return; } const newScore=snapshot.val(); addHistoryRecord(user, percent, oldScore, newScore); alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`); logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`); document.getElementById('manualUserName').value=""; }); }).catch(()=>alert("获取用户资产失败")); }
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
     function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败"+err)); }
-    function renderGifts(giftsObj){ let cont=document.getElementById('giftList'); if(!cont) return; if(!giftsObj||!Object.keys(giftsObj).length){ cont.innerHTML='<div>暂无礼物</div>'; return; } let html=''; for(let [id,gift] of Object.entries(giftsObj)){ let isRevealed=localStorage.getItem(`gift_revealed_${id}`)==='true'; html+=`<div class="gift-item"><div><span>🎁 ${escapeHtml(gift.name)}</span> <span>${escapeHtml(gift.value||'')}</span></div><div class="gift-detail" onclick="window.revealGift('${id}','${escapeHtml(gift.detail||'')}')">${isRevealed?escapeHtml(gift.detail||'无详细内容'):'🔒 点击揭开 🔒'}</div></div>`; } cont.innerHTML=html; }
-    window.revealGift=function(id,detail){ if(localStorage.getItem(`gift_revealed_${id}`)!=='true'){ localStorage.setItem(`gift_revealed_${id}`,'true'); logActivity("reveal_gift",`揭开礼物 ${id}`); alert("礼物详情: "+detail); giftsRef.once('value').then(snap=>renderGifts(snap.val())); } };
+
+    // 礼物渲染（修复 click 事件避免引号崩溃）
+    function renderGifts(giftsObj){
+        let cont=document.getElementById('giftList');
+        if(!cont) return;
+        if(!giftsObj||!Object.keys(giftsObj).length){ cont.innerHTML='<div>暂无礼物</div>'; return; }
+        let html='';
+        for(let [id,gift] of Object.entries(giftsObj)){
+            let isRevealed=localStorage.getItem(`gift_revealed_${id}`)==='true';
+            html+=`<div class="gift-item" data-gift-id="${id}" data-detail="${encodeURIComponent(gift.detail||'')}">
+                <div><span>🎁 ${escapeHtml(gift.name)}</span> <span>${escapeHtml(gift.value||'')}</span></div>
+                <div class="gift-detail">${isRevealed?escapeHtml(gift.detail||'无详细内容'):'🔒 点击揭开 🔒'}</div>
+            </div>`;
+        }
+        cont.innerHTML=html;
+        document.querySelectorAll('.gift-item').forEach(item => {
+            item.querySelector('.gift-detail').addEventListener('click', function(e) {
+                const id = item.dataset.giftId;
+                const detail = decodeURIComponent(item.dataset.detail);
+                if(localStorage.getItem(`gift_revealed_${id}`)!=='true'){
+                    localStorage.setItem(`gift_revealed_${id}`,'true');
+                    logActivity("reveal_gift",`揭开礼物 ${id}`);
+                    alert("礼物详情: "+detail);
+                    giftsRef.once('value').then(snap=>renderGifts(snap.val()));
+                }
+            });
+        });
+    }
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
-    
-    // ========== 问答统计与历史 ==========
+
+    // 问答统计
     async function updateQuizStatsAndHistory() {
         if(!currentUserName) return;
         const questionsSnap = await questionsRef.once('value');
@@ -329,7 +316,7 @@
         }
     }
     function triggerEffect(status) { if(status === 'correct') showFirework(); else if(status === 'wrong') showBomb(); }
-    
+
     async function renderAllQuestions() {
         const questionsSnap = await questionsRef.once('value');
         const questions = questionsSnap.val() || {};
@@ -378,7 +365,7 @@
             };
         });
     }
-    
+
     window.renderAdminReviewPanel = async function() {
         if(currentUserName !== ADMIN_USERNAME) return;
         const answersSnap = await questionAnswersRef.once('value');
@@ -413,7 +400,7 @@
             };
         });
     };
-    
+
     async function updateQATabRedDot() {
         if(!currentUserName) return;
         const questionsSnap = await questionsRef.once('value');
@@ -428,7 +415,7 @@
         if(existingBadge) existingBadge.remove();
         if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
     }
-    
+
     questionsRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
     questionAnswersRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
     document.getElementById('addQuestionDraftBtn')?.addEventListener('click', async () => {
@@ -442,8 +429,8 @@
         alert("问题已发布并显示发布时间");
         updateQATabRedDot();
     });
-    
-    // 日历部分（保留完整，略）
+
+    // 日历
     let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
     let activityCache = {};
     const festivalMap = {"0101":"元旦","0210":"春节","0211":"春节","0212":"春节","0213":"春节","0214":"情人节","0308":"妇女节","0401":"愚人节","0501":"劳动节","0601":"儿童节","0701":"建党节","0801":"建军节","0910":"教师节","1001":"国庆节","1225":"圣诞节"};
@@ -518,7 +505,7 @@
     document.getElementById('prevMonthBtn')?.addEventListener('click',()=>changeMonth(-1));
     document.getElementById('nextMonthBtn')?.addEventListener('click',()=>changeMonth(1));
     document.getElementById('todayBtn')?.addEventListener('click',goToday);
-    
+
     // 资产看板
     function renderAssetBoard(scores) {
         const container = document.getElementById('assetList');
@@ -565,30 +552,203 @@
     }
     window.closeModal = function() { if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off(); currentModalListener = null; document.getElementById('userAssetModal').style.display = 'none'; };
     window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
-    
-    // 音乐播放器
+
+    // ========== 音乐播放器（自动播放优化版）==========
     let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
-    function loadPlaylistFromDB() { playlistRef.on('value', snap => { const data = snap.val(); currentPlaylist = []; if(data) for(let [id, song] of Object.entries(data)) currentPlaylist.push({ id, name: song.name, url: song.url }); renderPlaylistUI(); if(currentPlaylist.length && !audioPlayer.src) { currentTrackIndex = 0; loadTrack(0); } else if(currentPlaylist.length === 0) document.getElementById('musicInfo').innerText = '无音乐，请添加歌曲链接'; }); }
-    function renderPlaylistUI() { const container = document.getElementById('playlistContainer'); if (!container) return; if (currentPlaylist.length === 0) { container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>'; return; } let html = ''; currentPlaylist.forEach((song, idx) => { html += `<div class="playlist-item"><span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}</div>`; }); container.innerHTML = html; document.querySelectorAll('.playlist-name').forEach(el => { el.addEventListener('click', (e) => { const idx = parseInt(el.dataset.index); if (!isNaN(idx)) { currentTrackIndex = idx; loadTrack(currentTrackIndex); audioPlayer.play().then(()=>{ document.getElementById('playPauseBtn').innerText = '⏸️'; }).catch(err => alert("播放失败: "+err.message+"，请先点击页面任意处")); } }); }); if (currentUserName === ADMIN_USERNAME) { document.querySelectorAll('.playlist-delete').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.dataset.id; const song = currentPlaylist.find(s => s.id === id); if (confirm(`删除歌曲 "${song.name}"？`)) { await playlistRef.child(id).remove(); logActivity("admin_delete_music", `删除歌曲 ${song.name}`); } }); }); } }
-    function loadTrack(index) { if (!currentPlaylist.length) return; const song = currentPlaylist[index]; audioPlayer.src = song.url; audioPlayer.load(); document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`; }
-    function playPauseMusic() { if (audioPlayer.paused) { audioPlayer.play().catch(e => alert("请先点击页面任意位置")); document.getElementById('playPauseBtn').innerText = '⏸️'; } else { audioPlayer.pause(); document.getElementById('playPauseBtn').innerText = '▶️'; } }
-    function nextTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length; loadTrack(currentTrackIndex); audioPlayer.play().catch(e => console.log); }
-    function prevTrack() { if (!currentPlaylist.length) return; currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; loadTrack(currentTrackIndex); if (!audioPlayer.paused) audioPlayer.play(); }
-    async function addSongByUrl() { if (currentUserName !== ADMIN_USERNAME) return; const name = document.getElementById('manualSongName').value.trim(); let url = document.getElementById('manualSongUrl').value.trim(); if (!name || !url) return alert("请输入名称和链接"); if (!url.startsWith('http')) return alert("链接需以http开头"); await playlistRef.push({ name: name, url: url, timestamp: Date.now() }); alert(`已添加歌曲：${name}`); logActivity("admin_add_song_by_url", `添加歌曲 ${name}`); document.getElementById('manualSongName').value = ''; document.getElementById('manualSongUrl').value = ''; }
-    function restoreDefaultPlaylist() { if (currentUserName !== ADMIN_USERNAME) return; const defaultSongs = [ { name: "夏日轻风", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" }, { name: "星光漫游", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }, { name: "梦幻旅途", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" } ]; playlistRef.remove().then(()=>{ defaultSongs.forEach(song=>playlistRef.push(song)); alert("已恢复默认歌单"); logActivity("admin_restore_default_music","恢复默认歌单"); }).catch(err=>alert("恢复失败: "+err)); }
-    function initMusicPlayer() { document.getElementById('playPauseBtn')?.addEventListener('click', playPauseMusic); document.getElementById('nextBtn')?.addEventListener('click', nextTrack); document.getElementById('prevBtn')?.addEventListener('click', prevTrack); document.getElementById('volumeSlider')?.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value)); document.getElementById('useDefaultBtn')?.addEventListener('click', restoreDefaultPlaylist); document.getElementById('addSongByUrlBtn')?.addEventListener('click', addSongByUrl); document.getElementById('musicToggle')?.addEventListener('click', () => document.getElementById('musicPanel').classList.toggle('show')); audioPlayer.addEventListener('ended', nextTrack); audioPlayer.volume = 0.5; loadPlaylistFromDB(); }
-    
+    let autoPlayTimer = null, firstInteractionHandler = null;
+
+    function loadPlaylistFromDB() {
+        playlistRef.on('value', snap => {
+            const data = snap.val();
+            currentPlaylist = [];
+            if (data) {
+                for (let [id, song] of Object.entries(data)) {
+                    currentPlaylist.push({ id, name: song.name, url: song.url });
+                }
+            }
+            renderPlaylistUI();
+            if (currentPlaylist.length > 0 && !audioPlayer.src) {
+                currentTrackIndex = 0;
+                loadTrack(0);
+                clearTimeout(autoPlayTimer);
+                autoPlayTimer = setTimeout(attemptAutoPlay, 3000);
+            } else if (currentPlaylist.length === 0) {
+                document.getElementById('musicInfo').innerText = '无音乐，管理员可添加歌曲链接';
+            }
+        });
+    }
+
+    function attemptAutoPlay() {
+        if (!audioPlayer.src) return;
+        audioPlayer.play().then(() => {
+            document.getElementById('playPauseBtn').innerText = '⏸️';
+            document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(currentPlaylist[currentTrackIndex]?.name || '')}`;
+            removeFirstInteractionListener();
+        }).catch(() => {
+            document.getElementById('musicInfo').innerHTML = '🔊 点击页面任意位置开始播放音乐';
+            addFirstInteractionListener();
+        });
+    }
+
+    function addFirstInteractionListener() {
+        if (firstInteractionHandler) return;
+        firstInteractionHandler = () => {
+            audioPlayer.play().catch(e => console.log(e));
+            document.getElementById('playPauseBtn').innerText = '⏸️';
+            document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(currentPlaylist[currentTrackIndex]?.name || '')}`;
+            removeFirstInteractionListener();
+        };
+        document.addEventListener('click', firstInteractionHandler, { once: true });
+        document.addEventListener('touchstart', firstInteractionHandler, { once: true });
+    }
+
+    function removeFirstInteractionListener() {
+        if (firstInteractionHandler) {
+            document.removeEventListener('click', firstInteractionHandler);
+            document.removeEventListener('touchstart', firstInteractionHandler);
+            firstInteractionHandler = null;
+        }
+    }
+
+    function renderPlaylistUI() {
+        const container = document.getElementById('playlistContainer');
+        if (!container) return;
+        if (currentPlaylist.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>';
+            return;
+        }
+        let html = '';
+        currentPlaylist.forEach((song, idx) => {
+            html += `<div class="playlist-item">
+                <span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>
+                ${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}
+            </div>`;
+        });
+        container.innerHTML = html;
+
+        document.querySelectorAll('.playlist-name').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const idx = parseInt(el.dataset.index);
+                if (!isNaN(idx) && idx !== currentTrackIndex) {
+                    currentTrackIndex = idx;
+                    loadTrack(currentTrackIndex);
+                    audioPlayer.play().then(() => {
+                        document.getElementById('playPauseBtn').innerText = '⏸️';
+                    }).catch(() => {});
+                } else if (!isNaN(idx)) {
+                    playPauseMusic();
+                }
+            });
+        });
+
+        if (currentUserName === ADMIN_USERNAME) {
+            document.querySelectorAll('.playlist-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    const song = currentPlaylist.find(s => s.id === id);
+                    if (song && confirm(`删除歌曲 "${song.name}"？`)) {
+                        await playlistRef.child(id).remove();
+                        logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
+                    }
+                });
+            });
+        }
+    }
+
+    function loadTrack(index) {
+        if (!currentPlaylist.length) return;
+        const song = currentPlaylist[index];
+        audioPlayer.src = song.url;
+        audioPlayer.load();
+        document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
+    }
+
+    function playPauseMusic() {
+        if (audioPlayer.paused) {
+            audioPlayer.play().then(() => {
+                document.getElementById('playPauseBtn').innerText = '⏸️';
+            }).catch(() => {
+                addFirstInteractionListener();
+            });
+        } else {
+            audioPlayer.pause();
+            document.getElementById('playPauseBtn').innerText = '▶️';
+        }
+    }
+
+    function nextTrack() {
+        if (!currentPlaylist.length) return;
+        currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+        loadTrack(currentTrackIndex);
+        audioPlayer.play().then(() => {
+            document.getElementById('playPauseBtn').innerText = '⏸️';
+        }).catch(() => {});
+    }
+
+    function prevTrack() {
+        if (!currentPlaylist.length) return;
+        currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+        loadTrack(currentTrackIndex);
+        if (!audioPlayer.paused) audioPlayer.play();
+        else audioPlayer.play().then(() => {
+            document.getElementById('playPauseBtn').innerText = '⏸️';
+        }).catch(() => {});
+    }
+
+    async function addSongByUrl() {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        const name = document.getElementById('manualSongName').value.trim();
+        let url = document.getElementById('manualSongUrl').value.trim();
+        if (!name || !url) return alert("请输入名称和链接");
+        if (!url.startsWith('http')) return alert("链接需以http开头");
+        await playlistRef.push({ name: name, url: url, timestamp: Date.now() });
+        alert(`已添加歌曲：${name}`);
+        logActivity("admin_add_song_by_url", `添加歌曲 ${name}`);
+        document.getElementById('manualSongName').value = '';
+        document.getElementById('manualSongUrl').value = '';
+    }
+
+    function restoreDefaultPlaylist() {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        const defaultSongs = [
+            { name: "夏日轻风", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "星光漫游", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { name: "梦幻旅途", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+        ];
+        playlistRef.remove().then(() => {
+            defaultSongs.forEach(song => playlistRef.push(song));
+            alert("已恢复默认歌单");
+            logActivity("admin_restore_default_music", "恢复默认歌单");
+        }).catch(err => alert("恢复失败: " + err));
+    }
+
+    function initMusicPlayer() {
+        document.getElementById('playPauseBtn')?.addEventListener('click', playPauseMusic);
+        document.getElementById('nextBtn')?.addEventListener('click', nextTrack);
+        document.getElementById('prevBtn')?.addEventListener('click', prevTrack);
+        document.getElementById('volumeSlider')?.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
+        document.getElementById('useDefaultBtn')?.addEventListener('click', restoreDefaultPlaylist);
+        document.getElementById('addSongByUrlBtn')?.addEventListener('click', addSongByUrl);
+        document.getElementById('musicToggle')?.addEventListener('click', () => {
+            document.getElementById('musicPanel').classList.toggle('show');
+        });
+        audioPlayer.addEventListener('ended', nextTrack);
+        audioPlayer.volume = 0.5;
+        loadPlaylistFromDB();
+    }
+
     // 用户管理
     let currentUserScoreListener=null;
     function subscribeToCurrentUserScore() { if(currentUserScoreListener && typeof currentUserScoreListener.off==='function') currentUserScoreListener.off(); if(currentUserName) { currentUserScoreListener = userScoresRef.child(currentUserName).on('value', snap=>{ let val=snap.val(); document.getElementById('currentScoreDisplay').innerText=(typeof val==='number'?val:100).toFixed(2); }); } else document.getElementById('currentScoreDisplay').innerText='--'; }
-    function setUsername(){ let name=document.getElementById('usernameInput').value.trim(); if(!name) return; currentUserName=name; localStorage.setItem("wheelUserName",name); document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); renderPlaylistUI(); updateQuizStatsAndHistory(); updateQATabRedDot(); }
+    function setUsername(){ let name=document.getElementById('usernameInput').value.trim(); if(!name) return; currentUserName=name; localStorage.setItem("wheelUserName",name); document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(name)}${name===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); updateQuizStatsAndHistory(); updateQATabRedDot(); renderPlaylistUI(); }
     function loadUserName(){ let saved=localStorage.getItem("wheelUserName"); if(saved){ currentUserName=saved; document.getElementById('usernameInput').value=saved; document.getElementById('currentUserDisplay').innerHTML=`✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`; updateAdminUI(); subscribeToCurrentUserScore(); renderAllQuestions(); updateQuizStatsAndHistory(); updateQATabRedDot(); } else { updateAdminUI(); document.getElementById('currentScoreDisplay').innerText='--'; renderAllQuestions(); } }
-    
+
     function switchTab(tabId){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tabId+'Tab').classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth); if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); } }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
-    
+
     userScoresRef.on('value', (snap) => { renderAssetBoard(snap.val()); });
-    
+
     window.onload = () => {
         canvas = document.getElementById('wheelCanvas'); ctx = canvas.getContext('2d');
         loadUserName(); drawWheel(); window.addEventListener('resize',()=>drawWheel());
@@ -606,7 +766,6 @@
         buildCalendar(currentCalendarYear, currentCalendarMonth);
         document.getElementById('syncStatus').innerHTML = "✅ 手机优化版：答对烟花 答错炸弹 | 记分牌+历史记录 | 红点提示";
         updateQATabRedDot();
-        // 触摸优化：canvas 阻止页面滚动
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
     };
 </script>
