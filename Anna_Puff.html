@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <style>
-        /* 样式保持不变，省略以节省篇幅，实际使用时请保留完整CSS */
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(145deg, #1e2b3c, #0f1a24); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; color: #eee; }
         .app-container { max-width: 1600px; margin: 0 auto; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); border-radius: 48px; padding: 20px; }
@@ -273,73 +272,92 @@
     scoreHistoryRef.on('value', async snap=>{ let data=snap.val(); let arr=[]; if(data) for(let [id,val] of Object.entries(data)) arr.push({id,...val}); arr.sort((a,b)=>a.timestamp - b.timestamp); renderScoreHistory(arr); });
     const percentOptions = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`${p}%`);
     function populatePercentSelect() { const select = document.getElementById('manualPercent'); if(!select) return; select.innerHTML = ''; percentOptions.forEach(p=>{ const opt=document.createElement('option'); opt.value=p; opt.textContent=p; select.appendChild(opt); }); }
-   async function getUserScore(user) {
-    try {
-        const snap = await userScoresRef.child(user).once('value');
-        let val = snap.val();
-        return (val === null || typeof val !== 'number') ? 100.0 : val;
-    } catch (err) {
-        console.error("读取用户资产失败，用户：" + user, err);
-        throw err; // 继续向上抛出，让外部 catch 处理
+    async function getUserScore(user) {
+        try {
+            const snap = await userScoresRef.child(user).once('value');
+            let val = snap.val();
+            return (val === null || typeof val !== 'number') ? 100.0 : val;
+        } catch (err) {
+            console.error("读取用户资产失败，用户：" + user, err);
+            throw err;
+        }
     }
-}
     function getMultiplier(percentageStr) { let percent=parseFloat(percentageStr); if(isNaN(percent)) percent=0; if(percent===0) return 0; return 1+percent/100; }
     function updateUserScore(user, percentageStr, callback) { const multiplier = getMultiplier(percentageStr); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed) callback(false); else callback(true, snapshot.val()); }); }
     function addHistoryRecord(userName, percentage, oldScore, newScore) { scoreHistoryRef.push({ userName, percentage, oldScore, newScore, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
     function applyScoreForUser(userName, percentageStr, callback) { getUserScore(userName).then(oldScore=>{ updateUserScore(userName, percentageStr, (success,newScore)=>{ if(success){ addHistoryRecord(userName, percentageStr, oldScore, newScore); callback(true,newScore); } else callback(false); }); }).catch(()=>callback(false)); }
-    function drawWheel() { if(!ctx) return; let size=Math.min(canvas.clientWidth,canvas.clientHeight); canvas.width=canvas.height=size; let c=size/2,r=size*0.45; ctx.clearRect(0,0,size,size); if(!segments.length) return; let step=Math.PI*2/segments.length; for(let i=0;i<segments.length;i++){ let s=i*step+currentRotation,e=(i+1)*step+currentRotation; ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,r,s,e); ctx.fillStyle=colorPalette[i%colorPalette.length]; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle="#fff"; ctx.font=`bold ${Math.floor(r*0.1)}px "Segoe UI"`; let angle=s+step/2; let x=c+Math.cos(angle)*r*0.7, y=c+Math.sin(angle)*r*0.7; ctx.fillText(segments[i], x-ctx.measureText(segments[i]).width/2, y+6); } ctx.beginPath(); ctx.moveTo(c-14,c-r-8); ctx.lineTo(c,c-r+10); ctx.lineTo(c+14,c-r-8); ctx.fillStyle="#FFD966"; ctx.fill(); }
+    function drawWheel() {
+        if (!ctx || !canvas) return;
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        if (w <= 0 || h <= 0) return; // 防止尺寸为0导致负半径
+        let size = Math.min(w, h);
+        canvas.width = canvas.height = size;
+        let c = size / 2;
+        let r = size * 0.45;
+        if (r <= 0) return; // 额外保护
+        ctx.clearRect(0, 0, size, size);
+        if (!segments.length) return;
+        let step = Math.PI * 2 / segments.length;
+        for (let i = 0; i < segments.length; i++) {
+            let s = i * step + currentRotation;
+            let e = (i + 1) * step + currentRotation;
+            ctx.beginPath();
+            ctx.moveTo(c, c);
+            ctx.arc(c, c, r, s, e);
+            ctx.fillStyle = colorPalette[i % colorPalette.length];
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = "#fff";
+            ctx.font = `bold ${Math.floor(r * 0.1)}px "Segoe UI"`;
+            let angle = s + step / 2;
+            let x = c + Math.cos(angle) * r * 0.7;
+            let y = c + Math.sin(angle) * r * 0.7;
+            ctx.fillText(segments[i], x - ctx.measureText(segments[i]).width / 2, y + 6);
+        }
+        ctx.beginPath();
+        ctx.moveTo(c - 14, c - r - 8);
+        ctx.lineTo(c, c - r + 10);
+        ctx.lineTo(c + 14, c - r - 8);
+        ctx.fillStyle = "#FFD966";
+        ctx.fill();
+    }
     function getCurrentPrizeIndex() { let step=Math.PI*2/segments.length, pointer=-Math.PI/2, rot=currentRotation%(Math.PI*2); for(let i=0;i<segments.length;i++){ let s=i*step+rot, e=(i+1)*step+rot; let ps=((s%(Math.PI*2))+Math.PI*2)%(Math.PI*2), pe=((e%(Math.PI*2))+Math.PI*2)%(Math.PI*2), p=(pointer+Math.PI*2)%(Math.PI*2); if(ps<pe){ if(p>=ps && p<pe) return i; } else { if(p>=ps || p<pe) return i; } } return 0; }
     function startSpin(){ if(isSpinning||!currentUserName){ alert("请先设置抽奖人"); return; } isSpinning=true; let btn=document.getElementById('spinButton'); btn.disabled=true; let targetIdx=Math.floor(Math.random()*segments.length); let step=Math.PI*2/segments.length, targetMid=targetIdx*step+step/2, rawFinal=-Math.PI/2-targetMid, twoPi=Math.PI*2; let finalRot=((rawFinal%twoPi)+twoPi)%twoPi+(Math.floor(Math.random()*5)+4)*twoPi; let startRot=currentRotation, startTime=performance.now(); const duration=1200; function animate(now){ let t=Math.min(1,(now-startTime)/duration), ease=1-Math.pow(1-t,3); currentRotation=startRot+(finalRot-startRot)*ease; drawWheel(); if(t<1) requestAnimationFrame(animate); else{ currentRotation=finalRot%twoPi; drawWheel(); let prize=segments[getCurrentPrizeIndex()]; applyScoreForUser(currentUserName, prize, (success,newScore)=>{ if(success){ alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`); logActivity("spin",`抽中 ${prize}`); } else alert("积分更新失败"); isSpinning=false; btn.disabled=false; }); } } if(animFrame) cancelAnimationFrame(animFrame); animFrame=requestAnimationFrame(animate); }
     function renderPrizeTags(){ let cont=document.getElementById('prizeListContainer'); if(!cont) return; let html=''; segments.forEach((seg,i)=>{ html+=`<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${i}" class="del-prize">❌</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.del-prize').forEach(el=>{ el.onclick=()=>{ let idx=parseInt(el.dataset.idx); if(segments.length>1){ segments.splice(idx,1); segmentsRef.set(segments); logActivity("admin_edit_prize","删除奖项"); } else alert("至少保留一个"); }; }); }
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
-function adminManualAdd() {
-    if (currentUserName !== ADMIN_USERNAME) return;
-    let user = document.getElementById('manualUserName').value.trim();
-    let percent = document.getElementById('manualPercent').value;  // 这里补上！
 
-    if (!user) { alert("请输入用户名"); return; }
+    // 修复后的管理员手动添加记录
+    function adminManualAdd() {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        let user = document.getElementById('manualUserName').value.trim();
+        let percent = document.getElementById('manualPercent').value;  // 关键修复
 
-    // 可选：防止特殊字符引起 Firebase 路径问题（但 Anna-2 是合法的）
-    if (/[.$#\[\]\/]/g.test(user)) {
-        alert("用户名不能包含 . $ # [ ] / 等特殊字符");
-        return;
-    }
+        if (!user) { alert("请输入用户名"); return; }
 
-    getUserScore(user).then(oldScore => {
-        const multiplier = getMultiplier(percent);
-        userScoresRef.child(user).transaction(
-            cur => cur === null ? 100 * multiplier : cur * multiplier,
-            (err, committed, snapshot) => {
-                if (err || !committed) {
-                    alert("添加失败：" + (err ? err.message : "数据库冲突，请重试"));
-                    return;
-                }
-                const newScore = snapshot.val();
+        getUserScore(user).then(oldScore => {
+            const multiplier = getMultiplier(percent);
+            const newScore = oldScore * multiplier;
+            userScoresRef.child(user).set(newScore).then(() => {
                 addHistoryRecord(user, percent, oldScore, newScore);
                 alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`);
                 logActivity("admin_manual_add", `为 ${user} 添加 ${percent} 记录`);
                 document.getElementById('manualUserName').value = "";
-            }
-        );
-    }).catch(err => {
-        alert("获取用户资产失败：" + (err.message || err));
-        console.error(err);
-    });
-}
+            }).catch(err => {
+                alert("写入失败：" + err.message);
+                console.error(err);
+            });
+        }).catch(err => {
+            alert("获取用户资产失败：" + (err.message || err));
+            console.error(err);
+        });
+    }
+
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
-   function resetUserAsset() {
-    if (currentUserName !== ADMIN_USERNAME) return;
-    let user = document.getElementById('resetUserName').value.trim();
-    let amount = parseFloat(document.getElementById('resetAmount').value);
-    if (!user || isNaN(amount)) { alert("输入无效"); return; }
-    if (/[.$#\[\]\/]/g.test(user)) { alert("用户名不能包含特殊字符"); return; }
-    userScoresRef.child(user).set(amount).then(() => {
-        alert(`已将 ${user} 资产设为 ${amount} AUD`);
-        logActivity("admin_reset_asset", `重置 ${user} 资产为 ${amount}`);
-        document.getElementById('resetUserName').value = '';
-    }).catch(err => alert("重置失败：" + err.message));
-}
+    function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败："+err.message)); }
 
     function renderGifts(giftsObj){
         let cont=document.getElementById('giftList');
@@ -370,7 +388,6 @@ function adminManualAdd() {
     giftsRef.on('value', snap=>renderGifts(snap.val()));
     function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
 
-    // ========== 管理员手动调整答题统计 ==========
     async function addManualQuizRecord(userName, status) {
         const snap = await questionsRef.orderByChild('text').equalTo('__admin_manual_quiz__').once('value');
         let manualQid = null;
@@ -452,7 +469,6 @@ function adminManualAdd() {
         });
     }
 
-    // 事件委托：处理管理员调整按钮
     document.getElementById('allUsersStatsList')?.addEventListener('click', async (e) => {
         const btn = e.target.closest('button');
         if (!btn) return;
@@ -474,9 +490,7 @@ function adminManualAdd() {
         }
     });
 
-    questionAnswersRef.on('value', () => {
-        updateAllUsersQuizStats();
-    });
+    questionAnswersRef.on('value', () => { updateAllUsersQuizStats(); });
 
     async function updateQuizStatsAndHistory() {
         if(!currentUserName) return;
@@ -915,21 +929,17 @@ function adminManualAdd() {
     let currentUserScoreListener=null;
     function subscribeToCurrentUserScore() { if(currentUserScoreListener && typeof currentUserScoreListener.off==='function') currentUserScoreListener.off(); if(currentUserName) { currentUserScoreListener = userScoresRef.child(currentUserName).on('value', snap=>{ let val=snap.val(); document.getElementById('currentScoreDisplay').innerText=(typeof val==='number'?val:100).toFixed(2); }); } else document.getElementById('currentScoreDisplay').innerText='--'; }
 
-    // ==================== 新增：用户名格式化函数 ====================
     function formatUserName(rawName) {
         if (!rawName) return rawName;
         return rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
     }
 
-    // ==================== 修改后的 setUsername 函数 ====================
     function setUsername(){
         let rawName = document.getElementById('usernameInput').value.trim();
         if(!rawName) return;
-        // 将输入统一转换为首字母大写、其余小写的格式，例如 anna/ANNA -> Anna
         let formattedName = formatUserName(rawName);
         currentUserName = formattedName;
         localStorage.setItem("wheelUserName", formattedName);
-        // 回显格式化后的名字
         document.getElementById('usernameInput').value = formattedName;
         document.getElementById('currentUserDisplay').innerHTML = `✅ ${escapeHtml(formattedName)}${formattedName===ADMIN_USERNAME?' (管理员)':''}`;
         updateAdminUI();
