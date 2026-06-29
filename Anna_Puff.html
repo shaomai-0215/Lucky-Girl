@@ -551,7 +551,11 @@
                 if(answerStatus === 'correct') statusHtml = `<span class="answer-status" style="background:#2e8b57;">✅ 已答对</span>`;
                 else if(answerStatus === 'wrong') statusHtml = `<span class="answer-status" style="background:#c0392b;">❌ 回答错误</span>`;
                 else statusHtml = `<span class="answer-status" style="background:#f39c12;">⏳ 待批阅</span>`;
-                inputArea = `<div class="feedback-area">📝 你的答案: ${escapeHtml(userAnswerObj.answer)}<br>📌 状态: ${answerStatus==='correct'?'✓正确':answerStatus==='wrong'?'✗错误':'等待管理员评判'}</div>`;
+                inputArea = `<div class="feedback-area">
+    📝 你的答案: ${escapeHtml(userAnswerObj.answer)}<br>
+    ✅ 正确答案: ${escapeHtml(q.answer || '暂无')}<br>
+    📌 状态: ${answerStatus==='correct'?'✓正确':answerStatus==='wrong'?'✗错误':'等待管理员评判'}
+</div>`;
             }
             html += `<div class="qa-enhanced-card"><div class="qa-header"><div class="qa-question-text">❓ ${escapeHtml(q.text)} ${!hasAnswered ? '<span class="red-dot">!</span>' : ''}</div><div class="qa-time">📅 发布: ${publishTime}</div></div>${statusHtml}${inputArea}</div>`;
         }
