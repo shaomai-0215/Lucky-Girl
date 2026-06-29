@@ -273,7 +273,16 @@
     scoreHistoryRef.on('value', async snap=>{ let data=snap.val(); let arr=[]; if(data) for(let [id,val] of Object.entries(data)) arr.push({id,...val}); arr.sort((a,b)=>a.timestamp - b.timestamp); renderScoreHistory(arr); });
     const percentOptions = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`${p}%`);
     function populatePercentSelect() { const select = document.getElementById('manualPercent'); if(!select) return; select.innerHTML = ''; percentOptions.forEach(p=>{ const opt=document.createElement('option'); opt.value=p; opt.textContent=p; select.appendChild(opt); }); }
-    async function getUserScore(user) { const snap=await userScoresRef.child(user).once('value'); let val=snap.val(); return (val===null||typeof val!=='number')?100.0:val; }
+   async function getUserScore(user) {
+    try {
+        const snap = await userScoresRef.child(user).once('value');
+        let val = snap.val();
+        return (val === null || typeof val !== 'number') ? 100.0 : val;
+    } catch (err) {
+        console.error("读取用户资产失败，用户：" + user, err);
+        throw err; // 继续向上抛出，让外部 catch 处理
+    }
+}
     function getMultiplier(percentageStr) { let percent=parseFloat(percentageStr); if(isNaN(percent)) percent=0; if(percent===0) return 0; return 1+percent/100; }
     function updateUserScore(user, percentageStr, callback) { const multiplier = getMultiplier(percentageStr); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed) callback(false); else callback(true, snapshot.val()); }); }
     function addHistoryRecord(userName, percentage, oldScore, newScore) { scoreHistoryRef.push({ userName, percentage, oldScore, newScore, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
@@ -284,9 +293,53 @@
     function renderPrizeTags(){ let cont=document.getElementById('prizeListContainer'); if(!cont) return; let html=''; segments.forEach((seg,i)=>{ html+=`<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${i}" class="del-prize">❌</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.del-prize').forEach(el=>{ el.onclick=()=>{ let idx=parseInt(el.dataset.idx); if(segments.length>1){ segments.splice(idx,1); segmentsRef.set(segments); logActivity("admin_edit_prize","删除奖项"); } else alert("至少保留一个"); }; }); }
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
-    function adminManualAdd(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('manualUserName').value.trim(); if(!user){ alert("请输入用户名"); return; } getUserScore(user).then(oldScore=>{ const multiplier=getMultiplier(percent); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed){ alert("添加失败"); return; } const newScore=snapshot.val(); addHistoryRecord(user, percent, oldScore, newScore); alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`); logActivity("admin_manual_add",`为 ${user} 添加 ${percent} 记录`); document.getElementById('manualUserName').value=""; }); }).catch(()=>alert("获取用户资产失败")); }
+function adminManualAdd() {
+    if (currentUserName !== ADMIN_USERNAME) return;
+    let user = document.getElementById('manualUserName').value.trim();
+    let percent = document.getElementById('manualPercent').value;  // 这里补上！
+
+    if (!user) { alert("请输入用户名"); return; }
+
+    // 可选：防止特殊字符引起 Firebase 路径问题（但 Anna-2 是合法的）
+    if (/[.$#\[\]\/]/g.test(user)) {
+        alert("用户名不能包含 . $ # [ ] / 等特殊字符");
+        return;
+    }
+
+    getUserScore(user).then(oldScore => {
+        const multiplier = getMultiplier(percent);
+        userScoresRef.child(user).transaction(
+            cur => cur === null ? 100 * multiplier : cur * multiplier,
+            (err, committed, snapshot) => {
+                if (err || !committed) {
+                    alert("添加失败：" + (err ? err.message : "数据库冲突，请重试"));
+                    return;
+                }
+                const newScore = snapshot.val();
+                addHistoryRecord(user, percent, oldScore, newScore);
+                alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`);
+                logActivity("admin_manual_add", `为 ${user} 添加 ${percent} 记录`);
+                document.getElementById('manualUserName').value = "";
+            }
+        );
+    }).catch(err => {
+        alert("获取用户资产失败：" + (err.message || err));
+        console.error(err);
+    });
+}
     function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
-    function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败"+err)); }
+   function resetUserAsset() {
+    if (currentUserName !== ADMIN_USERNAME) return;
+    let user = document.getElementById('resetUserName').value.trim();
+    let amount = parseFloat(document.getElementById('resetAmount').value);
+    if (!user || isNaN(amount)) { alert("输入无效"); return; }
+    if (/[.$#\[\]\/]/g.test(user)) { alert("用户名不能包含特殊字符"); return; }
+    userScoresRef.child(user).set(amount).then(() => {
+        alert(`已将 ${user} 资产设为 ${amount} AUD`);
+        logActivity("admin_reset_asset", `重置 ${user} 资产为 ${amount}`);
+        document.getElementById('resetUserName').value = '';
+    }).catch(err => alert("重置失败：" + err.message));
+}
 
     function renderGifts(giftsObj){
         let cont=document.getElementById('giftList');
