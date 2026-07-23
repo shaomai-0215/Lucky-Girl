@@ -178,6 +178,10 @@
                 <div class="all-users-stats-list" id="allUsersStatsList">加载中...</div>
             </div>
             <div id="quizHistoryContainer" class="quiz-history-list">加载中...</div>
+            <!-- 全部展开/折叠按钮 -->
+            <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                <button id="toggleAllQuestionsBtn" style="background:#2c6e4f; padding:6px 16px; border-radius:30px; font-size:0.9rem;">全部展开</button>
+            </div>
             <div id="dynamicQuestionList" style="margin-top:20px;">加载问题中...</div>
             <div id="adminReviewPanel" class="admin-review-panel admin-only"><div class="admin-review-title">🔍 管理员批阅台 (✅ 正确 / ❌ 错误)</div><div id="adminAnswersContainer">等待加载...</div></div>
             <div class="question-admin admin-only" style="margin-top:20px;"><h4>➕ 管理员添加新问题</h4><input type="text" id="newQuestionText" placeholder="问题内容"><textarea id="newQuestionAnswer" rows="2" placeholder="正确答案"></textarea><button id="addQuestionDraftBtn">📝 发布新问题</button></div>
@@ -250,7 +254,7 @@
     const questionAnswersRef = db.ref('questionAnswers');
     const activityLogRef = db.ref('activityLog');
     const playlistRef = db.ref('playlist');
-    const messagesRef = db.ref('messages'); // 留言板
+    const messagesRef = db.ref('messages');
 
     let segments = ["10%","0%","20%","30%","50%","100%"];
     let currentRotation = 0, isSpinning = false, animFrame = null, currentUserName = "";
@@ -350,7 +354,6 @@
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
 
-    // 管理员手动添加资产（改用 set 方式）
     function adminManualAdd() {
         if (currentUserName !== ADMIN_USERNAME) return;
         let user = document.getElementById('manualUserName').value.trim();
@@ -547,14 +550,11 @@
     }
     function triggerEffect(status) { if(status === 'correct') showFirework(); else if(status === 'wrong') showBomb(); }
 
-    // 删除问题（管理员）
     async function deleteQuestion(qid) {
         if (currentUserName !== ADMIN_USERNAME) return;
         if (!confirm('确定要删除这个问题以及所有相关回答吗？')) return;
         try {
-            // 删除问题本身
             await questionsRef.child(qid).remove();
-            // 删除该问题下的所有回答
             await questionAnswersRef.child(qid).remove();
             logActivity("admin_delete_question", `删除问题 ${qid}`);
         } catch (err) {
@@ -562,7 +562,6 @@
         }
     }
 
-    // 折叠展示问答列表
     function toggleAccordion(qid) {
         const body = document.getElementById('accordion-body-' + qid);
         if (!body) return;
@@ -573,6 +572,16 @@
             body.style.display = 'none';
             document.getElementById('accordion-arrow-' + qid).innerText = '▶';
         }
+        // 更新“全部展开/折叠”按钮的文字
+        updateToggleAllButtonText();
+    }
+
+    function updateToggleAllButtonText() {
+        const bodies = document.querySelectorAll('.accordion-body');
+        const btn = document.getElementById('toggleAllQuestionsBtn');
+        if (!bodies.length || !btn) return;
+        const allExpanded = Array.from(bodies).every(b => b.style.display === 'block');
+        btn.textContent = allExpanded ? '全部折叠' : '全部展开';
     }
 
     async function renderAllQuestions() {
@@ -582,11 +591,9 @@
         const answersSnap = await questionAnswersRef.once('value');
         const userAnswers = answersSnap.val() || {};
 
-        // 构建问题列表，并按用户最近回答时间排序
         let questionsArray = [];
         for (let [qid, q] of Object.entries(questions)) {
             if (!q.published && currentUserName !== ADMIN_USERNAME) continue;
-            // 获取当前用户对该问题的回答时间（如果已答）
             const userRec = userAnswers[qid]?.[currentUserName];
             const answerTime = userRec ? (userRec.submittedAt || 0) : 0;
             questionsArray.push({
@@ -599,7 +606,6 @@
                 answerTime: answerTime
             });
         }
-        // 排序：优先按回答时间倒序（最近回答的在前），没回答的排在后面按问题发布时间倒序
         questionsArray.sort((a, b) => {
             if (a.answerTime && b.answerTime) return b.answerTime - a.answerTime;
             if (a.answerTime) return -1;
@@ -635,7 +641,7 @@
                     <div class="qa-time">📅 发布: ${publishTime}</div>
                     ${deleteBtn}
                 </div>
-                <div id="accordion-body-${q.qid}" style="display:none; margin-top:10px;">
+                <div id="accordion-body-${q.qid}" class="accordion-body" style="display:none; margin-top:10px;">
                     ${statusHtml}
                     ${inputArea}
                 </div>
@@ -644,7 +650,6 @@
         const container = document.getElementById('dynamicQuestionList');
         container.innerHTML = html || '<div>暂无已发布的问题，等待管理员更新~</div>';
 
-        // 绑定删除按钮事件
         container.querySelectorAll('.delete-question-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
@@ -653,7 +658,6 @@
             });
         });
 
-        // 绑定提交答案按钮
         container.querySelectorAll('.submit-answer-btn').forEach(btn => {
             btn.onclick = async (e) => {
                 const qid = btn.dataset.qid;
@@ -674,7 +678,24 @@
                 updateQATabRedDot();
             };
         });
+        // 更新按钮文字
+        updateToggleAllButtonText();
     }
+
+    // 全部展开/折叠按钮事件
+    document.getElementById('toggleAllQuestionsBtn')?.addEventListener('click', () => {
+        const bodies = document.querySelectorAll('.accordion-body');
+        const btn = document.getElementById('toggleAllQuestionsBtn');
+        if (!bodies.length || !btn) return;
+        const allExpanded = Array.from(bodies).every(b => b.style.display === 'block');
+        bodies.forEach(b => {
+            b.style.display = allExpanded ? 'none' : 'block';
+        });
+        document.querySelectorAll('[id^="accordion-arrow-"]').forEach(arrow => {
+            arrow.textContent = allExpanded ? '▶' : '▼';
+        });
+        btn.textContent = allExpanded ? '全部展开' : '全部折叠';
+    });
 
     window.renderAdminReviewPanel = async function() {
         if(currentUserName !== ADMIN_USERNAME) return;
@@ -726,7 +747,6 @@
         if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
     }
 
-    // 留言板
     function renderMessages() {
         messagesRef.orderByChild('timestamp').on('value', snap => {
             const data = snap.val();
@@ -1121,7 +1141,7 @@
         document.getElementById('resetAssetBtn').onclick = resetUserAsset;
         populatePercentSelect();
         initMusicPlayer();
-        renderMessages(); // 启动留言板监听
+        renderMessages();
         let now = new Date();
         currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
