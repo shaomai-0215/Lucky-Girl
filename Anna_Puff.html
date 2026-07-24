@@ -126,11 +126,14 @@
         .draft-badge { background: #aa6f20; border-radius: 20px; padding: 2px 8px; font-size: 0.7rem; margin-left: 8px; }
         .delete-user-btn { background: #882d2d; border: none; border-radius: 30px; padding: 2px 8px; margin-left: 8px; font-size: 0.7rem; cursor: pointer; color: white; }
         .delete-user-btn:hover { background: #b33a3a; }
-        .message-board { background: #0f1a1fcc; border-radius: 32px; padding: 16px; margin-top: 30px; }
-        .message-list { max-height: 200px; overflow-y: auto; background: #0f1a1f; border-radius: 20px; padding: 10px; margin-bottom: 12px; }
-        .message-item { background: #1e2a32; border-radius: 20px; padding: 8px 12px; margin-bottom: 6px; border-left: 3px solid #ffb347; font-size: 0.85rem; }
+        /* 留言板独立页面样式 */
+        .message-board-page { background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
+        .message-list { max-height: 500px; overflow-y: auto; background: #0f1a1f; border-radius: 20px; padding: 10px; margin-bottom: 12px; }
+        .message-item { background: #1e2a32; border-radius: 20px; padding: 8px 12px; margin-bottom: 6px; border-left: 3px solid #ffb347; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: flex-start; }
+        .message-item .msg-content { flex: 1; }
         .message-item .msg-user { font-weight: bold; color: #ffd966; }
         .message-item .msg-time { font-size: 0.7rem; color: #aaccdd; margin-left: 8px; }
+        .message-item .msg-delete { background: #882d2d; color: white; border: none; border-radius: 15px; padding: 2px 8px; font-size: 0.7rem; cursor: pointer; margin-left: 10px; }
         .message-input-area { display: flex; gap: 8px; }
         .message-input { flex: 2; background: #2c3e2f; border: 1px solid #5f8b6f; margin: 0; }
         .send-message-btn { background: #2c6e4f; padding: 8px 20px; border-radius: 40px; }
@@ -152,6 +155,7 @@
         <button class="tab-btn active" data-tab="wheel">🎡 转盘游戏</button>
         <button class="tab-btn" data-tab="qa">❓ 问答互动</button>
         <button class="tab-btn" data-tab="calendar">📅 日历记录</button>
+        <button class="tab-btn" data-tab="message">📬 留言板</button>
     </div>
 
     <div id="wheelTab" class="tab-content active">
@@ -178,7 +182,6 @@
                 <div class="all-users-stats-list" id="allUsersStatsList">加载中...</div>
             </div>
             <div id="quizHistoryContainer" class="quiz-history-list">加载中...</div>
-            <!-- 全部展开/折叠按钮 -->
             <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
                 <button id="toggleAllQuestionsBtn" style="background:#2c6e4f; padding:6px 16px; border-radius:30px; font-size:0.9rem;">全部展开</button>
             </div>
@@ -186,15 +189,6 @@
             <div id="adminReviewPanel" class="admin-review-panel admin-only"><div class="admin-review-title">🔍 管理员批阅台 (✅ 正确 / ❌ 错误)</div><div id="adminAnswersContainer">等待加载...</div></div>
             <div class="question-admin admin-only" style="margin-top:20px;"><h4>➕ 管理员添加新问题</h4><input type="text" id="newQuestionText" placeholder="问题内容"><textarea id="newQuestionAnswer" rows="2" placeholder="正确答案"></textarea><button id="addQuestionDraftBtn">📝 发布新问题</button></div>
             <div style="margin-top:30px;"><h3>🎁 神秘礼盒</h3><div class="gift-list" id="giftList">加载中...</div><div class="add-gift admin-only" style="margin-top:15px;"><h4>➕ 添加新礼物</h4><input type="text" id="giftName" placeholder="名称"><input type="text" id="giftValue" placeholder="价值"><textarea id="giftDetail" rows="2" placeholder="隐藏内容"></textarea><button id="addGiftBtn">📦 添加礼盒</button></div></div>
-            <!-- 留言板 -->
-            <div class="message-board">
-                <h4>📬 留言板 <span style="font-size:0.7rem;">（向管理员留言）</span></h4>
-                <div class="message-list" id="messageList">加载中...</div>
-                <div class="message-input-area">
-                    <input type="text" id="messageInput" class="message-input" placeholder="输入留言...">
-                    <button class="send-message-btn" id="sendMessageBtn">发送</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -206,6 +200,19 @@
             <div id="selectedDateEvents" class="selected-date-events"></div>
         </div>
     </div>
+
+    <!-- 留言板独立页面 -->
+    <div id="messageTab" class="tab-content">
+        <div class="message-board-page">
+            <h3>📬 留言板 <span style="font-size:0.7rem;">（管理员可删除留言）</span></h3>
+            <div class="message-list" id="messageList">加载中...</div>
+            <div class="message-input-area">
+                <input type="text" id="messageInput" class="message-input" placeholder="输入留言...">
+                <button class="send-message-btn" id="sendMessageBtn">发送</button>
+            </div>
+        </div>
+    </div>
+
     <div class="sync-status" id="syncStatus">☁️ 连接云端同步中...</div>
 </div>
 
@@ -572,7 +579,6 @@
             body.style.display = 'none';
             document.getElementById('accordion-arrow-' + qid).innerText = '▶';
         }
-        // 更新“全部展开/折叠”按钮的文字
         updateToggleAllButtonText();
     }
 
@@ -678,11 +684,9 @@
                 updateQATabRedDot();
             };
         });
-        // 更新按钮文字
         updateToggleAllButtonText();
     }
 
-    // 全部展开/折叠按钮事件
     document.getElementById('toggleAllQuestionsBtn')?.addEventListener('click', () => {
         const bodies = document.querySelectorAll('.accordion-body');
         const btn = document.getElementById('toggleAllQuestionsBtn');
@@ -747,6 +751,7 @@
         if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
     }
 
+    // 留言板功能（独立页面）
     function renderMessages() {
         messagesRef.orderByChild('timestamp').on('value', snap => {
             const data = snap.val();
@@ -754,12 +759,19 @@
             if (!list) return;
             let html = '';
             if (data) {
-                const messages = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
-                for (let msg of messages) {
+                const messages = Object.entries(data)
+                    .sort((a,b) => b[1].timestamp - a[1].timestamp);
+                for (let [msgId, msg] of messages) {
+                    const deleteBtn = (currentUserName === ADMIN_USERNAME) 
+                        ? `<button class="msg-delete" data-msgid="${msgId}">🗑️</button>` 
+                        : '';
                     html += `<div class="message-item">
-                        <span class="msg-user">${escapeHtml(msg.userName)}</span>
-                        <span class="msg-time">${new Date(msg.timestamp).toLocaleString()}</span>
-                        <div>${escapeHtml(msg.text)}</div>
+                        <div class="msg-content">
+                            <span class="msg-user">${escapeHtml(msg.userName)}</span>
+                            <span class="msg-time">${new Date(msg.timestamp).toLocaleString()}</span>
+                            <div>${escapeHtml(msg.text)}</div>
+                        </div>
+                        ${deleteBtn}
                     </div>`;
                 }
             }
@@ -779,6 +791,26 @@
         input.value = '';
         logActivity("send_message", text);
     }
+
+    async function deleteMessage(msgId) {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        if (!confirm('确定要删除这条留言吗？')) return;
+        try {
+            await messagesRef.child(msgId).remove();
+            logActivity("admin_delete_message", `删除留言 ${msgId}`);
+        } catch (err) {
+            alert("删除失败：" + err.message);
+        }
+    }
+
+    // 留言板删除按钮事件委托
+    document.getElementById('messageList')?.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.msg-delete');
+        if (deleteBtn) {
+            const msgId = deleteBtn.dataset.msgid;
+            deleteMessage(msgId);
+        }
+    });
 
     questionsRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
 
@@ -1124,7 +1156,15 @@
         }
     }
 
-    function switchTab(tabId){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tabId+'Tab').classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth); if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateAllUsersQuizStats(); } }
+    function switchTab(tabId){
+        document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+        document.getElementById(tabId+'Tab').classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+        if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth);
+        if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateAllUsersQuizStats(); }
+        if(tabId==='message') { /* 留言板切换到该页面时无需额外操作 */ }
+    }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
 
     userScoresRef.on('value', (snap) => { renderAssetBoard(snap.val()); });
@@ -1141,7 +1181,7 @@
         document.getElementById('resetAssetBtn').onclick = resetUserAsset;
         populatePercentSelect();
         initMusicPlayer();
-        renderMessages();
+        renderMessages(); // 启动留言板监听
         let now = new Date();
         currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
         buildCalendar(currentCalendarYear, currentCalendarMonth);
