@@ -247,1054 +247,2104 @@
             <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
         </div>
         <div id="playlistContainer" style="max-height:280px; overflow-y:auto; margin-top:8px;"></div>
+        <div class="admin-only" style="margin-top:8pxdiv>
         <div class="admin-only" style="margin-top:8px;">
-            <input type="text" id="manualSongName" placeholder="歌曲名称" style="width:100%; margin-bottom:4px;">
-            <input type="text" id="manualSongUrl" placeholder="歌曲下载链接" style="width:100%; margin-bottom:4px;">
-            <button id="addSongByUrlBtn" style="width:100%;">➕ 添加歌曲链接</button>
+;">
+            <input type="text            <input type="text" id" id="manual="SongName" placeholder="歌曲manualSongName" placeholder="歌曲名称" style="width:100%; margin-bottom:4名称" style="width:100%; margin-bottom:4px;">
+            <input typepx;">
+            <input type="text" id="manualSongUrl="text" id="manual" placeholder="歌曲下载链接" style="SongUrl" placeholder="歌曲下载链接" style="widthwidth:100%; margin-bottom::100%; margin-bottom:4px;">
+            <button4px;">
+            <button id="addSongByUrlBtn" style="width id="addSongByUrlBtn" style="width:100%;">➕ :100%;">➕ 添加歌曲链接</button>
+添加歌曲链接</button>
         </div>
-    </div>
+        </div>
+    </   div>
 </div>
 
 <script>
-    const ADMIN_USERNAME = "烧卖";
+    const ADMIN </div>
+</div>
+
+<script>
+    const ADMIN_USERNAME_USERNAME = "烧卖 = "烧卖";
+    const fire";
     const firebaseConfig = {
-        apiKey: "AIzaSyD3RKDKXiX49agTmcF5ciQxLNnbZHto158",
-        databaseURL: "https://anna-puff-default-rtdb.asia-southeast1.firebasedatabase.app",
-        authDomain: "anna-puff.firebaseapp.com",
+        apiKey: "AIzaSybaseConfig = {
+        apiKey: "AID3RKDzaSyD3RKDKXiXKXiX49agTmcF49agTmc5ciQxLNnbZHto158F5ciQxLNnbZHto158",
+        databaseURL:",
+        databaseURL: " "https://anna-phttps://anna-puff-default-rtdbuff-default-rtdb.asia-southeast1.asia-southeast1.firebasedatabase.app",
+       .firebasedatabase.app",
+        authDomain: "anna-p authDomain: "anna-puff.firebaseapp.com",
+        projectId:uff.firebaseapp.com",
         projectId: "anna-puff",
-        storageBucket: "anna-puff.appspot.com",
-        messagingSenderId: "247577846134",
-        appId: "1:247577846134:web:9555c1436be25bf7b0da57"
+        "anna-puff",
+        storageBucket: "anna-p storageBucket: "anna-puff.appspot.com",
+       uff.appspot.com",
+        messagingSenderId: "247 messagingSenderId: "247577846134",
+577846134",
+        appId: "1:247577846134:        appId: "1:247577846134:web:9555c1436web:9555be25bf7b0c1436be25bf7b0da57"
     };
-    firebase.initializeApp(firebaseConfig);
+   da57"
+    };
+    firebase.initializeApp(f firebase.initializeApp(firebaseConfig);
+    const db = firebase.databaseirebaseConfig);
     const db = firebase.database();
-    const segmentsRef = db.ref('wheelSegments');
-    const userScoresRef = db.ref('userScores');
-    const scoreHistoryRef = db.ref('scoreHistory');
-    const giftsRef = db.ref('gifts');
+    const segmentsRef =();
+    const segmentsRef = db.ref('wheelSegments db.ref('wheelSegments');
+    const userScores');
+    const userScoresRefRef = db.ref('user = db.ref('userScores');
+    constScores');
+    const scoreHistoryRef = db.ref scoreHistoryRef = db.ref('('scoreHistory');
+    const giftsscoreHistory');
+    const giftsRef = db.ref('gRef = db.ref('gifts');
+    const questionsRef = db.ref('questionsifts');
     const questionsRef = db.ref('questions');
-    const questionAnswersRef = db.ref('questionAnswers');
-    const activityLogRef = db.ref('activityLog');
-    const playlistRef = db.ref('playlist');
+    const questionAnswers');
+    const questionAnswersRef = db.ref('questionRef = db.ref('questionAnswersAnswers');
+    const activityLog');
+    const activityLogRef = dbRef = db.ref('activity.ref('activityLog');
+    const playlistRefLog');
+    const playlistRef = db.ref('playlist = db.ref('playlist');
+    const messagesRef =');
     const messagesRef = db.ref('messages');
 
-    let segments = ["10%","0%","20%","30%","50%","100%"];
-    let currentRotation = 0, isSpinning = false, animFrame = null, currentUserName = "";
+    db.ref('messages');
+
+    let segments = [" let segments = ["10%","010%","0%","20%","30%","20%","30%","%","50%","100%"];
+    let currentRotation50%","100%"];
+    let = 0, isSp currentRotation = 0, isSpinning = false, animFrameinning = false, animFrame = null, currentUserName = = null, currentUserName = "";
+    let canvas, "";
     let canvas, ctx;
-    const colorPalette = ["#F05454","#FFC069","#6ECB63","#5D9BEC","#E98A8A","#A366F5"];
+    const colorPal ctx;
+    const colorPalette = ["#Fette = ["#F05454","#FF05454","#FFCC069","#6069","#6ECB63ECB63","#5","#5D9BEC","#D9BEC","#E98A8A","E98A8A","#A#A366F5"]366F5"];
+
+    function escapeHtml(str;
 
     function escapeHtml(str) {
+        if (!str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
+        return str) return '';
+        return str.replace(/[&<>]/g, function.replace(/[&<>]/g, function(m) {
+            if (m ===(m) {
+            if (m === ' '&') return '&amp&') return '&amp;';
+            if (m;';
+            if (m === '<') return '& === '<') return '&lt;';
+            return 'lt;';
             return '&gt;';
         });
+&gt;';
+        });
     }
-    function logActivity(type, detail) { if(!currentUserName) currentUserName="游客"; activityLogRef.push({ userName:currentUserName, type, detail, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
-    function updateAdminUI() { document.querySelectorAll('.admin-only').forEach(el=>el.style.display = (currentUserName===ADMIN_USERNAME)?'block':'none'); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); }
+    function logActivity(type, detail    }
+    function logActivity(type, detail) { if) { if(!currentUserName) currentUserName(!currentUserName) currentUserName="游客"; activityLog="游客"; activityLogRef.push({ userNameRef.push({ userName:currentUserName, type,:currentUserName, type, detail, timestamp:Date.now detail, timestamp:Date.now(), date(), dateStr:new Date().toLocaleDateString('zh-CStr:new Date().toLocaleDateString('zh-CN'), timeStrN'), timeStr:new Date().to:new Date().toLocaleLocaleTimeString('zh-CNTimeString('zh-CN') }); }
+    function') }); }
+    function updateAdminUI() { updateAdminUI() { document.querySelectorAll('.admin-only document.querySelectorAll('.admin-only').forEach(el=>el').forEach(el=>el.style.display = (currentUserName===.style.display = (currentUserName===ADMIN_USERNAME)?ADMIN'block':'none');_USERNAME)?'block':'none'); if(currentUserName===ADMIN if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); }
 
     function showFirework() {
-        const fwCanvas = document.createElement('canvas');
-        fwCanvas.className = 'firework-canvas';
+_USERNAME) renderAdminReviewPanel(); }
+
+    function showFirework() {
+        const fwCanvas = document        const fwCanvas = document.createElement.createElement('canvas');
+        fw('canvas');
+        fwCanvas.className = 'fireCanvas.className = 'firework-canvas';
+        documentwork-canvas';
         document.body.appendChild(fwCanvas);
+        const fwCtx.body.appendChild(fwCanvas);
         const fwCtx = fwCanvas.getContext('2d');
+ = fwCanvas.getContext('2        fwCanvas.width = window.innerd');
         fwCanvas.width = window.innerWidth;
+        fwCanvasWidth;
         fwCanvas.height = window.innerHeight;
+.height = window.innerHeight;
         let particles = [];
-        for(let i=0;i<60;i++) particles.push({ x:Math.random()*fwCanvas.width, y:Math.random()*fwCanvas.height, radius:Math.random()*6+2, color:`hsl(${Math.random()*360},100%,60%)`, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4-2, life:1 });
-        function animate() { fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height); let allDead=true; for(let p of particles){ if(p.life<=0) continue; allDead=false; p.x+=p.vx; p.y+=p.vy; p.life-=0.02; fwCtx.beginPath(); fwCtx.arc(p.x,p.y,p.radius*p.life,0,Math.PI*2); fwCtx.fillStyle=p.color; fwCtx.fill(); } if(allDead) fwCanvas.remove(); else requestAnimationFrame(animate); }
+               let particles = [];
+        for(let i=0;i for(let i=0;i<60;i++)<60;i++) particles.push particles.push({ x:Math.random()({ x:Math.random()**fwCanvas.width, yfwCanvas.width, y:Math.random()*fwCanvas.height, radius:Math:Math.random()*fwCanvas.height, radius:Math.random()*6+2.random()*6+2, color:`hsl, color:`hsl(${Math.random()*(${Math.random()*360},100%,60360},100%,60%)`, vx:(%)`, vx:(MathMath.random()-0.5)*4, vy:(Math.random()-0.5)*4, vy:(.random()-0.5)*Math.random()-0.5)*4-4-2, life:2, life:1 });
+        function animate()1 });
+        function animate() { fwCtx.clearRect(0,0,f { fwCtx.clearRect(0,0,fwCanvas.width,fwCanvaswCanvas.width,fwCanvas.height); let.height); let all allDead=true; for(let pDead=true; for(let p of particles){ if(p.l of particles){ if(p.life<=0) continue; allDead=false; p.xife<=0) continue; allDead=false; p.x+=p.vx; p+=p.vx; p.y+=p.vy;.y+=p.vy; p p.life-=0..life-=0.02; fwCtx.beginPath(); fw02; fwCtx.beginPath(); fwCCtx.arc(p.x,ptx.arc(p.x,p.y,p.radius*p.y,p.radius*p.life,0,Math.life,0,Math.PI*2); f.PI*2); fwCtx.fillStyle=pwCtx.fillStyle=p.color; f.color; fwCtx.fillwCtx.fill(); } if(allDead) f(); } if(allDead) fwCanvas.remove(); elsewCanvas.remove(); else requestAnimationFrame(animate); requestAnimationFrame(animate); }
         animate();
-        setTimeout(()=>{ if(fwCanvas.parentNode) fwCanvas.remove(); },1500);
+ }
+        animate();
+        setTimeout(()=>{ if        setTimeout(()=>{ if(fwCanvas.parentNode(fwCanvas.parentNode)) fwCanvas.remove(); }, fwCanvas.remove(); },15001500);
     }
-    function showBomb() {
-        const bombDiv=document.createElement('div'); bombDiv.className='bomb-effect'; document.body.appendChild(bombDiv);
-        document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'),500);
-        setTimeout(()=>{ if(bombDiv.parentNode) bombDiv.remove(); },700);
+   );
+    }
+    function showBomb function showBomb() {
+        const bombDiv() {
+        const bombDiv=document.createElement('div'); bombDiv.className='b=document.createElement('div'); bombDiv.classNameomb-effect'; document.body.appendChild='bomb-effect'; document.body.appendChild(bombDiv);
+        document(bombDiv);
+        document.body.classList.add('shake');.body.classList.add('shake'); setTimeout(()=>document.body.classList setTimeout(()=>document.body.classList.remove('.remove('shake'),500);
+shake'),500);
+        setTimeout(()=>        setTimeout(()=>{ if{ if(bombDiv.parentNode)(bombDiv.parentNode) bombDiv.remove bombDiv.remove(); },700(); },700);
     }
 
-    async function recalcUserAsset(userName) { const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value'); const records = []; snapshot.forEach(child => records.push({ id: child.key, ...child.val() })); if (records.length === 0) { await userScoresRef.child(userName).set(100); return 100; } records.sort((a,b) => a.timestamp - b.timestamp); const lastAsset = records[records.length-1].newScore; await userScoresRef.child(userName).set(lastAsset); return lastAsset; }
-    function renderScoreHistory(historyArr) {
-        const cont = document.getElementById('scoreHistoryList');
+    async function);
+    }
+
+    async function recalcUserAsset recalcUserAsset(user(userNameName) {) { const snapshot = await scoreHistoryRef.orderByChild const snapshot = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('userName').equalTo(userName).once('value'); const records(' = []; snapshot.forEach(child => recordsvalue'); const records = []; snapshot.forEach(child.push({ id => records.push({ id: child.key, ...child.val() })); if (: child.key, ...child.val() })); if (records.length === 0)records.length === 0) { await { await userS userScoresRef.child(usercoresRef.child(userName).Name).set(100); return set(100); return 100; } records100; } records.sort((.sort((a,b) => a.ta,b) => a.timestamp - b.timestamp);imestamp - b.timestamp); const lastAsset = records const lastAsset = records[records.length[records.length-1].new-1].newScore; await userSScore; await userScoresRef.childcores(userName).set(lastAsset); returnRef.child(userName).set lastAsset; }
+    function render(lastAsset); return lastScoreHistory(historyAsset; }
+    function renderScoreHistoryArr) {
+        const cont(historyArr) {
+        const cont = document.getElementById('scoreHistory = document.getElementById('scoreHistoryList');
+        if(!contList');
         if(!cont) return;
-        if(!historyArr.length){ cont.innerHTML='<div>暂无记录</div>'; return; }
+        if(!) return;
+        if(!historyArr.length){ cont.innerHTMLhistoryArr.length){ cont.innerHTML='<div>暂无记录</div>'; return;='<div>暂无记录</div }
         let html='';
-        const reversed = [...historyArr].reverse();
+>'; return; }
+        let html='';
+        const reversed = [...history        const reversed = [...historyArr].reverse();
+        forArr].reverse();
         for(let item of reversed) {
-            const remark = item.remark || '';
-            let remarkHtml = '';
-            if (currentUserName === ADMIN_USERNAME) {
-                remarkHtml = `<div class="remark-area"><input type="text" class="remark-input" id="remark-${item.id}" placeholder="添加备注" value="${escapeHtml(remark)}"><button class="remark-save" data-id="${item.id}">保存</button></div>`;
+(let item of reversed) {
+            const remark = item.            const remark = item.remarkremark || '';
+            let remark || '';
+            let remarkHtml =Html = '';
+            if (currentUserName === ADMIN_USERNAME '';
+            if (currentUserName === ADMIN) {
+                remarkHtml =_USERNAME) {
+                remarkHtml = `<div class="remark-area `<div class="remark-area"><input type="text""><input type="text" class="remark-input" id class="remark-input" id="remark-${item.id}"="remark-${item.id}" placeholder="添加 placeholder="添加备注"备注" value="${escapeHtml(remark)}"><button class="remark-save" data value="${escapeHtml(remark)}"><button class="remark-save" data-id="${item.id}">-id="${item.id}">保存</button></div>保存</button></div>`;
+            } else if (`;
             } else if (remark) {
-                const remarkId = 'remark-' + item.id;
+               remark) {
+                const remark const remarkId = 'remark-'Id = 'remark-' + item.id;
+                remark + item.id;
                 remarkHtml = `
+                    <divHtml = `
                     <div class="remark-text-wrapper" id="${remarkId}">
-                        📝 备注：${escapeHtml(remark)}
-                    </div>
-                    <span class="remark-text-toggle" data-target="${remarkId}">展开▼</span>
+ class="remark-text-wrapper" id="${remarkId}">
+                        📝 备注：                        📝 备注：${escapeHtml(remark)}
+${escapeHtml(remark)}
+                    </div                    </div>
+                   >
+                    <span class="remark-text <span class="remark-text-toggle" data-target="${remarkId}">展开-toggle" data-target="${remarkId▼</span}">展开▼</span>
+                `;
+            }
+>
                 `;
             }
             let deleteBtn = '';
+            if (currentUserName ===            let deleteBtn = '';
             if (currentUserName === ADMIN_USERNAME) {
-                deleteBtn = `<button class="delete-record-btn" data-id="${item.id}" data-user="${escapeHtml(item.userName)}">🗑️ 删除</button>`;
+                ADMIN_USERNAME) {
+                deleteBtn = `<button class="delete-record-btn deleteBtn = `<button class="delete-record" data-id="${item.id}" data-btn" data-id="${item.id}" data-user="${escapeHtml(item.user-user="${escapeHtml(item.userName)}">🗑️Name)}">🗑️ 删除</button>`;
             }
-            html += `<div class="history-item"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 转到 ${item.percentage} → ${item.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}<br><small>${item.dateStr} ${item.timeStr}</small></div>${remarkHtml}<div class="history-actions"><span></span>${deleteBtn ? `<div>${deleteBtn}</div>` : ''}</div></div>`;
+            html += `<div class=" 删除</button>`;
+            }
+            html +=history-item"><div class="history-content `<div class="history-item"><strong>${escapeHtml(item"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong.userName)}</strong>> 转到 ${item.percentage} → ${item 转到 ${item.percentage} → ${item.oldScore.toFixed(.oldScore.toFixed(2)} → ${item.newScore.toFixed(2)}2)} → ${item<br><small>${.newScore.toFixed(2)}<br><small>${item.dateStr} ${itemitem.dateStr} ${item.timeStr}</small></div>${remarkHtml.timeStr}</small></div}<div class="history-actions>${remarkHtml}<div"><span></span> class="history-actions"><span></span>${deleteBtn ? `<div${deleteBtn ? `<div>${deleteBtn}</div>${deleteBtn}</div>` : ''}</div></>` : ''}</div></div>`;
+        }
+div>`;
         }
         cont.innerHTML = html;
 
-        // 备注折叠/展开事件
+        cont.innerHTML = html;
+
+        // 备注折叠/        // 备注折叠/展开事件
+        document.querySelector展开事件
         document.querySelectorAll('.remark-text-toggle').forEach(toggle => {
-            toggle.addEventListener('click', (e) => {
+            toggle.addEventListenerAll('.remark-text-toggle').forEach(toggle => {
+            toggle.addEventListener('click('click', (e)', (e) => {
+ => {
                 e.stopPropagation();
-                const targetId = toggle.dataset.target;
-                const wrapper = document.getElementById(targetId);
+                e.stopPropagation();
+                const targetId = toggle                const targetId = toggle.dataset.target;
+                const.dataset.target;
+                const wrapper = document.getElementById(targetId wrapper = document.getElementById(targetId);
+                if (!wrapper));
                 if (!wrapper) return;
+                const isExp return;
                 const isExpanded = wrapper.classList.contains('expanded');
-                if (isExpanded) {
-                    wrapper.classList.remove('expanded');
+anded = wrapper.classList.contains('expanded');
+                if (is                if (isExpanded) {
+Expanded) {
+                    wrapper.classList.remove('expanded                    wrapper.classList.remove('expanded');
+                    toggle.textContent =');
                     toggle.textContent = '展开▼';
+                } '展开▼';
                 } else {
+                    wrapper.classList.add else {
                     wrapper.classList.add('expanded');
+                    toggle('expanded');
                     toggle.textContent = '收起▲';
+                }
+            });
+       .textContent = '收起▲';
                 }
             });
         });
 
-        document.querySelectorAll('.remark-save').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); const id = btn.dataset.id; const newRemark = document.getElementById(`remark-${id}`).value.trim(); await scoreHistoryRef.child(id).update({ remark: newRemark }); logActivity("admin_add_remark", `为记录 ${id} 添加备注`); }; });
-        document.querySelectorAll('.delete-record-btn').forEach(btn=>{ btn.onclick = async (e)=>{ e.stopPropagation(); if(currentUserName!==ADMIN_USERNAME) return; const id = btn.dataset.id; const userName = btn.dataset.user; if(confirm(`删除该条记录？删除后 ${userName} 的资产将恢复到该记录之前的最新状态。`)){ await scoreHistoryRef.child(id).remove(); logActivity("admin_delete_record", `删除记录 ${id}`); await recalcUserAsset(userName); alert(`已删除记录，${userName} 的资产已恢复`); } }; });
+        document.querySelectorAll('. });
+
+        document.querySelectorAll('.remark-save').forEach(remark-save').forEach(btn=>{ btn.onclickbtn=>{ btn.onclick = async (e = async (e)=>{)=>{ e.stopPropagation(); const e.stopPropagation(); const id = btn.dat id = btn.dataset.idaset.id; const newRemark = document.getElementById(`remark-${id; const newRemark = document.getElementById(`remark-${id}`).value.trim(); await}`).value.trim(); await scoreHistoryRef scoreHistoryRef.child(id).update({.child(id).update({ remark: newRemark }); remark: newRemark }); logActivity("admin logActivity("admin_add_remark", `为_add_remark", `为记录 ${id} 添加备注`); }; });
+       记录 ${id} 添加 document.querySelectorAll('.delete-record备注`); }; });
+        document.querySelectorAll('.delete-record-btn').forEach(btn=>-btn').forEach(btn=>{ btn{ btn.onclick = async (.onclick = async (e)=>{ e.stopPropagation(); if(currentUserNamee)=>{ e.stopPropagation(); if(currentUserName!==ADMIN_USERNAME!==ADMIN_USERNAME) return; const id =) return; const id = btn.dataset.id; const btn.dataset.id; const userName = btn.dataset.user; if(confirm userName = btn.dataset.user(`; if(confirm(`删除该条记录？删除后删除该条记录？删除后 ${userName} 的资产将恢复到该 ${userName} 的资产将恢复到该记录之前的最新状态。`记录之前的最新状态。`)){ await score)){ await scoreHistoryRef.child(id).remove(); logActivity("admin_deleteHistoryRef.child(id).remove(); logActivity("admin_delete_record", `删除记录 ${_record", `删除记录 ${id}`); awaitid}`); await rec recalcUserAsset(userName);alcUserAsset(userName); alert(`已删除记录 alert(`已删除记录，${userName} ，${userName} 的资产已恢复`); } }; });
     }
-    scoreHistoryRef.on('value', async snap=>{ let data=snap.val(); let arr=[]; if(data) for(let [id,val] of Object.entries(data)) arr.push({id,...val}); arr.sort((a,b)=>a.timestamp - b.timestamp); renderScoreHistory(arr); });
-    const percentOptions = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`${p}%`);
-    function populatePercentSelect() { const select = document.getElementById('manualPercent'); if(!select) return; select.innerHTML = ''; percentOptions.forEach(p=>{ const opt=document.createElement('option'); opt.value=p; opt.textContent=p; select.appendChild(opt); }); }
+   的资产已恢复`); } }; });
+    }
+    scoreHistoryRef.on(' scoreHistoryRef.on('value', async snapvalue', async snap=>{ let=>{ let data data=snap.val(); let=snap.val(); let arr=[]; if arr=[]; if(data) for(data) for(let(let [id,val [id,val] of Object.entries(data] of Object.entries(data)) arr.push({id,...val}); arr.sort)) arr.push({id,...val}); arr.sort((a((a,b)=>a.t,b)=>a.timestamp - b.timestamp);imestamp - b.timestamp); renderScoreHistory(arr); });
+ renderScoreHistory(arr); });
+    const percentOptions = [0,5,10,    const percentOptions = [0,5,10,15,20,25,15,20,25,30,35,40,30,35,40,45,50,55,45,50,55,60,65,70,60,65,70,75,80,85,75,80,85,90,95,100].90,95,100].map(p=>`${p}%map(p=>`${p}%`);
+    function`);
+    function populatePercentSelect() { const populatePercentSelect() { const select = document.getElementById('manual select = document.getElementById('manualPercent'); if(!select)Percent'); if(!select) return return; select.innerHTML = ''; percentOptions.forEach(p=>; select.innerHTML = ''; percentOptions.forEach(p=>{ const opt=document.createElement{ const opt=document.createElement('option'); opt.value=p;('option'); opt.value=p; opt.textContent=p; opt.textContent=p; select.appendChild(opt); }); }
+    async function getUser select.appendChild(opt); }); }
     async function getUserScore(user) {
+        tryScore(user) {
         try {
-            const snap = await userScoresRef.child(user).once('value');
+            const snap = await userScoresRef {
+            const snap = await userScoresRef.child(user).once('.child(user).once('value');
+            let val = snapvalue');
             let val = snap.val();
-            return (val === null || typeof val !== 'number') ? 100.0 : val;
+            return (.val();
+            return (val === null ||val === null || typeof typeof val !== 'number') ? val !== 'number') ? 100.0 : val 100.0 : val;
+        } catch (err;
         } catch (err) {
-            console.error("读取用户资产失败，用户：" + user, err);
+            console.error("读取用户资产失败，) {
+            console.error("用户：" + user, err读取用户资产失败，);
+            throw err;
+       用户：" + user, err);
             throw err;
         }
     }
-    function getMultiplier(percentageStr) { let percent=parseFloat(percentageStr); if(isNaN(percent)) percent=0; if(percent===0) return 0; return 1+percent/100; }
-    function updateUserScore(user, percentageStr, callback) { const multiplier = getMultiplier(percentageStr); userScoresRef.child(user).transaction(cur=>cur===null?100*multiplier:cur*multiplier, (err,committed,snapshot)=>{ if(err||!committed) callback(false); else callback(true, snapshot.val()); }); }
-    function addHistoryRecord(userName, percentage, oldScore, newScore) { scoreHistoryRef.push({ userName, percentage, oldScore, newScore, timestamp:Date.now(), dateStr:new Date().toLocaleDateString('zh-CN'), timeStr:new Date().toLocaleTimeString('zh-CN') }); }
-    function applyScoreForUser(userName, percentageStr, callback) { getUserScore(userName).then(oldScore=>{ updateUserScore(userName, percentageStr, (success,newScore)=>{ if(success){ addHistoryRecord(userName, percentageStr, oldScore, newScore); callback(true,newScore); } else callback(false); }); }).catch(()=>callback(false)); }
-    function drawWheel() {
+    function get }
+    }
+    function getMultiplier(percentageMultiplier(percentageStr) { let percent=Str) { let percent=parseFloat(percentageStr);parseFloat(percentageStr); if(isNaN(percent)) percent=0; if( if(isNaN(percent))percent===0) return  percent=0; if(percent===0) return 0; return 1+0; return 1+percent/100; }
+   percent/100; }
+    function updateUserScore(user function updateUserScore(user, percentageStr, callback), percentageStr, callback) { const multiplier = { const multiplier = getMultiplier(percentageStr); userScores getMultiplier(percentageStr); userScoresRef.child(user).transactionRef.child(user).transaction(cur=>cur(cur=>cur===null?100*multiplier:===null?100*multiplier:cur*multiplier,cur*multiplier, (err,comm (err,committed,snapshot)=>{itted,snapshot)=>{ if(err if(err||||!committed) callback(false!committed) callback(false); else callback(true,); else callback(true, snapshot.val()); }); }
+ snapshot.val()); }); }
+    function addHistoryRecord(userName, percentage, old    function addHistoryRecord(userName, percentage, oldScore, newScore) {Score, newScore) { scoreHistoryRef.push({ userName scoreHistoryRef.push({ userName, percentage,, percentage, oldScore, new oldScore, newScore, timestampScore, timestamp:Date.now(), dateStr:new:Date.now(), dateStr:new Date().toLocaleDateString Date().toLocaleDateString('zh-CN'), time('zh-CN'), timeStr:new Date().toStr:new Date().toLocaleTimeString('zh-CLocaleTimeString('zh-CN') }); }
+   N') }); }
+    function applyScoreForUser(userName, percentageStr function applyScoreForUser(userName, callback) { getUser, percentageStr, callback) { getUserScore(userName).then(oldScore(userName).then(oldScore=>{ updateScore=>{ updateUserScore(userName, percentageUserScore(userName, percentageStr, (success,Str, (success,newScore)=>{ if(snewScore)=>{ if(success){ addHistoryRecord(userNameuccess){ addHistoryRecord(user, percentageStr, oldScore, newScoreName, percentageStr, oldScore, newScore); callback); callback(true,newScore); } else callback(false); });(true,newScore); } else callback(false); }); }).catch(()=>callback }).catch(()=>callback(false)); }
+(false)); }
+    function drawWheel()    function drawWheel() {
         if (!ctx || !canvas) return;
-        const w = canvas.clientWidth;
+        const w = canvas {
+        if (!ctx ||.client !canvas) return;
+        const w = canvas.clientWidthWidth;
+        const h = canvas;
         const h = canvas.clientHeight;
+        if (w <= 0 || h.clientHeight;
         if (w <= 0 || h <= 0) return;
-        let size = Math.min(w, h);
+ <= 0) return;
+        let        let size = Math.min(w, size = Math.min(w, h);
+        h);
         canvas.width = canvas.height = size;
+        let c canvas.width = canvas.height = size;
         let c = size / 2;
-        let r = size * 0.45;
-        if (r <= 0) return;
+ = size / 2;
+        let r = size        let r = size * 0.45;
+ * 0.45;
+        if (r <=         if (r <= 0) return;
+        ctx.clearRect(0, 0, size,0) return;
         ctx.clearRect(0, 0, size, size);
-        if (!segments.length) return;
-        let step = Math.PI * 2 / segments.length;
-        for (let i = 0; i < segments.length; i++) {
-            let s = i * step + currentRotation;
-            let e = (i + 1) * step + currentRotation;
+ size);
+        if (!segments.length        if (!segments.length) return;
+        let step) return;
+        let step = Math.PI *  = Math.PI * 2 / segments.length;
+       2 / segments.length;
+        for (let i for (let i =  = 0; i < segments.length0; i < segments.length; i++) {
+            let s; i++) {
+            let = i * step + currentRotation s = i * step;
+            let e = (i +  + currentRotation;
+            let1) * step + current e = (i + Rotation;
+            ctx.beginPath1) * step + currentRotation;
             ctx.beginPath();
+            ctx.moveTo(c();
             ctx.moveTo(c, c);
-            ctx.arc(c, c, r, s, e);
-            ctx.fillStyle = colorPalette[i % colorPalette.length];
+            ctx., c);
+            ctx.arc(c, c, rarc(c, c, r, s, e);
+           , s, e);
+            ctx.fillStyle = colorPalette[i % colorPal ctx.fillStyle = colorPalette[i % colorPaletteette.length];
             ctx.fill();
-            ctx.strokeStyle = "#fff";
+.length];
+            ctx.fill();
+            ctx.strokeStyle =            ctx.strokeStyle = "#fff";
+            ctx.line "#fff";
             ctx.lineWidth = 2;
+           Width = 2;
             ctx.stroke();
             ctx.fillStyle = "#fff";
-            ctx.font = `bold ${Math.floor(r * 0.1)}px "Segoe UI"`;
-            let angle = s + step / 2;
-            let x = c + Math.cos(angle) * r * 0.7;
-            let y = c + Math.sin(angle) * r * 0.7;
-            ctx.fillText(segments[i], x - ctx.measureText(segments[i]).width / 2, y + 6);
-        }
+ ctx.stroke();
+            ctx.fillStyle = "#fff";
+            ctx.font = `bold            ctx.font = `bold ${Math.floor(r * 0.1)} ${Math.floor(r *px "Segoe UI"`;
+ 0.1)}px "Segoe UI"`;
+            let angle = s            let angle = s + step / + step / 2;
+ 2;
+            let x = c            let x = c + Math.cos(angle) + Math.cos(angle) * r * 0. * r * 0.7;
+            let y = c + Math.sin7;
+            let y =(angle) * r * 0 c + Math.sin(angle.7;
+            ctx.fill) * r * 0.7;
+            ctx.fillText(segments[iText(segments[i], x - ctx], x - ctx.measureText(segments.measureText(segments[i]).width / 2[i]).width / 2, y + 6);
+       , y + 6);
+ }
         ctx.beginPath();
-        ctx.moveTo(c - 14, c - r - 8);
+        ctx.move        }
+        ctx.beginPathTo(c - 14, c();
+        ctx.moveTo(c - 14, c - - r - 8);
+        ctx.lineTo(c, c r - 8);
         ctx.lineTo(c, c - r + 10);
-        ctx.lineTo(c + 14, c - r - 8);
+ - r + 10);
+        ctx.lineTo(c +        ctx.lineTo(c + 14, c - r 14, c - r - 8);
+        ctx.fillStyle = "#FFD - 8);
         ctx.fillStyle = "#FFD966";
+        ctx.fill966";
         ctx.fill();
+();
     }
-    function getCurrentPrizeIndex() { let step=Math.PI*2/segments.length, pointer=-Math.PI/2, rot=currentRotation%(Math.PI*2); for(let i=0;i<segments.length;i++){ let s=i*step+rot, e=(i+1)*step+rot; let ps=((s%(Math.PI*2))+Math.PI*2)%(Math.PI*2), pe=((e%(Math.PI*2))+Math.PI*2)%(Math.PI*2), p=(pointer+Math.PI*2)%(Math.PI*2); if(ps<pe){ if(p>=ps && p<pe) return i; } else { if(p>=ps || p<pe) return i; } } return 0; }
-    function startSpin(){ if(isSpinning||!currentUserName){ alert("请先设置抽奖人"); return; } isSpinning=true; let btn=document.getElementById('spinButton'); btn.disabled=true; let targetIdx=Math.floor(Math.random()*segments.length); let step=Math.PI*2/segments.length, targetMid=targetIdx*step+step/2, rawFinal=-Math.PI/2-targetMid, twoPi=Math.PI*2; let finalRot=((rawFinal%twoPi)+twoPi)%twoPi+(Math.floor(Math.random()*5)+4)*twoPi; let startRot=currentRotation, startTime=performance.now(); const duration=1200; function animate(now){ let t=Math.min(1,(now-startTime)/duration), ease=1-Math.pow(1-t,3); currentRotation=startRot+(finalRot-startRot)*ease; drawWheel(); if(t<1) requestAnimationFrame(animate); else{ currentRotation=finalRot%twoPi; drawWheel(); let prize=segments[getCurrentPrizeIndex()]; applyScoreForUser(currentUserName, prize, (success,newScore)=>{ if(success){ alert(`🎉 ${currentUserName} 抽中: ${prize}\n资产 → ${newScore.toFixed(2)} AUD`); logActivity("spin",`抽中 ${prize}`); } else alert("积分更新失败"); isSpinning=false; btn.disabled=false; }); } } if(animFrame) cancelAnimationFrame(animFrame); animFrame=requestAnimationFrame(animate); }
-    function renderPrizeTags(){ let cont=document.getElementById('prizeListContainer'); if(!cont) return; let html=''; segments.forEach((seg,i)=>{ html+=`<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${i}" class="del-prize">❌</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.del-prize').forEach(el=>{ el.onclick=()=>{ let idx=parseInt(el.dataset.idx); if(segments.length>1){ segments.splice(idx,1); segmentsRef.set(segments); logActivity("admin_edit_prize","删除奖项"); } else alert("至少保留一个"); }; }); }
-    function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
-    segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
+    function getCurrent    }
+    function getCurrentPrizeIndex() { letPrizeIndex() { let step=Math.PI step=Math.PI*2/segments.length*2/segments.length, pointer=-, pointer=-Math.PI/2,Math.PI/2, rot=currentRotation%( rot=currentRotation%(Math.PI*2);Math.PI*2); for(let i=0;i for(let i=0;i<segments.length;i++)<segments.length;i++){ let s=i*{ let s=i*step+rot, estep+rot, e=(i+1=(i+1)*step)*step+rot; let ps+rot; let ps=((s%(=((s%(Math.PI*2))+Math.PI*2))+Math.PI*2)%Math.PI*2)%(Math.PI*2(Math.PI*2), pe=((e%(), pe=((e%(Math.PI*2))+Math.PI*2))+Math.PI*2)%Math.PI*2)%(Math.PI*2(Math.PI*2), p=(pointer), p=(pointer+Math.PI*2+Math.PI*2)%(Math.PI*)%(Math.PI*2); if(ps2); if(ps<pe){ if(p>=<pe){ if(p>=ps && p<pe) returnps && p<pe) i; } else { if return i; } else {(p>=ps || p if(p>=ps || p<pe) return i; } } return 0;<pe) return i; } } return 0; }
+    function startSpin(){ }
+    function startSpin(){ if(isSp if(isSpinning||!currentUserName){inning||!currentUserName){ alert("请先设置 alert("请先设置抽奖人"); return;抽奖人"); return; } isSpinning=true; } isSpinning=true; let btn=document.getElementById(' let btn=document.getElementById('spinButton'); btn.disabled=truespinButton'); btn.disabled=true; let targetIdx; let targetIdx=Math.floor=Math.floor(Math.random()*segments.length); let(Math.random()*segments.length); let step=Math.PI* step=Math.PI*2/segments.length,2/segments.length, targetMid=target targetMid=targetIdx*step+stepIdx*step+step/2, rawFinal/2, rawFinal=-Math.PI/2=-Math.PI/2-targetMid,-targetMid, twoPi=Math twoPi=Math.PI*2; let.PI*2; let finalRot=((raw finalRot=((rawFinalFinal%twoPi)+twoPi)%twoPi%twoPi)+twoPi)%twoPi+(Math.floor(Math.random()+(Math.floor(Math.random()*5)+4)**5)+4)*twoPi; let startRot=currentRotationtwoPi; let startRot, startTime=performance.now=currentRotation, start(); const duration=1200; functionTime=performance.now(); const duration=1200; function animate(now){ let animate(now){ let t= t=Math.min(Math1,(now-startTime)/.min(1,(now-startTime)/duration), easeduration), ease=1-Math.pow(1-t,3); current=1-Math.pow(1-t,3); currentRotation=startRotRotation=startRot+(finalRot-startRot)*+(finalRot-startRot)*eease; drawWheel(); if(tase; drawWheel(); if(t<1) requestAnimationFrame<1) requestAnimationFrame((animate); else{ currentanimate); else{ currentRotation=finalRot%Rotation=finalRot%twoPi; drawWheeltwoPi; drawWheel(); let prize=seg(); let prize=segments[getCurrentPrizements[getCurrentPrizeIndex()];Index()]; applyScoreForUser(currentUserName, prize, (success applyScoreForUser(currentUserName, prize,newScore)=>{ if(s, (success,uccess){ alert(`newScore)=>{ if(success){ alert(`🎉 ${currentUserName} 🎉 ${currentUserName} 抽中: ${prize抽中: ${prize}\n资产 → ${newScore.toFixed(}\n资产 → ${newScore.toFixed(2)} AUD`); log2)} AUD`); logActivity("Activity("spin",spin",`抽中 ${prize}`); } else alert`抽中 ${prize}`); } else alert("积分更新("积分更新失败"); is失败"); isSpinning=false; btnSpinning=false; btn.disabled=false; });.disabled=false; }); } } if } } if(animFrame) cancelAnimation(animFrame) cancelAnimationFrameFrame(animFrame); anim(animFrame); animFrame=requestAnimationFrame=requestAnimationFrame(animate); }
+    function renderPrizeFrame(animate); }
+    function renderPrizeTags(){ let contTags(){ let cont=document.getElementById('prize=document.getElementById('prizeListContainer'); if(!ListContainer'); if(!cont) return; let htmlcont) return; let html=''; segments.forEach((=''; segments.forEach((seg,i)=>{ html+=seg,i)=>{ html+=`<div`<div class="pri class="prize-tag">${ze-tag">${escapeescapeHtml(seg)} <spanHtml(seg)} <span data-idx="${ data-idx="${i}" class="del-prize">❌</i}" class="del-prize">span></div>`; }❌</span></div>`; }); cont.innerHTML=html;); cont.innerHTML=html; document document.querySelectorAll('.del.querySelectorAll('.del-prize').-prize').forEach(elforEach(el=>{ el.onclick==>{ el.onclick=()=>{ let idx=()=>{ let idx=parseInt(elparseInt(el.dataset.id.dataset.idx); if(x); if(segments.length>1){segments.length>1){ segments.splice(idx,1); segmentsRef segments.splice(idx,1); segmentsRef.set(.setsegments); logActivity("admin_edit(segments); logActivity_prize","删除奖项("admin_edit_prize","删除奖项"); } else alert(""); } else alert("至少保留一个"); };至少保留一个"); }; }); }
+    function }); }
+    function addPrize(){ if(currentUserName!==AD addPrize(){ if(currentUserName!==ADMINMIN_USERNAME) return;_USERNAME) return; let newName=document.getElementById('newPrizeInput let newName=document').value.trim(); if.getElementById('newPrizeInput(!newName) return;').value.trim(); if(!newName) return; segments.push(newName); segments segments.push(newName); segmentsRef.set(segments);Ref.set(segments); logActivity("admin_ logActivity("admin_edit_prize",`edit_prize",`添加添加奖项 ${newName}`); document.getElementById('newPri奖项 ${newName}`); document.getElementById('newPrizeInput').value="zeInput').value=""; }
+    segmentsRef.on('value', snap"; }
+    segmentsRef.on('value', snap=>{ let val==>{ let val=snap.val(); if(val&&snap.val(); if(val&&val.length) segments=val.length)val; else segments=[" segments=val; else segments=["10%","010%","0%","20%","30%","20%","30%","50%","100%","50%","100%"]; drawW%"]; drawWheel(); renderPrizeTags(); });
 
-    function adminManualAdd() {
-        if (currentUserName !== ADMIN_USERNAME) return;
+   heel(); renderPrize function adminManualAdd() {
+        ifTags(); });
+
+    function adminManualAdd() (currentUserName !== ADMIN_USER {
+        if (currentUserName !== ADMINNAME) return;
+        let user = document.getElementById('manual_USERNAME) return;
         let user = document.getElementById('manualUserName').value.trim();
-        let percent = document.getElementById('manualPercent').value;
-        if (!user) { alert("请输入用户名"); return; }
+        let percentUserName').value.trim();
+        = document.getElementById(' let percent = document.getElementById('manualPercent').value;
+       manualPercent').value;
+        if (!user) { alert("请输入用户名 if (!user) { alert("请输入用户名"); return;"); return; }
         getUserScore(user).then(oldScore => {
-            const multiplier = getMultiplier(percent);
+            const multiplier }
+        getUserScore(user).then(oldScore => {
+            = get const multiplier = getMultiplier(percent);
+           Multiplier(percent);
             const newScore = oldScore * multiplier;
-            userScoresRef.child(user).set(newScore).then(() => {
-                addHistoryRecord(user, percent, oldScore, newScore);
-                alert(`已为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(2)} → ${newScore.toFixed(2)}`);
-                logActivity("admin_manual_add", `为 ${user} 添加 ${percent} 记录`);
+            userS const newScore = oldScore * multiplier;
+            userScoresRef.child(user).setcoresRef.child(user).set(newScore).then(() =>(newScore).then(() => {
+                add {
+                addHistoryRecord(user, percentHistoryRecord(user, percent, oldScore, newScore, oldScore, newScore);
+                alert(`已);
+                alert(`已为 ${user} 添加 ${percent} 记录为 ${user} 添加 ${percent} 记录，资产从 ${oldScore.toFixed(，资产从 ${oldScore2)} → ${new.toFixed(2)} →Score.toFixed(2)}`);
+                logActivity ${newScore.toFixed(2)}`);
+                logActivity("admin_manual_add("admin_manual_add", `为 ${user}", `为 ${user} 添加 ${percent}  添加 ${percent} 记录`);
                 document.getElementById('manualUserName').value = "";
             }).catch(err => {
-                alert("写入失败：" + err.message);
+记录`);
+                document.getElementById('manualUserName').value = "";
+            }).catch(err => {
+                alert("写入                alert("写入失败：" + err.message);
+失败：" + err.message);
                 console.error(err);
+                           console.error(err);
             });
         }).catch(err => {
+            alert("获取 });
+        }).catch(err =>用户资产失败：" + ( {
             alert("获取用户资产失败：" + (err.message || err));
+            console.error(err);
+        });
+err.message || err));
             console.error(err);
         });
     }
 
-    function adminClearHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(confirm("永久删除所有积分记录？")){ scoreHistoryRef.remove(); userScoresRef.remove(); alert("已清空所有记录，所有用户资产将恢复为100"); } }
-    function resetUserAsset(){ if(currentUserName!==ADMIN_USERNAME) return; let user=document.getElementById('resetUserName').value.trim(); let amount=parseFloat(document.getElementById('resetAmount').value); if(!user||isNaN(amount)){ alert("输入无效"); return; } userScoresRef.child(user).set(amount).then(()=>{ alert(`已将 ${user} 资产设为 ${amount} AUD`); logActivity("admin_reset_asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('resetUserName').value=''; }).catch(err=>alert("重置失败："+err.message)); }
+    function adminClear    }
 
-    function renderGifts(giftsObj){
-        let cont=document.getElementById('giftList');
+    function adminClearHistory(){ if(currentHistory(){ if(currentUserName!==ADMIN_USERNAME) return; if(UserName!==ADMIN_USERNAME)confirm("永久删除所有 return; if(confirm("永久删除所有积分记录？")){积分记录？")){ scoreHistoryRef.remove(); userS scoreHistoryRef.remove(); userScoresRef.remove(); alertcoresRef.remove(); alert("("已清空所有记录，已清空所有记录，所有用户资产将恢复为100"); } }
+    function所有用户资产将恢复为100"); } }
+    function resetUser resetUserAsset(){ if(currentAsset(){ if(currentUserName!==ADMIN_USERUserName!==ADMIN_USERNAME) return; let userNAME) return; let user=document.getElementById('=document.getElementById('resetUserName').value.trim();resetUserName').value.trim(); let amount=parseFloat(document let amount=parseFloat(document.getElementById('resetAmount').value.getElementById('resetAmount').value); if(!user); if(!user||isNaN(amount||isNaN(amount)))){ alert("输入{ alert("输入无效"); return; } user无效"); return; } userScoresRef.child(user).set(amount).ScoresRef.child(user).set(amount).then(()=>{ alertthen(()=>{ alert(`已将 ${user} (`已将 ${user} 资产设为 ${amount} AUD资产设为 ${amount} AUD`);`); logActivity("admin_reset_asset logActivity("admin_reset_",`重置 ${asset",`重置 ${user} 资产为 ${amount}`); document.getElementById('user} 资产为 ${amount}`); document.getElementById('resetUserName').value='';resetUserName').value=''; }).catch(err=>alert(" }).catch(err=>alert("重置失败："+重置失败："+err.message));err.message)); }
+
+    function renderG }
+
+    function renderGifts(giftsObjifts(giftsObj){
+       ){
+        let cont=document let cont=document.getElementById('.getElementById('giftList');
         if(!cont) return;
-        if(!giftsObj||!Object.keys(giftsObj).length){ cont.innerHTML='<div>暂无礼物</div>'; return; }
+       giftList');
+        if(!cont) return;
+        if if(!giftsObj||(!giftsObj||!Object.keys(giftsObj!Object.keys(giftsObj).length){ cont.innerHTML=').length){ cont.innerHTML='<div><div>暂无礼物</暂无礼物</div>'; return;div>'; return; }
+ }
         let html='';
-        for(let [id,gift] of Object.entries(giftsObj)){
-            let isRevealed=localStorage.getItem(`gift_revealed_${id}`)==='true';
-            html+=`<div class="gift-item" data-gift-id="${id}" data-detail="${encodeURIComponent(gift.detail||'')}">
-                <div><span>🎁 ${escapeHtml(gift.name)}</span> <span>${escapeHtml(gift.value||'')}</span></div>
-                <div class="gift-detail">${isRevealed?escapeHtml(gift.detail||'无详细内容'):'🔒 点击揭开 🔒'}</div>
+        for(let        let html='';
+        [id,gift] of for(let Object.entries(giftsObj [id,gift] of Object.entries(giftsObj)){
+            let isRevealed=localStorage.getItem(`g)){
+            let isRevealed=localStorage.getItem(`gift_revealedift_revealed_${id}`)==_${id}`)==='='true';
+            html+=`true';
+            html+=`<div class="gift<div class="gift-item" data-gift-id-item" data-gift-id="${id}" data-d="${id}" data-detail="${encodeURIComponent(getail="${encodeURIComponent(gift.detail||'')}">
+                <div><span>🎁 ${ift.detail||'')}">
+                <div><span>🎁 ${escapeHtml(gift.name)}</escapeHtml(gift.name)}</span> <span>span> <span>${escapeHtml(gift.value${escapeHtml(gift.value||'')}</span></||'')}</span></div>
+                <div classdiv>
+                <div class="gift-detail">="gift-detail">${isRevealed?${isRevealed?escapeHtml(gift.detailescapeHtml(gift.detail||||'无详细'无详细内容'):'内容'):'🔒 点击揭开🔒 点击揭开 🔒'}</div>
+ 🔒'}</div>
             </div>`;
+                   </div>`;
         }
+        cont.innerHTML=html }
         cont.innerHTML=html;
+        document.querySelectorAll('.;
         document.querySelectorAll('.gift-item').forEach(item => {
-            item.querySelector('.gift-detail').addEventListener('click', function(e) {
-                const id = item.dataset.giftId;
-                const detail = decodeURIComponent(item.dataset.detail);
-                if(localStorage.getItem(`gift_revealed_${id}`)!=='true'){
-                    localStorage.setItem(`gift_revealed_${id}`,'true');
-                    logActivity("reveal_gift",`揭开礼物 ${id}`);
+           gift-item').forEach(item item.querySelector('.gift-detail => {
+            item.querySelector').addEventListener('click', function('.gift-detail').add(e) {
+                const idEventListener('click', function(e) {
+                const id = item.dataset.gift = item.dataset.giftId;
+                const detail =Id;
+                const detail = decodeURIComponent(item.dataset decodeURIComponent(item.dataset.detail);
+                if(localStorage.detail);
+                if(l.getItem(`gift_revealed_ocalStorage.getItem(`gift_re${id}`)!=='vealed_${id}`)!=='true'){
+                    localStorage.settrue'){
+                    localStorage.setItem(`gift_reveItem(`gift_revealed_${id}`,'aled_${id}`,'true');
+                    logActivity("reveal_gift",`true');
+                    logActivity揭开礼物 ${("reveal_gift",`揭开礼物 ${id}`);
+                    alert("礼物详情id}`);
                     alert("礼物详情: "+detail);
-                    giftsRef.once('value').then(snap=>renderGifts(snap.val()));
+                    gifts: "+detail);
+                    giftsRef.onceRef.once('value').then(s('value').then(snap=>renderGiftsnap=>renderGifts(snap.val()));
+                }
+(snap.val()));
                 }
             });
         });
     }
-    giftsRef.on('value', snap=>renderGifts(snap.val()));
-    function addGift(){ if(currentUserName!==ADMIN_USERNAME) return; let name=document.getElementById('giftName').value.trim(); let value=document.getElementById('giftValue').value.trim(); let detail=document.getElementById('giftDetail').value.trim(); if(!name) return; giftsRef.push({name,value,detail,timestamp:Date.now()}); logActivity("admin_add_gift",`添加礼物 ${name}`); document.getElementById('giftName').value=""; document.getElementById('giftValue').value=""; document.getElementById('giftDetail').value=""; }
+    giftsRef.on('            });
+        });
+    }
+    giftsRef.on('value', snap=>value', snap=>renderGrenderGifts(snap.val()));
+   ifts(snap.val()));
+    function addGift(){ if function addGift(){ if(currentUserName!==AD(currentUserName!==ADMIN_USERNAME) return;MIN_USERNAME) return; let name let name=document=document.getElementById('giftName')..getElementById('giftName').value.trim(); let value=value.trim(); let value=document.getElementById('giftValuedocument.getElementById('giftValue').value.trim(); let detail=document.getElementById('gift').value.trim(); let detail=document.getElementById('giftDetail').value.trim();Detail').value.trim(); if(!name) return if(!name) return; giftsRef.push({; giftsRef.push({namename,value,detail,t,value,detail,timestamp:Date.now()});imestamp:Date.now()}); logActivity("admin logActivity("admin_add_gift",`_add_gift",`添加礼物 ${name}`);添加礼物 ${name}`); document.getElementById('giftName document.getElementById('giftName').value="";').value=""; document.getElementById document.getElementById('giftValue('giftValue').value=""; document.getElementById('giftDetail').value').value=""; document.getElementById=""; }
 
-    async function addManualQuizRecord(userName, status) {
-        const snap = await questionsRef.orderByChild('text').equalTo('__admin_manual_quiz__').once('value');
+   ('giftDetail').value async function addManualQuiz=""; }
+
+    async function addManualQuizRecord(userName, statusRecord(userName, status)) {
+        const {
+        const snap = await questionsRef.orderByChild('text').equalTo(' snap = await questionsRef.orderByChild('text').equalTo('__admin__admin_manual_quiz__').once_manual_quiz__').once('value('value');
+        let manual');
         let manualQid = null;
-        if (snap.exists()) {
-            snap.forEach(child => { manualQid = child.key; return true; });
+       Qid = null;
+        if (snap.exists()) if (snap.exists()) {
+            snap.forEach(child => {
+            snap.forEach(child => { manualQid = child { manualQid = child.key; return true.key; return true; });
+        }; });
         } else {
-            const newRef = await questionsRef.push({ text: '__admin_manual_quiz__', answer: '__ignore__', published: true, timestamp: Date.now() });
-            manualQid = newRef.key;
+            const newRef else {
+            const newRef = await questionsRef.push = await questionsRef.push({ text: '__({ text: '__admin_manual_quiz__admin_manual_quiz__', answer: '__ignore', answer: '__ignore__', published: true,__', published: true, timestamp: Date.now() });
+ timestamp: Date.now() });
+            manualQid = new            manualQid = newRef.keyRef.key;
         }
-        await questionAnswersRef.child(manualQid).child(userName).set({
-            answer: '__manual__',
+       ;
+        }
+        await questionAnswersRef.child await questionAnswersRef.child(manualQid).child(manualQid).child(userName).set({
+           (userName).set({
+            answer: '__manual answer: '__manual__',
+            status: status__',
             status: status,
+            submittedAt: Date,
             submittedAt: Date.now(),
+            autoCorrect.now(),
             autoCorrect: false,
             reviewerMark: status,
+: false,
+            reviewerMark            reviewedAt: Date.now()
+        });
+: status,
             reviewedAt: Date.now()
         });
-        logActivity("admin_manual_quiz", `为 ${userName} 添加 ${status} 记录`);
+        logActivity        logActivity("admin_manual_quiz("admin_manual_quiz", `为", `为 ${userName} 添加 ${userName} 添加 ${status} 记录 ${status} 记录`);
+    }
+
+    async function`);
     }
 
     async function deleteUserQuizRecords(userName) {
-        const answersSnap = await questionAnswersRef.once('value');
-        const allAnswers = answersSnap.val() || {};
+        deleteUserQuizRecords(userName) {
+        const answersSnap = await const answersSnap = await questionAnswersRef.on questionAnswersRef.once('value');
+        constce('value');
+        const allAnswers = answers allAnswers = answersSnap.val() || {};
+Snap.val() || {};
         const updates = {};
+        for (let        const updates = {};
         for (let qid in allAnswers) {
-            if (allAnswers[qid][userName]) {
-                updates[`${qid}/${userName}`] = null;
+            if (allAnswers qid in allAnswers) {
+            if ([qid][userName])allAnswers[qid][userName]) {
+                updates {
+                updates[`${qid}/${user[`${qid}/${userName}`]Name}`] = null;
             }
         }
-        if (Object.keys(updates).length > 0) {
-            await questionAnswersRef.update(updates);
-            logActivity("admin_delete_quiz_user", `删除用户 ${userName} 所有答题记录`);
+        if = null;
+            }
+        }
+        if (Object.keys(updates (Object.keys(updates).length > 0) {
+           ).length > 0) {
+            await questionAnswersRef await questionAnswersRef.update(updates);
+.update(updates);
+            logActivity("admin            logActivity("admin_delete_quiz_user_delete_quiz_user", `删除", `删除用户 ${userName} 用户 ${userName} 所有答题记录`);
         }
     }
 
-    function updateAllUsersQuizStats() {
-        questionAnswersRef.once('value').then(snap => {
-            const allAnswers = snap.val() || {};
+    function updateAll所有答题记录`);
+        }
+    }
+
+    function updateAllUsersUsersQuizStats() {
+        questionAnswersRef.onceQuizStats() {
+        questionAnswersRef.on('value').then(sce('value').then(snap => {
+            const allnap => {
+            const allAnswers = snap.val()Answers = snap.val() || {};
+            const stats = || {};
             const stats = {};
+            for (let q {};
             for (let qid in allAnswers) {
-                const answersForQ = allAnswers[qid];
+id in allAnswers) {
+                const answersForQ = allAnswers[qid                const answersForQ =];
+                for (let uid allAnswers[qid];
                 for (let uid in answersForQ) {
-                    const record = answersForQ[uid];
-                    if (record.status === 'correct' || record.status === 'wrong') {
-                        if (!stats[uid]) stats[uid] = { correct: 0, wrong: 0 };
-                        if (record.status === 'correct') stats[uid].correct++;
-                        else stats[uid].wrong++;
+ in answersForQ) {
+                    const record = answersFor                    const record = answersForQ[uid];
+                    ifQ[uid];
+                    if (record.status === 'correct' || record.status === ' (record.status === 'correct' || record.status === 'wrong') {
+                        if (!wrong') {
+                        if (!stats[stats[uid]) statsuid]) stats[uid] =[uid] = { correct: 0, wrong:  { correct: 0, wrong: 0 };
+                        if (0 };
+                        if (record.status === 'correct') statsrecord.status === 'correct') stats[uid].correct++;
+                       [uid].correct++;
+                        else stats[uid].wrong else stats[uid].wrong++;
+                    }
+                }
+           ++;
                     }
                 }
             }
-            const listContainer = document.getElementById('allUsersStatsList');
+            const listContainer = document.getElementById('allUsers }
+            const listContainer = document.getElementById('allUsersStatsListStatsList');
+            if (!');
+           listContainer) return;
             if (!listContainer) return;
-            if (Object.keys(stats).length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding:10px;">暂无答题数据</div>';
-                return;
+            if (Object.keys(stats if (Object.keys(stats).length === 0)).length === 0) {
+                listContainer.innerHTML = {
+                listContainer.innerHTML = '<div style="text-align '<div style="text-align:center; padding:10px;">暂无答题:center; padding:10px数据</div>';
+                return;">暂无答题数据</div>';
+               ;
             }
-            const sortedUsers = Object.entries(stats).sort((a,b) => b[1].correct - a[1].correct);
-            let html = '';
-            for (let [user, count] of sortedUsers) {
-                const safeUser = encodeURIComponent(user);
+            const sorted return;
+            }
+            const sortedUsers = Object.Users = Object.entries(stats).sort((entries(stats).sort((a,b) => ba,b) => b[1].correct - a[1].correct - a[1].correct);
+           [1].correct);
+            let html let html = '';
+            for ( = '';
+            for (let [user,let [user, count count] of sortedUsers) {
+] of sortedUsers) {
+                const safeUser = encode                const safeUser = encodeURIComponent(user);
+                letURIComponent(user);
                 let actionBtns = '';
+                if (currentUserName === ADMIN actionBtns = '';
                 if (currentUserName === ADMIN_USERNAME) {
-                    actionBtns = `<span style="display:flex; gap:4px; margin-left:10px; flex-wrap:wrap;">
-                        <button class="stats-action-btn" data-user="${safeUser}" data-action="add-correct">✅+1</button>
-                        <button class="stats-action-btn" data-user="${safeUser}" data-action="add-wrong" style="background:#c0392b;">❌+1</button>
-                        <button class="stats-action-btn danger" data-user="${safeUser}" data-action="delete-all">🗑️</button>
+                    action_USERNAME) {
+                    actionBtBtns = `<span stylens = `<span style="display:="display:flex; gapflex; gap:4px; margin-left:10px; flex-wrap:4px; margin-left:wrap;">
+                        <button:10px; flex-wrap:wrap;">
+                        <button class="stats-action-btn class="stats-action-btn" data-user="${safeUser" data-user="${safeUser}" data-action="add-c}" data-action="add-correctorrect">✅+1">✅+1</button>
+                        <</button>
+                        <button class="stats-action-btn"button class="stats-action-btn" data-user="${safeUser}" data-user="${safeUser}" data-action="add-wrong data-action="add-wrong" style="background:#c" style="background:#c0392b;">❌0392b;">❌+1</button>
+                       +1</button>
+                        <button class <button class="stats-action-btn danger"="stats-action-btn danger" data-user="${ data-user="${safeUser}" datasafeUser}" data-action="-action="delete-all">🗑️delete-all">🗑️</button>
+                    </span</button>
                     </span>`;
                 }
-                html += `<div class="user-stats-row">
-                    <span class="user-stats-name">${escapeHtml(user)}</span>
+                html>`;
+                }
+                html += `<div class="user += `<div class="user-stats-stats-row">
+                    <span class="user-stats-name">-row">
+                    <span class="user-stats${escapeHtml(user)}</span>
+                   -name">${escapeHtml(user <span class="user-stats)}</span>
                     <span class="user-stats-counts">
-                        <span class="stats-correct">✅ ${count.correct}</span>
-                        <span class="stats-wrong">❌ ${count.wrong}</span>
+                        <span-counts">
+                        <span class="stats-correct class="stats-correct">✅ ${count.c">✅ ${count.correct}</span>
+                       orrect}</span>
+                        <span class="stats-wrong">❌ ${count.w <span class="stats-wrong">❌ ${countrong}</span>
+                    </.wrong}</span>
                     </span>
+                    ${actionspan>
                     ${actionBtns}
+                </divBtns}
                 </div>`;
             }
+            list>`;
+            }
             listContainer.innerHTML = html;
+       Container.innerHTML = html;
         });
     }
 
-    document.getElementById('allUsersStatsList')?.addEventListener('click', async (e) => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        const userName = decodeURIComponent(btn.dataset.user);
-        const action = btn.dataset.action;
-        if (!userName || !action) return;
+    document.getElementById });
+    }
+
+    document.getElementById('('allUsersallUsersStatsList')?.addStatsList')?.addEventListenerEventListener('click', async (e('click', async (e) => {
+        const btn) => {
+        const btn = e.target.closest(' = e.target.closest('button');
+button');
+        if (!btn        if (!btn) return;
+        const userName) return;
+        const userName = decodeURIComponent(btn = decodeURIComponent(btn.dataset.user.dataset.user);
+        const);
+        const action = btn.dataset action = btn.dataset.action.action;
+        if (!user;
+        if (!userName || !action) returnName || !action) return;
+        if (action ===;
         if (action === 'add-correct') {
-            if (confirm(`为 ${userName} 添加一次答对记录？`)) {
-                await addManualQuizRecord(userName, 'correct');
+ 'add-correct') {
+            if (confirm            if (confirm(`为 ${userName(`为 ${user} 添加一次答对记录？`))Name} 添加一次答对记录？`)) {
+ {
+                await addManual                await addManualQuizRecord(userName, 'QuizRecord(userName, 'correct');
             }
-        } else if (action === 'add-wrong') {
-            if (confirm(`为 ${userName} 添加一次答错记录？`)) {
-                await addManualQuizRecord(userName, 'wrong');
+        }correct');
             }
-        } else if (action === 'delete-all') {
-            if (confirm(`确定删除 ${userName} 的所有答题记录吗？不可恢复！`)) {
-                await deleteUserQuizRecords(userName);
+        } else if (action === ' else if (action === 'add-wrong') {
+           add-wrong') {
+            if (confirm(`为 ${userName} 添加一次 if (confirm(`为 ${userName} 添加一次答错记录？`答错记录？`)))) {
+                await addManualQuiz {
+                await addManualQuizRecord(userName, 'wrongRecord(userName, 'wrong');
+            }
+        } else');
+            }
+        } else if (action if (action === 'delete === 'delete-all') {
+            if (-all') {
+            if (confirm(`确定删除 ${confirm(`确定删除 ${useruserName} 的所有答题Name} 的所有答题记录吗？不可恢复！`)) {
+                await记录吗？不可恢复！`)) {
+                await deleteUserQuizRecords(userName deleteUserQuizRecords(userName);
+            }
+        }
+   );
             }
         }
     });
 
-    questionAnswersRef.on('value', () => { updateAllUsersQuizStats(); });
+    questionAnswers });
+
+    questionAnswersRef.on('value', ()Ref.on('value', () => { updateAllUsers => { updateAllUsersQuizStats(); });
+
+    asyncQuizStats(); });
 
     async function updateQuizStatsAndHistory() {
-        if(!currentUserName) return;
-        const questionsSnap = await questionsRef.once('value');
-        const questions = questionsSnap.val() || {};
-        const answersSnap = await questionAnswersRef.once('value');
-        const userAnswers = answersSnap.val() || {};
-        let correctTotal = 0, wrongTotal = 0;
+ function updateQuizStatsAndHistory() {
+        if(!        if(!currentUserName) return;
+       currentUserName) return;
+        const questionsSnap = await const questionsSnap = await questionsRef.once questionsRef.once('value');
+        const questions('value');
+        const questions = questionsSnap.val = questionsSnap.val() || {};
+        const answers() || {};
+        const answersSnap = await questionAnswersSnap = await questionAnswersRef.onceRef.once('value');
+('value');
+        const userAnswers = answers        const userAnswers = answersSnap.val() || {};
+Snap.val() || {};
+        let correctTotal =         let correctTotal = 0, wrongTotal = 0, wrongTotal = 0;
+        let historyList0;
         let historyList = [];
-        for(let [qid, q] of Object.entries(questions)) {
+        for(let = [];
+        for(let [qid, q [qid, q] of Object.entries] of Object.entries(questions))(questions)) {
+            if(!q.published {
             if(!q.published) continue;
-            const userRec = userAnswers[qid]?.[currentUserName];
-            if(userRec && (userRec.status === 'correct' || userRec.status === 'wrong')) {
+            const user) continue;
+            const userRecRec = user = userAnswers[qid]?.[currentUserName];
+            if(userAnswers[qid]?.[currentUserName];
+            if(userRec && (userRec.status ===Rec && (userRec.status === 'correct' || userRec 'correct' || userRec.status ===.status === 'wrong')) {
+                const 'wrong')) {
                 const status = userRec.status;
-                if(status === 'correct') correctTotal++;
+ status = userRec.status;
+                if(status === 'correct                if(status === 'correct') correctTotal++;
+                else') correctTotal++;
                 else wrongTotal++;
-                const timestamp = userRec.reviewedAt || userRec.submittedAt || 0;
-                historyList.push({ qid, questionText: q.text, status, timestamp, timeStr: timestamp ? new Date(timestamp).toLocaleString() : '未知' });
+                const timestamp wrongTotal++;
+                const timestamp = userRec.reviewedAt || user = userRec.reviewedAt || userRec.submittedAt ||Rec.submittedAt || 0;
+                0;
+                historyList.push({ q historyList.push({ qid, questionText: qid, questionText: q.text, status, timestamp, timeStr:.text, status, timestamp timestamp, timeStr: timestamp ? new Date(timestamp). ? new Date(timestamp).toLocaleString() : 'toLocaleString() : '未知' });
+            }
+       未知' });
             }
         }
-        historyList.sort((a,b) => b.timestamp - a.timestamp);
-        document.getElementById('correctCount').innerText = correctTotal;
-        document.getElementById('wrongCount').innerText = wrongTotal;
-        const historyContainer = document.getElementById('quizHistoryContainer');
-        if(historyList.length === 0) {
-            historyContainer.innerHTML = '<div style="text-align:center; padding:20px;">暂无答题记录，参与问答后显示</div>';
-        } else {
+        historyList.sort((a,b) => }
+        historyList.sort(( b.timestamp - a.timestamp);
+a,b) => b.timestamp - a.timestamp);
+        document.getElementById('correctCount        document.getElementById('correctCount').innerText = correctTotal').innerText = correctTotal;
+        document.getElementById('wrong;
+        document.getElementById('wrongCount').innerText = wrongCount').innerText = wrongTotal;
+Total;
+        const historyContainer = document        const historyContainer = document.getElementById('quiz.getElementById('quizHistoryContainer');
+        ifHistoryContainer');
+        if((historyList.length === 0historyList.length === 0) {
+            historyContainer.innerHTML) {
+            historyContainer.innerHTML = '<div style="text = '<div style="text-align:center; padding:-align:center; padding:20px;">暂无答题记录，参与20px;">暂无问答后显示</div>';
+答题记录，参与问答后显示</div>';
+        } else        } else {
+            let {
             let historyHtml = '';
-            for(let h of historyList) {
-                const icon = h.status === 'correct' ? '✅' : '❌';
-                const colorStyle = h.status === 'correct' ? 'color:#6bdb8e;' : 'color:#e67e6b;';
-                historyHtml += `<div class="quiz-history-item"><div class="quiz-history-icon" style="${colorStyle}">${icon}</div><div class="quiz-history-text">${escapeHtml(h.questionText)}</div><div class="quiz-history-time">${h.timeStr}</div></div>`;
+            for historyHtml = '';
+            for(let h of historyList)(let h of historyList) {
+                const icon = h {
+                const icon = h.status === 'correct.status === 'correct' ?' ? '✅' : ' '✅' : '❌';
+                const colorStyle❌';
+                const colorStyle = h.status === 'correct = h.status === 'correct' ?' ? 'color 'color:#6bdb:#6bdb8e;' : 'color:#e67e8e;' : 'color:#e67e6b;';
+                history6b;';
+                historyHtml += `<div class="Html += `<div class="quiz-history-item"><div classquiz-history-item"><div class="quiz-history-icon" style="quiz-history-icon" style="${colorStyle}">="${colorStyle}">${icon}</div><div${icon}</div><div class="quiz-history-text"> class="quiz-history-text">${escape${escapeHtml(h.questionTextHtml(h.questionText)}</div><div class="quiz-history-time">${)}</div><div classh.timeStr}</div></="quiz-history-time">${div>`;
             }
-            historyContainer.innerHTML = historyHtml;
+           h.timeStr}</div></div>`;
+            }
+            historyContainer.innerHTML = historyHtml historyContainer.innerHTML = historyHtml;
         }
     }
-    function triggerEffect(status) { if(status === 'correct') showFirework(); else if(status === 'wrong') showBomb(); }
+    function triggerEffect(status;
+        }
+    }
+    function triggerEffect(status) { if(status === ') { if(status === 'correct') showcorrect') showFireFirework(); else if(statuswork(); else if(status === === 'wrong') showBomb(); }
+
+    async function delete 'wrong') showBombQuestion(qid) {
+       (); }
 
     async function deleteQuestion(qid) {
-        if (currentUserName !== ADMIN_USERNAME) return;
-        if (!confirm('确定要删除这个问题以及所有相关回答吗？')) return;
+        if (currentUserName !== ADMIN if (currentUserName !== ADMIN_USERNAME) return;
+       _USERNAME) return;
+        if (!confirm('确定要删除这个问题 if (!confirm('确定要以及所有相关回答吗？删除这个问题以及所有相关')) return;
         try {
+            await回答吗？')) return;
+        try questionsRef.child(qid).remove();
+            await question {
             await questionsRef.child(qid).remove();
-            await questionAnswersRef.child(qid).remove();
-            logActivity("admin_delete_question", `删除问题 ${qid}`);
+            await questionAnswersAnswersRef.child(qid).removeRef.child(qid).remove();
+            logActivity();
+            logActivity("admin_delete_question",("admin_delete_question", `删除问题 ${qid `删除问题 ${qid}`);
+        } catch (err}`);
         } catch (err) {
-            alert("删除失败：" + err.message);
+            alert("删除) {
+            alert("删除失败：" +失败：" + err.message);
+ err.message);
         }
     }
 
-    function toggleAccordion(qid) {
-        const body = document.getElementById('accordion-body-' + qid);
+    function        }
+    }
+
+    function toggleAcc toggleAccordionordion(qid)(qid) {
+        const body = document.getElementById(' {
+        const body = document.getElementById('accordion-body-' + qaccordion-body-' + qid);
+        if (!bodyid);
         if (!body) return;
-        if (body.style.display === 'none' || body.style.display === '') {
+        if (body.style.display ===) return;
+        if (body.style.display === ' 'none' || body.style.display ===none' || body.style.display === '') {
+            body.style '') {
             body.style.display = 'block';
-            document.getElementById('accordion-arrow-' + qid).innerText = '▼';
+           .display = 'block';
+            document.getElementById('accordion- document.getElementById('accordion-arrow-' + qid).arrow-' + qid).innerText = '▼';
         } else {
+            bodyinnerText = '▼';
+        }.style.display = 'none';
+ else {
             body.style.display = 'none';
-            document.getElementById('accordion-arrow-' + qid).innerText = '▶';
+            document.getElementById('accordion            document.getElementById('accordion-arrow-' + qid-arrow-' + qid).innerText = '▶).innerText = '▶';
+        }
+        updateToggle';
         }
         updateToggleAllButtonText();
+   AllButtonText();
     }
 
-    function updateToggleAllButtonText() {
-        const bodies = document.querySelectorAll('.accordion-body');
-        const btn = document.getElementById('toggleAllQuestionsBtn');
-        if (!bodies.length || !btn) return;
-        const allExpanded = Array.from(bodies).every(b => b.style.display === 'block');
-        btn.textContent = allExpanded ? '全部折叠' : '全部展开';
+ }
+
+    function updateToggleAllButton    function updateToggleAllButtonText() {
+        const bodiesText() {
+        const bodies = document = document.querySelectorAll('..querySelectorAll('.accordion-body');
+       accordion-body');
+        const const btn = document.getElementById('toggle btn = document.getElementById('toggleAllQuestionsBtn');
+        ifAllQuestionsBtn');
+        if (!bodies.length || ! (!bodies.length || !btn) return;
+        constbtn) return;
+        const allExpanded = Array.from allExpanded = Array.from(bodies).every(b =>(bodies).every(b => b b.style.display === 'block');
+        btn.textContent = allExpanded ? '全部.style.display === 'block');
+        btn.textContent = allExpanded ? '全部折叠' : '全部展开折叠' : '全部展开';
+    }
+
+    async function';
     }
 
     async function renderAllQuestions() {
-        const questionsSnap = await questionsRef.once('value');
-        const questions = questionsSnap.val() || {};
-        if(!currentUserName) { document.getElementById('dynamicQuestionList').innerHTML = '<div style="padding:20px">请先在上方设置抽奖人姓名再参与问答~</div>'; return; }
-        const answersSnap = await questionAnswersRef.once('value');
-        const userAnswers = answersSnap.val() || {};
+        renderAllQuestions() {
+        const questionsSnap = await const questionsSnap = await questionsRef.once questionsRef.once('value');
+        const questions('value');
+        const questions = = questionsSnap.val questionsSnap.val() || {};
+        if() || {};
+        if(!currentUserName(!currentUserName) { document.getElementById('dynamic) { document.getElementById('dynamicQuestionList').innerHTML = '<div style="padding:QuestionList').innerHTML = '<div style="padding:20px">请先在上20px">请先在上方设置抽奖方设置抽奖人姓名再参与人姓名再参与问答~问答~</div>';</div>'; return; }
+        const answersSnap = await question return; }
+        const answersSnap = await questionAnswersRef.once('valueAnswersRef.once('value');
+        const userAnswers =');
+        const userAnswers = answersSnap.val() || answersSnap.val() || {};
+
+        let questionsArray {};
 
         let questionsArray = [];
-        for (let [qid, q] of Object.entries(questions)) {
-            if (!q.published && currentUserName !== ADMIN_USERNAME) continue;
-            const userRec = userAnswers[qid]?.[currentUserName];
-            const answerTime = userRec ? (userRec.submittedAt || 0) : 0;
+        for = [];
+        for ( (let [qid, q] oflet [qid, q] of Object.entries(questions)) Object.entries(questions)) {
+ {
+            if (!q.p            if (!q.published && currentUserName !== ADMINublished && currentUserName !== ADMIN_USERNAME) continue;
+           _USERNAME) continue;
+            const userRec = userAnswers const userRec = userAnswers[qid]?.[current[qid]?.[currentUserName];
+            const answerTimeUserName];
+            const answerTime = user = userRec ? (Rec ? (userRec.submitteduserRec.submittedAt ||At || 0) : 0 0) : 0;
             questionsArray.push({
-                qid,
+;
+            questionsArray.push({
+                qid                qid,
+                text: q.text,
+                answer,
                 text: q.text,
                 answer: q.answer,
+               : q.answer,
                 published: q.published,
-                timestamp: q.timestamp || 0,
-                userAnswerObj: userRec || null,
+                timestamp: q.timestamp published: q.published,
+                timestamp: q.timestamp || || 0,
+                userAnswerObj: userRec || 0,
+                userAnswerObj: userRec null,
+                answerTime: || null,
                 answerTime: answerTime
             });
+        answerTime
+            });
         }
+        questionsArray.sort(( }
         questionsArray.sort((a, b) => {
-            if (a.answerTime && b.answerTime) return b.answerTime - a.answerTime;
-            if (a.answerTime) return -1;
-            if (b.answerTime) return 1;
-            return (b.timestamp || 0) - (a.timestamp || 0);
+a, b) => {
+            if (a.answer            if (a.answerTime && b.Time && b.answerTimeanswerTime) return b.) return b.answerTimeanswerTime - a.answer - a.answerTime;
+            if (Time;
+            if (aa.answerTime) return -.answerTime) return -1;
+            if (b.1;
+            if (banswer.answerTime) return Time) return 1;
+            return (b1;
+            return (b.timestamp || 0) - (a.timestamp ||.timestamp || 0) - (a.timestamp || 0);
         });
 
-        let html = '';
-        for (let q of questionsArray) {
-            const publishTime = q.timestamp ? new Date(q.timestamp).toLocaleString() : '未知时间';
+        0);
+        });
+
+        let html = let html = '';
+        for '';
+        for (let q of questions (let q of questionsArray) {
+Array) {
+            const publishTime            = q.timestamp ? const publishTime = q.timestamp ? new Date(q.timestamp). new Date(q.timestamp).toLocaleString() : 'toLocaleString() : '未知时间';
+            const hasAnswered = !!q.userAnswerObj未知时间';
             const hasAnswered = !!q.userAnswerObj;
-            let statusHtml = '', inputArea = '';
+            let statusHtml =;
+            let statusHtml = '', '', inputArea = '';
+            if (!hasAnswered) inputArea = '';
             if (!hasAnswered) {
-                statusHtml = `<span class="answer-status" style="background:#aa6f20;">⏳ 未回答 <span class="red-dot">!</span></span>`;
-                inputArea = `<div class="answer-input-area"><input type="text" class="answer-input" id="answer-${q.qid}" placeholder="你的答案..."><button class="submit-answer-btn" data-qid="${q.qid}">✍️ 提交答案</button></div>`;
+                statusHtml = {
+                statusHtml = `<span class="answer-status" style="background:# `<span class="answer-status"aa6f20;">⏳ style="background:#aa6f20;">⏳ 未回答 <span class 未回答 <span class="red-dot">!</="red-dot">!</span></span>`;
+                inputArea =span></span>`;
+                `<div class="answer-input-area"><input inputArea = `<div class="answer-input-area"><input type="text" class=" type="text" class="answer-input" id="answeranswer-input" id="answer-${q.q-${q.qid}" placeholder="你的id}" placeholder="你的答案..."><button class="答案..."><button class="submitsubmit-answer-btn" data-qid="${q.qid-answer-btn" data-qid="${q.qid}">✍️ }">✍️ 提交答案</button></div提交答案</button></div>`;
             } else {
-                const answerStatus = q.userAnswerObj.status;
-                if (answerStatus === 'correct') statusHtml = `<span class="answer-status" style="background:#2e8b57;">✅ 已答对</span>`;
-                else if (answerStatus === 'wrong') statusHtml = `<span class="answer-status" style="background:#c0392b;">❌ 回答错误</span>`;
-                else statusHtml = `<span class="answer-status" style="background:#f39c12;">⏳ 待批阅</span>`;
-                inputArea = `<div class="feedback-area">📝 你的答案: ${escapeHtml(q.userAnswerObj.answer)}<br>✅ 正确答案: ${escapeHtml(q.answer || '暂无')}<br>📌 状态: ${answerStatus==='correct'?'✓正确':answerStatus==='wrong'?'✗错误':'等待管理员评判'}</div>`;
+>`;
+            } else {
+                const answerStatus = q                const answerStatus = q.userAnswerObj.userAnswerObj.status;
+.status;
+                if (answer                if (answerStatus === 'correct') statusHtml = `<span class="Status === 'correct') statusHtml =answer-status" style="background `<span class="answer-status" style="background:#2e8b:#2e8b57;">✅ 已57;">✅ 已答对</span>`;
+答对</span>`;
+                else if                else if (answerStatus (answerStatus === 'wrong') === 'wrong') statusHtml = `<span class=" statusHtml = `<span class="answer-statusanswer-status" style="background:#" style="background:#c0392c0392b;">b;">❌ 回答错误</span❌ 回答错误</span>`;
+                else statusHtml>`;
+                else statusHtml = `<span class="answer = `<span class="answer-status" style="background:#-status" style="background:#f39c12;">f39c12;">⏳ 待批阅⏳ 待批阅</</span>`;
+                inputspan>`;
+                inputArea = `<divArea = `<div class="feedback-area">📝  class="feedback-area">📝 你的答案: ${escape你的答案: ${escapeHtml(q.userAnswerHtml(q.userAnswerObj.answer)}<brObj.answer)}<br>✅ 正确答案: ${>✅ 正确答案: ${escapeHtml(q.answer ||escapeHtml(q.answer || '暂无 '暂无')}<br>📌')}<br>📌 状态: ${ 状态: ${answerStatus==='answerStatus==='correctcorrect'?'✓正确':'?'✓正确':answerStatus==='wrong'answerStatus==='wrong'?'✗错误':'?'✗错误':'等待管理员评判'}</div等待管理员评判'}</div>`;
             }
-            let deleteBtn = '';
-            if (currentUserName === ADMIN_USERNAME) {
-                deleteBtn = `<button class="delete-question-btn" data-qid="${q.qid}">🗑️ 删除问题</button>`;
+            let deleteBtn =>`;
             }
-            html += `<div class="qa-enhanced-card">
-                <div class="qa-header" onclick="toggleAccordion('${q.qid}')">
-                    <div class="qa-question-text" style="flex:1;">
-                        <span id="accordion-arrow-${q.qid}" style="margin-right:8px; font-size:1rem;">▶</span>
-                        ❓ ${escapeHtml(q.text)} ${!hasAnswered ? '<span class="red-dot">!</span>' : ''}
-                    </div>
-                    <div class="qa-time">📅 发布: ${publishTime}</div>
+            let '';
+ deleteBtn = '';
+            if (currentUserName === ADMIN_USERNAME)            if (currentUserName === ADMIN_USERNAME) {
+                deleteBtn {
+                deleteBtn = `<button class=" = `<button class="deletedelete-question-btn" data-q-question-btn" data-qid="${q.qid}id="${q.qid}">🗑️">🗑️ 删除 删除问题</button>`;
+           问题</button>`;
+            }
+            html += `<div }
+            html += `<div class="qa-enhanced class="qa-enhanced-card">
+                <div class-card">
+                <div class="qa="qa-header" onclick="-header" onclick="toggleAccordtoggleAccordion('${qion('${q.qid}')">
+.qid}')">
+                    <div class="qa                    <div class="qa-question-text" style="-question-text" style="flex:1;">
+                       flex:1;">
+                        <span id="accord <span id="accordion-arrow-${qion-arrow-${q.qid}" style="margin.qid}" style="margin-right:8px; font-right:8px; font-size:-size:1rem;">▶1rem;">▶</span>
+                        ❓</span>
+                        ❓ ${escapeHtml(q.text ${escapeHtml(q.text)} ${!has)} ${!hasAnswered ? '<span class="red-dot">Answered ? '<span class="red-dot">!</span>' : ''}
+!</span>' : ''}
+                                       </div>
+                    <div class="qa-time"> </div>
+                    <div class="qa-time">📅 发布:📅 发布: ${publishTime}</div ${publishTime}</div>
+                    ${deleteBtn>
                     ${deleteBtn}
+}
                 </div>
-                <div id="accordion-body-${q.qid}" class="accordion-body" style="display:none; margin-top:10px;">
+                               </div>
+                <div id="accordion-body <div id="accordion-body-${q.qid}"-${q.qid}" class="accordion-body" style="display:none; margin-top class="accordion-body" style="display:none; margin-top:10px;">
+:10px;">
                     ${statusHtml}
+                                       ${statusHtml}
                     ${inputArea}
-                </div>
+ ${inputArea}
+                </                </div>
+            </div>div>
             </div>`;
         }
-        const container = document.getElementById('dynamicQuestionList');
-        container.innerHTML = html || '<div>暂无已发布的问题，等待管理员更新~</div>';
+        const`;
+        }
+        const container = document.getElementById('dynamic container = document.getElementById('dynamicQuestionList');
+        container.innerHTMLQuestionList');
+        container.innerHTML = html = html || '<div || '<div>暂无已发布>暂无已发布的问题，等待管理员的问题，等待管理员更新~</div>';
 
-        container.querySelectorAll('.delete-question-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+更新~</div>';
+
+        container.querySelectorAll('.delete        container.querySelectorAll('.delete-question-btn').forEach(-question-btn').forEach(btn => {
+            btn.addEventListenerbtn => {
+            btn.addEventListener('click', async (('click', async (e) => {
+                ee) => {
                 e.stopPropagation();
+                const.stopPropagation();
                 const qid = btn.dataset.qid;
+                await delete qid = btn.dataset.qid;
                 await deleteQuestion(qid);
+           Question(qid);
             });
+ });
         });
 
-        container.querySelectorAll('.submit-answer-btn').forEach(btn => {
-            btn.onclick = async (e) => {
-                const qid = btn.dataset.qid;
-                const answerInput = document.getElementById(`answer-${qid}`);
-                const userAnswer = answerInput ? answerInput.value.trim() : '';
-                if(!userAnswer) { alert("请输入答案"); return; }
-                const questionSnap = await questionsRef.child(qid).once('value');
-                const question = questionSnap.val();
-                if(!question) return;
-                const isAutoCorrect = (userAnswer.toLowerCase() === (question.answer || '').toLowerCase());
-                const status = isAutoCorrect ? 'correct' : 'pending';
-                await questionAnswersRef.child(qid).child(currentUserName).set({ answer: userAnswer, status: status, submittedAt: Date.now(), autoCorrect: isAutoCorrect, reviewerMark: null });
-                if(isAutoCorrect) { triggerEffect('correct'); alert("🎉 答案正确！获得恭喜特效~"); }
-                else { alert("答案已提交，等待管理员批阅~"); }
-                logActivity("answer_question", `问题:${question.text}`);
-                await renderAllQuestions(); await updateQuizStatsAndHistory();
-                if(currentUserName === ADMIN_USERNAME) renderAdminReviewPanel();
-                updateQATabRedDot();
+        container.querySelectorAll        });
+
+        container.querySelectorAll('.submit-answer-btn').('.submit-answer-btn').forEach(btn => {
+           forEach(btn => {
+            btn.onclick = btn.onclick = async ( async (e) => {
+                const qid = btn.datasete) => {
+                const qid = btn.dat.qid;
+                const answeraset.qid;
+                const answerInput = document.getElementById(`Input = document.getElementById(`answer-${qid}`);
+answer-${qid}`);
+                const userAnswer = answer                const userAnswer = answerInput ?Input ? answerInput.value.trim answerInput.value.trim() : '';
+() : '';
+                if(!userAnswer) { alert                if(!userAnswer) { alert("请输入答案"); return;("请输入答案"); return; }
+                const questionSn }
+                const questionSnap = await questionsRefap = await questionsRef.child(qid).once.child(qid).once('value');
+                const question('value');
+                const question = questionSn = questionSnap.val();
+                if(!ap.val();
+                if(!question) returnquestion) return;
+                const isAuto;
+                const isAutoCorrect = (userAnswer.toLowerCaseCorrect = (userAnswer.toLowerCase() === (question.() === (question.answer || '').toLowerCase());
+               answer || '').toLowerCase const status());
+                const status = is = isAutoCorrect ? 'correctAutoCorrect ? 'correct' : 'pending';
+                await' : 'pending';
+                await questionAnswersRef questionAnswersRef.child(qid.child(qid).child(currentUserName).set({ answer).child(currentUserName).set: userAnswer, status:({ answer: userAnswer, status: status, submittedAt: Date status, submittedAt: Date.now(), autoCorrect:.now(), autoCorrect: isAutoCorrect, reviewerMark isAutoCorrect, reviewerMark: null });
+                if: null });
+(isAutoCorrect) { triggerEffect                if(isAutoCorrect) { trigger('correct'); alert("Effect('correct'); alert("🎉 答案🎉 答案正确！获得正确恭喜特效~"); }
+！获得恭喜特效~"); }
+                else { alert("答案                else { alert("答案已提交，等待管理员批阅~"); }
+已提交，等待管理员批阅~"); }
+                logActivity("answer                logActivity("answer__question", `问题:${question", `问题:${question.text}`);
+question.text}`);
+                await renderAllQuestions(); await                await renderAllQuestions(); await updateQuizStatsAnd updateQuizStatsAndHistory();
+                if(currentHistory();
+                if(currentUserName === ADMIN_USERUserName === ADMIN_USERNAME) renderAdminReviewNAME) renderAdminReviewPanel();
+               Panel();
+                updateQ updateQATabRedDot();
+           ATabRedDot();
             };
+ };
         });
-        updateToggleAllButtonText();
+               });
+        updateToggleAll updateToggleAllButtonText();
     }
 
-    document.getElementById('toggleAllQuestionsBtn')?.addEventListener('click', () => {
-        const bodies = document.querySelectorAll('.accordion-body');
-        const btn = document.getElementById('toggleAllQuestionsBtn');
-        if (!bodies.length || !btn) return;
-        const allExpanded = Array.from(bodies).every(b => b.style.display === 'block');
+   ButtonText();
+    }
+
+    document.getElementById('toggleAllQuestions document.getElementById('toggleAllQuestionsBtn')?.addEventListener('click', () => {
+       Btn')?.addEventListener('click', () => {
+        const bodies = document.querySelectorAll const bodies = document.querySelectorAll('.accordion-body');
+       ('.accordion-body');
+        const btn = document.getElementById('toggleAll const btn = document.getElementById('QuestionsBtn');
+        if (!bodies.length ||toggleAllQuestionsBtn');
+        if (!bodies.length !btn) return;
+        || !btn) return;
+        const allExpanded = Array.from(bodies).every(b const allExpanded = Array.from(bodies).every(b => b.style.display === ' => b.style.display === 'block');
+        bodies.forEach(bblock');
         bodies.forEach(b => {
-            b.style.display = allExpanded ? 'none' : 'block';
+            b.style.display = => {
+            b.style.display = allExpanded ? allExpanded ? 'none' : 'none' : 'block';
+ 'block';
         });
-        document.querySelectorAll('[id^="accordion-arrow-"]').forEach(arrow => {
-            arrow.textContent = allExpanded ? '▶' : '▼';
+        document.querySelectorAll        });
+        document.querySelectorAll('[id^="accordion-('[id^="accordion-arrow-"]').forEach(arrow-"]').forEach(arrow => {
+            arrow.textContent = allExpanded ?arrow => {
+            arrow.textContent = allExpanded ? '▶' : '▼ '▶' : '▼';
         });
-        btn.textContent = allExpanded ? '全部展开' : '全部折叠';
+        btn.text';
+        });
+        btn.textContent = allExpContent = allExpanded ?anded ? '全部展开' : ' '全部展开' : '全部折叠';
     });
 
-    window.renderAdminReviewPanel = async function() {
-        if(currentUserName !== ADMIN_USERNAME) return;
-        const answersSnap = await questionAnswersRef.once('value');
+    window.renderAdminReview全部折叠';
+    });
+
+   Panel = async function() window.renderAdminReview {
+        if(currentUserNamePanel = async function() !== ADMIN_USERNAME) return {
+        if(currentUserName;
+        const answers !== ADMIN_USERNAME) return;
+        const answersSnap = awaitSnap = await question questionAnswersRef.onAnswersRef.once('value');
+        constce('value');
         const allAnswers = answersSnap.val() || {};
-        const questionsSnap = await questionsRef.once('value');
+ allAnswers = answersSnap.val() || {};
+        const questionsSnap        const questionsSnap = await questionsRef.once = await questionsRef.once('value('value');
+        const questions = questionsSnap.val');
         const questions = questionsSnap.val() || {};
-        let container = document.getElementById('adminAnswersContainer');
+        let container() || {};
+        let container = document.getElementById('adminAnswers = document.getElementById('adminAnswersContainer');
+        if(!containerContainer');
         if(!container) return;
-        if(Object.keys(allAnswers).length === 0) { container.innerHTML = '<div>暂无用户提交答案</div>'; return; }
+        if(Object) return;
+        if(Object.keys(allAnswers).length ===.keys(allAnswers).length === 0) { container.innerHTML 0) { container.innerHTML = '<div> = '<div>暂无用户暂无用户提交答案</div>'; return; }
+       提交答案</div>'; return; }
         let html = '';
-        for(let qid in allAnswers) {
-            const questionObj = questions[qid];
+        for let html = '';
+        for(let qid(let qid in allAnswers in allAnswers) {
+           ) {
+            const questionObj = questions[q const questionObj = questions[qid];
+            if(!questionid];
             if(!questionObj) continue;
-            const answersForQ = allAnswers[qid];
+            constObj) continue;
+            const answersForQ = allAnswers[q answersForQid];
             let userRows = '';
-            for(let uid in answersForQ) {
+ = allAnswers[qid];
+            for(let uid            let userRows = '';
+            for in answersForQ) {
+                const record = answersFor(let uid in answersForQ) {
                 const record = answersForQ[uid];
-                userRows += `<div class="user-answer-row"><div class="user-answer-info"><strong>${escapeHtml(uid)}</strong> 回答: ${escapeHtml(record.answer)}<br><small>提交于 ${new Date(record.submittedAt).toLocaleString()}</small></div><div class="admin-mark-btns">${record.status !== 'correct' ? `<button class="mark-correct" data-qid="${qid}" data-user="${uid}" data-mark="correct">✅ 正确</button>` : '<span style="color:#2e8b57;">已✓正确</span>'}${record.status !== 'wrong' ? `<button class="mark-wrong" data-qid="${qid}" data-user="${uid}" data-mark="wrong">❌ 错误</button>` : '<span style="color:#c0392b;">已✗错误</span>'}</div></div>`;
+                userQ[uid];
+                userRows += `<divRows += `<div class="user-answer-row class="user-answer-row"><div"><div class="user-answer-info"><strong>${ class="user-answer-info"><strong>escapeHtml(uid)}</${escapeHtml(uid)}</strong> 回答:strong> 回答: ${escapeHtml(record.answer)}<br><small ${escapeHtml(record.answer)}<br><small>提交于 ${new>提交于 ${new Date(record.submittedAt Date(record.submittedAt).toLocaleString()}</).toLocaleString()}</small></div><div classsmall></div><div class="admin-mark-bt="admin-mark-btns">ns">${record.status !==${record.status !== 'correct' ? `<button class="mark-c 'correct' ? `<button class="mark-correct" data-qidorrect" data-qid="${qid}" data-user="${qid}" data-user="${uid="${uid}" data-mark}" data-mark="correct">✅ ="correct">✅ 正确正确</button>` :</button>` : '<span style="color '<span style="color:#2:#2e8b57;">已e8b57;">已✓正确</span>'}✓正确</span>'}${record.status !== 'wrong' ? `<${record.status !== 'wrong' ? `<button class="button class="mark-wrong" data-qid="${mark-wrong" data-qid="${qid}" dataqid}" data-user="${uid}" data-mark-user="${uid}" data-mark="wrong">❌ ="wrong">❌ 错误</button>` :错误</button>` : '<span style="color:#c '<span style="color:#c0392b;">已0392b;">已✗错误</span>'}</✗错误</span>'}</div></div>`;
+           div></div>`;
             }
-            if(userRows) html += `<div class="review-question-block"><div class="review-question-text">📌 ${escapeHtml(questionObj.text)}</div>${userRows}</div>`;
+ }
+            if(userRows)            if(userRows) html += `<div class html += `<div class="="review-question-block"><divreview-question-block"><div class="review-question-text class="review-question-text">📌 ${escapeHtml">📌 ${escapeHtml(questionObj(questionObj.text)}</div>${userRows}</.text)}</div>${userRows}</divdiv>`;
         }
-        container.innerHTML = html || '无答案数据';
-        document.querySelectorAll('.mark-correct, .mark-wrong').forEach(btn => {
-            btn.onclick = async (e) => {
-                const qid = btn.dataset.qid, uid = btn.dataset.user, mark = btn.dataset.mark;
-                const newStatus = (mark === 'correct') ? 'correct' : 'wrong';
-                await questionAnswersRef.child(qid).child(uid).update({ status: newStatus, reviewerMark: mark, reviewedAt: Date.now() });
-                logActivity("admin_review", `评判用户${uid}的回答为${newStatus}`);
-                if(uid === currentUserName) triggerEffect(newStatus);
-                await renderAdminReviewPanel(); await renderAllQuestions(); await updateQuizStatsAndHistory();
-                updateQATabRedDot();
+        container>`;
+        }
+       .innerHTML = html || '无答案 container.innerHTML = html || '无答案数据';
+        document.querySelectorAll数据';
+        document.querySelectorAll('.mark-correct, .('.mark-correct, .mark-wrong').forEach(mark-wrong').forEach(btn => {
+            btn.onbtn => {
+            btn.onclick = async (e)click = async (e) => {
+                const qid => {
+                const qid = btn.dataset.qid = btn.dataset.qid, uid = btn.dataset.user, uid = btn.dataset.user, mark = btn.dat, mark = btn.dataset.mark;
+                const newaset.mark;
+                const newStatus = (mark === 'Status = (mark === 'correct') ? 'correct'correct') ? 'correct' : 'wrong';
+                await : 'wrong';
+                await questionAnswers questionAnswersRef.child(qid).child(uidRef.child(qid).child).update({ status: newStatus(uid).update({ status, reviewerMark: mark, reviewedAt:: newStatus, reviewerMark: mark, reviewedAt: Date.now() });
+                log Date.now() });
+                logActivity("adminActivity("admin_review", `评判_review", `评判用户${uid}的回答用户${uid}的回答为${newStatus}`);
+                if(uid ===为${newStatus}`);
+                if( currentUserName) triggerEffectuid === currentUserName) triggerEffect(newStatus);
+                await render(newStatus);
+                await renderAdminReviewPanel(); await renderAdminReviewPanel(); await renderAllQuestions(); await updateQuizAllQuestions(); await updateQuizStatsAndHistory();
+                updateStatsAndHistory();
+                updateQATabRedQATabRedDot();
+            };
+Dot();
             };
         });
     };
 
-    async function updateQATabRedDot() {
+           });
+    };
+
+    async function update async function updateQATabRedQATabRedDot() {
+        if(!currentUserNameDot() {
         if(!currentUserName) return;
-        const questionsSnap = await questionsRef.once('value');
+        const questions) return;
+        const questionsSnapSnap = await questionsRef = await questionsRef.once('.once('valuevalue');
+        const questions = questions');
         const questions = questionsSnap.val() || {};
-        const answersSnap = await questionAnswersRef.once('value');
+        const answersSnap.val() || {};
+        const answersSnap =Snap = await questionAnswersRef.on await questionAnswersRef.oncece('value');
+        const user('value');
         const userAnswers = answersSnap.val() || {};
+        let unansweredAnswers = answersSnap.val() || {};
         let unansweredCount = 0;
-        for(let [qid, q] of Object.entries(questions)) if(q.published && !userAnswers[qid]?.[currentUserName]) unansweredCount++;
-        const qaTabBtn = document.querySelector('.tab-btn[data-tab="qa"]');
-        if(!qaTabBtn) return;
-        const existingBadge = qaTabBtn.querySelector('.red-dot-badge');
-        if(existingBadge) existingBadge.remove();
-        if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
+       Count = 0;
+        for(let for(let [qid, q] of [qid, q] of Object.entries(questions)) Object.entries(questions)) if(q.published && if(q.published && !userAnswers[qid] !userAnswers[qid]?.[currentUserName]) unansweredCount++;
+       ?.[currentUserName]) unanswered const qCount++;
+        const qaTabBtn = document.querySelectoraTabBtn = document.querySelector('.tab-btn[data-tab="qa"]('.tab-btn[data-t');
+        if(!qaTabBtn)ab="qa"]');
+        return;
+        const existingBad if(!qaTabBtn) return;
+        const existingBadge = qaTabBtnge = qaTabBtn.querySelector('.red-d.querySelector('.red-dot-badge');
+        ifot-badge');
+        if(existingBadge) existing(existingBadge) existingBadge.remove();
+        if(unBadge.remove();
+        if(unansweredCount > 0) { const badge = documentansweredCount > 0) { const badge.createElement('span'); badge.class = document.createElement('span'); badge.className = 'red-dotName = 'red-dot-badge'; badge.textContent-badge'; badge.textContent = unansweredCount >  = unansweredCount > 99 ? '9+' : unanswered ? '9+' : unansweredCount; qCount; qaTabBtnaTabBtn.appendChild(badge); }
+   .appendChild(badge); }
+    }
+
     }
 
     // 留言板红点
-    function getLastMessageReadTime() {
+    function get // 留言板红点
+    functionLastMessageReadTime() {
+ getLastMessageReadTime() {
         if (!currentUserName) return 0;
-        const stored = localStorage.getItem('lastMessageReadTime_' + currentUserName);
-        return stored ? parseInt(stored) : 0;
+               if (!currentUserName) return 0;
+        const stored = localStorage.getItem(' const stored = localStorage.getItem('lastMessageReadTime_' +lastMessageReadTime_' + currentUserName);
+        return stored currentUserName);
+        return stored ? parseInt(stored) : ? parseInt(stored) :  0;
+    }
+
+   0;
     }
 
     function setLastMessageReadTime() {
+        if (!current function setLastMessageReadTime() {
         if (!currentUserName) return;
-        localStorage.setItem('lastMessageReadTime_' + currentUserName, Date.now());
+        localStorageUserName) return;
+        localStorage.setItem('lastMessageRead.setItem('lastMessageReadTime_' + currentUserName,Time_' + currentUserName, Date.now());
     }
 
-    function updateMessageTabRedDot() {
-        if (!currentUserName) return;
-        messagesRef.orderByChild('timestamp').once('value').then(snap => {
+    Date.now());
+    }
+
+    function updateMessageTab function updateMessageTabRedDot() {
+        ifRedDot() {
+        if (!current (!currentUserName) return;
+UserName) return;
+        messagesRef.order        messagesRef.orderByChild('timestampByChild('timestamp').once('value').').once('value').then(snap => {
+            constthen(snap => {
             const data = snap.val();
-            let unreadCount = 0;
+ data = snap.val();
+            let unreadCount =            let unreadCount = 0;
+            if ( 0;
             if (data) {
-                const lastRead = getLastMessageReadTime();
+                const lastRead =data) {
+                const lastRead = getLastMessageRead getLastMessageReadTime();
+                for (Time();
                 for (let msgId in data) {
-                    if (data[msgId].timestamp > lastRead) unreadCount++;
+                    if (datalet msgId in data) {
+                    if (data[msg[msgId].timestamp > lastReadId].timestamp > lastRead) unreadCount++;
+               ) unreadCount++;
                 }
             }
-            const msgTabBtn = document.querySelector('.tab-btn[data-tab="message"]');
-            if (!msgTabBtn) return;
-            const existingBadge = msgTabBtn.querySelector('.red-dot-badge');
-            if (existingBadge) existingBadge.remove();
-            if (unreadCount > 0) {
-                const badge = document.createElement('span');
-                badge.className = 'red-dot-badge';
-                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-                msgTabBtn.appendChild(badge);
+            const msgTabBtn = document.querySelector('. }
+            }
+            const msgTabBtn = document.querySelector('.tabtab-btn[data-tab="-btn[data-tab="message"]');
+message"]');
+            if (!msgTabBtn) return            if (!msgTabBtn) return;
+            const existingBad;
+            const existingBadge = msgTabBtn.querySelectorge = msgTabBtn.querySelector('.red-dot-b('.red-dot-badge');
+           adge');
+            if (existing if (existingBadge) existingBadgeBadge) existingBadge.remove();
+            if (un.remove();
+            if (unreadCountreadCount > 0) > 0) {
+                {
+                const badge = document const badge = document.createElement('span');
+                badge.createElement('span');
+                badge.className = 'red-d.className = 'red-dot-bot-badge';
+                badgeadge';
+                badge.textContent = unreadCount.textContent = unreadCount > 9 ? '9 > 9 ? '9+' : unreadCount;
+               +' : unreadCount;
+ msgTabBtn.appendChild(badge);
+                           msgTabBtn.appendChild(b }
+        });
+    }
+
+    messagesRef.onadge);
             }
         });
     }
 
-    messagesRef.on('value', () => { updateMessageTabRedDot(); });
+    messagesRef.on('value('value', () => {', () updateMessageTab => { updateMessageTabRedDot(); });
 
     function renderMessages() {
-        messagesRef.orderByChild('timestamp').on('value', snap => {
-            const data = snap.val();
-            const list = document.getElementById('messageList');
+        messagesRedDot(); });
+
+    function renderMessages() {
+        messagesRef.orderByChildRef.orderByChild('timestamp').on('value('timestamp').on('value', snap => {
+            const data', snap => {
+            const = snap.val();
+            const list = document.getElementById data = snap.val();
+            const list = document.getElementById('('messageList');
+            if (!messageList');
             if (!list) return;
+            letlist) return;
             let html = '';
             if (data) {
+                const messages html = '';
+            if (data) {
                 const messages = Object.entries(data)
-                    .sort((a,b) => b[1].timestamp - a[1].timestamp);
-                for (let [msgId, msg] of messages) {
-                    const deleteBtn = (currentUserName === ADMIN_USERNAME) 
-                        ? `<button class="msg-delete" data-msgid="${msgId}">🗑️</button>` 
+ = Object.entries(data)
+                                       .sort((a,b .sort((a,b) =>) => b[1].timestamp - a b[1].timestamp - a[1].[1].timestamp);
+                for (lettimestamp);
+                for (let [msgId, msg] [msgId, msg] of messages) {
+                    const of messages) {
+                    const deleteBtn = (currentUserName deleteBtn = (currentUserName === ADMIN_USERNAME) 
+ === ADMIN_USERNAME) 
+                        ? `<                        ? `<button class="msg-delete" data-msgid="${button class="msg-delete" data-msgid="${msgId}msgId}">🗑️</button>` 
+                        : '';
+                   ">🗑️</button>` 
                         : '';
                     html += `<div class="message-item">
                         <div class="msg-content">
-                            <span class="msg-user">${escapeHtml(msg.userName)}</span>
-                            <span class="msg-time">${new Date(msg.timestamp).toLocaleString()}</span>
-                            <div>${escapeHtml(msg.text)}</div>
+                            html += `<div class="message-item">
+                        <div class="msg-content">
+                            <span class="msg-user <span class="msg-user">${escapeHtml(msg.user">${escapeHtml(msg.userName)}</span>
+                            <span class="msg-timeName)}</span>
+                            <span class="msg-time">${new Date(msg">${new Date(msg.t.timestamp).toimestamp).toLocaleString()}</span>
+LocaleString()}</span>
+                            <div>${escapeHtml(msg.text                            <div>${escapeHtml(msg.text)}</div>
+                        </)}</div>
                         </div>
+                        ${deleteBtndiv>
                         ${deleteBtn}
+                    </div>`;
+}
                     </div>`;
                 }
             }
-            list.innerHTML = html || '<div style="text-align:center; color:#aaa;">暂无留言</div>';
+            list.innerHTML                }
+            }
+            list.innerHTML = html || = html || '<div style="text-align: '<div style="text-align:centercenter; color:#aaa;">暂无; color:#aaa;">暂无留言</div>';
+        });
+留言</div>';
         });
     }
 
+    function sendMessage    }
+
     function sendMessage() {
+        const input =() {
         const input = document.getElementById('messageInput');
-        const text = input.value.trim();
-        if (!text || !currentUserName) { alert("请输入留言并设置用户名"); return; }
+ document.getElementById('messageInput');
+        const text = input.value        const text = input.value.trim();
+        if (!text.trim();
+        if (!text || ! || !currentUserName) {currentUserName) { alert("请输入留言 alert("请输入留言并设置用户名"); return;并设置用户名"); return; }
         messagesRef.push({
+ }
+        messagesRef.push({
+            userName: currentUserName,
             userName: currentUserName,
             text: text,
             timestamp: Date.now()
+                   text: text,
+            timestamp: Date.now()
         });
         input.value = '';
-        logActivity("send_message", text);
+ });
+        input.value = '';
+        logActivity("        logActivity("send_message", text);
+    }
+
+    async function deletesend_message", text);
     }
 
     async function deleteMessage(msgId) {
-        if (currentUserName !== ADMIN_USERNAME) return;
-        if (!confirm('确定要删除这条留言吗？')) return;
+       Message(msgId) {
+        if (currentUserName !== ADMIN_USER if (currentUserName !== ADMIN_USERNAME) return;
+        ifNAME) return;
+        if (!confirm('确定要 (!confirm('确定要删除这条留言吗？'))删除这条留言吗？')) return;
         try {
-            await messagesRef.child(msgId).remove();
-            logActivity("admin_delete_message", `删除留言 ${msgId}`);
+            await return;
+        try {
+            await messagesRef messagesRef.child(msgId).remove();
+           .child(msgId).remove();
+            logActivity logActivity("admin_delete_message", `("admin_delete_message", `删除留言 ${msgId}`);
+        } catch (err)删除留言 ${msgId}`);
         } catch (err) {
+            alert("删除失败 {
             alert("删除失败：" + err.message);
+       ：" + err.message);
         }
     }
+    }
 
-    document.getElementById('messageList')?.addEventListener('click', (e) => {
-        const deleteBtn = e.target.closest('.msg-delete');
+    document.getElementById }
+
+    document.getElementById('messageList')?.add('messageList')?.addEventListenerEventListener('click', (e('click', (e) => {
+) => {
+        const delete        const deleteBtn = e.target.clBtn = e.target.closest('.msg-delete');
+       osest('.msg-delete');
         if (deleteBtn) {
-            const msgId = deleteBtn.dataset.msgid;
+ if (deleteBtn) {
+            const msgId =            const msgId = deleteBtn.dataset.msgid deleteBtn.dataset.msgid;
+            deleteMessage(msgId;
             deleteMessage(msgId);
         }
     });
 
-    questionsRef.on('value', () => { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateQATabRedDot(); });
-
-    document.getElementById('addQuestionDraftBtn')?.addEventListener('click', async () => {
-        if(currentUserName!==ADMIN_USERNAME) return;
-        let text=document.getElementById('newQuestionText').value.trim();
-        let answer=document.getElementById('newQuestionAnswer').value.trim();
-        if(!text) return;
-        await questionsRef.push({ text, answer, published: true, timestamp: Date.now() });
-        logActivity("admin_add_question",text);
-        document.getElementById('newQuestionText').value=''; document.getElementById('newQuestionAnswer').value='';
-        alert("问题已发布");
-        updateQATabRedDot();
+   );
+        }
     });
 
-    document.getElementById('sendMessageBtn')?.addEventListener('click', sendMessage);
+    questionsRef.on('value', () => { render questionsRef.on('value', () =>AllQuestions(); if(current { renderAllQuestions(); if(currentUserName===UserName===ADMIN_USERNAME) renderAdminReviewADMIN_USERNAME) renderAdminReviewPanel(); updateQuizPanel(); updateQuizStatsAndHistory(); updateQStatsAndHistory(); updateQATabRedDot(); });
 
-    let currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
+ATabRedDot(); });
+
+    document.getElementById('addQuestion    document.getElementById('addQuestionDraftBtn')?.addEventListener('DraftBtn')?.addEventListener('click', async () => {
+        if(currentclick', async () => {
+        if(currentUserNameUserName!==ADMIN_USERNAME!==ADMIN_USERNAME) return;
+        let text) return;
+        let text=document.getElementById('newQuestionText').value.trim();
+       =document.getElementById('newQuestionText').value.trim();
+        let answer=document.getElementById('newQuestionAnswer').value let answer=document.getElementById('newQuestionAnswer.trim').value.trim();
+        if(!text)();
+        if(!text) return;
+        await questionsRef return;
+        await questionsRef.push({ text, answer.push({ text, answer, published: true, timestamp, published: true, timestamp: Date.now() });
+       : Date.now() });
+        logActivity("admin logActivity("admin_add_question",_add_question",text);
+text);
+        document.getElementById('        document.getElementById('newQuestionText').value=''; documentnewQuestionText').value=''; document.getElementById.getElementById('newQuestionAnswer').('newQuestionAnswer').value='';
+        alert("问题已发布");
+       value='';
+        alert("问题已发布");
+        updateQATab updateQATabRedDot();
+    });
+
+   RedDot();
+    });
+
+    document.getElementById(' document.getElementById('sendMessagesendMessageBtn')?.addEventListener('clickBtn')?.addEventListener('click', sendMessage);
+
+    let', sendMessage);
+
+    let currentCalendarYear = new currentCalendarYear = new Date().getFullYear(), currentCalendarMonth = new Date().get Date().getFullYear(), currentCalendarMonth = new Date().getMonth();
+    let activityMonth();
     let activityCache = {};
-    const festivalMap = {"0101":"元旦","0210":"春节","0211":"春节","0212":"春节","0213":"春节","0214":"情人节","0308":"妇女节","0401":"愚人节","0501":"劳动节","0601":"儿童节","0701":"建党节","0801":"建军节","0910":"教师节","1001":"国庆节","1225":"圣诞节"};
-    const lunarFestival2026 = {"2026-06-19":"端午节","2026-09-25":"中秋节","2026-02-17":"元宵节","2026-06-21":"父亲节"};
-    function getLunarAndFestival(year, month, day) { let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; let festival = lunarFestival2026[dateStr] || festivalMap[`${String(month+1).padStart(2,'0')}${String(day).padStart(2,'0')}`] || ""; return { lunar: "", festival }; }
-    function buildCalendar(year, month) {
-        const firstDay = new Date(year, month, 1);
-        const startWeekday = firstDay.getDay();
-        const daysInMonth = new Date(year, month+1, 0).getDate();
-        const prevMonthDays = new Date(year, month, 0).getDate();
-        const weekdays = ["日","一","二","三","四","五","六"];
-        let gridHtml = `<div class="calendar-grid">`;
-        weekdays.forEach(w => gridHtml += `<div class="cal-weekday">${w}</div>`);
-        for(let i = 0; i < 42; i++) {
+    const festivalCache = {};
+    const festivalMap = {"010Map = {"0101":"元旦","0211":"元旦","0210":"春节0":"春节","0211":"春节","","0211":"春节","0210212":"春节","0213":"春节","02142":"春节","0213":"春节","0214":"情人节","0308":"情人节","0308":"妇女节","0401":"愚人节":"妇女节","0401":"愚人节","050","0501":"劳动节1":"劳动节","0601":"儿童节","0601":"儿童节","0701":"建党节","0701":"建党节","0801":"建军节","0910":"","0801":"建军节教师节","1001":"国庆","0910":"教师节","1001":"国庆节","1225节","1225":"":"圣诞节"};
+    const lunar圣诞节"};
+   Festival2026 = {" const lunarFestival2026 = {"2026-06-19":"端午节2026-06-19","2026-09-25":"中秋节","":"端午节","2026-2026-02-17":"元宵节","202609-25":"中秋节","2026-02-17":"元宵节","2026-06-21":"父亲-06-21":"父亲节"};
+   节"};
+    function getL function getLunarAndFestival(yearunarAndFestival(year, month, day) {, month, day) { let let dateStr = `${year dateStr = `${year}-${String(}-${String(month+month+1).padStart(21).padStart(2,'0,'0')}-${String')}-${String(day).padStart((day).padStart(2,'0')}`;2,'0')}`; let festival = lunarFest let festival = lunarFestival2026[dateStrival2026[dateStr] || festivalMap] || festivalMap[`${String(month+1).pad[`${String(month+1).padStart(Start(2,'0')}2,'0')}${String(day).padStart${String(day).padStart(2,'0')}`(2,'0')}`] || ""; return] || ""; return { lunar: "", { lunar: "", festival }; }
+    function build festival }; }
+    function buildCalendar(year, month)Calendar(year, month) {
+        const firstDay {
+        const firstDay = new = new Date(year, month Date(year, month, 1);
+       , 1);
+        const const startWeekday = firstDay startWeekday = firstDay.getDay();
+        const days.getDay();
+        const daysInMonth = new DateInMonth = new Date(year(year, month+1, , month+1, 0).getDate();
+       0).getDate();
+        const prevMonthDays = new const prevMonthDays = new Date(year, month, 0).get Date(year, month, 0).getDate();
+       Date();
+        const weekdays = ["日 const weekdays = ["日","一","二","三","一","二","三","四","五","六","四","五","六"];
+        let gridHtml"];
+        let gridHtml = `<div class="calendar = `<div class="calendar-grid">`;
+        weekdays.forEach(w => gridHtml += `<div class-grid">`;
+        weekdays.forEach(w => gridHtml += `<="cal-weekday">${w}</div class="cal-weekday">${w}</div>`);
+        for(letdiv>`);
+        for(let i = 0; i i = 0; i < 42; i++) < 42; i++) {
+            let day {
             let dayNum, isCurrentMonth = true;
-            let displayYear = year, displayMonth = month;
-            if(i < startWeekday) { dayNum = prevMonthDays - startWeekday + i + 1; isCurrentMonth = false; displayMonth = month - 1; if(displayMonth < 0) { displayMonth = 11; displayYear--; } }
-            else if(i >= startWeekday + daysInMonth) { dayNum = i - startWeekday - daysInMonth + 1; isCurrentMonth = false; displayMonth = month + 1; if(displayMonth > 11) { displayMonth = 0; displayYear++; } }
-            else { dayNum = i - startWeekday + 1; }
-            let dateObj = new Date(displayYear, displayMonth, dayNum);
-            let dateStr = dateObj.toLocaleDateString('zh-CN');
-            let hasEvent = activityCache[dateStr] && activityCache[dateStr].length > 0;
-            let { festival } = getLunarAndFestival(displayYear, displayMonth, dayNum);
-            let festivalHtml = festival ? `<div class="festival">${festival}</div>` : "";
-            gridHtml += `<div class="cal-day ${isCurrentMonth ? '' : 'other-month'} ${hasEvent ? 'has-event' : ''}" data-date="${dateStr}"><div class="day-num">${dayNum}</div>${festivalHtml}</div>`;
+            letNum, isCurrentMonth = true;
+            let displayYear = year, displayMonth displayYear = year, = month;
+            if(i < start displayMonth = month;
+            if(i < startWeekday) { dayWeekday) { dayNum = prevMonthDaysNum = prevMonthDays - start - startWeekday + iWeekday + i + 1; isCurrent + 1; isCurrentMonth = false; displayMonthMonth = false; displayMonth = month - 1; = month - 1; if(displayMonth <  if(displayMonth < 0)0) { displayMonth = { displayMonth = 11; displayYear 11; displayYear--; } }
+            else--; } }
+            else if(i >= start if(i >= startWeekday + daysInWeekday + daysInMonth) { dayNum =Month) { dayNum = i - startWeekday - i - startWeekday - daysInMonth + 1 daysInMonth + 1; isCurrentMonth = false; displayMonth = month +; isCurrentMonth = false; displayMonth = month + 1; if 1; if(display(displayMonth > 11) {Month > 11) { displayMonth = 0; displayMonth = 0; displayYear++; } }
+ displayYear++; } }
+            else { dayNum =            else { dayNum = i - startWeekday + i - startWeekday + 1; }
+            let 1; }
+            let dateObj = new Date(displayYear dateObj = new Date(, displayMonth, daydisplayYear, displayMonth,Num);
+            let dateStr = dateObj.to dayNum);
+            let dateStr = dateObj.toLocaleDateString('zh-CLocaleDateString('zh-CN');
+            let hasEvent = activityCache[dateStrN');
+            let hasEvent] && activityCache[date = activityCache[dateStrStr].length > 0] && activityCache[dateStr].length > 0;
+            let {;
+            let { festival festival } = getL } = getLunarAndFestunarAndFestival(displayYear, displayMonthival(displayYear, displayMonth, day, dayNum);
+            let festivalNum);
+            let festivalHtml = festival ? `<divHtml = festival ? `<div class="festival">${ class="festival">${festival}</div>` :festival}</div>` : "";
+            gridHtml += `< "";
+            gridHtml += `<div class="cal-daydiv class="cal-day ${isCurrentMonth ? '' : 'other ${isCurrentMonth ? '' : 'other-month'} ${hasEvent ?-month'} ${hasEvent ? 'has-event' : '' 'has-event' : ''}" data-date="${dateStr}" data-date="${dateStr}"><div class="day-num">${day}"><div class="day-num">${dayNum}</div>Num}</div>${festivalHtml}</div${festivalHtml}</div>`;
         }
-        gridHtml += `</div>`;
-        const grid = document.getElementById('calendarGrid'); if(grid) grid.innerHTML = gridHtml;
-        const yearMonthSpan = document.getElementById('currentYearMonth'); if(yearMonthSpan) yearMonthSpan.innerText = `${year}年 ${String(month+1).padStart(2,'0')}月`;
-        document.querySelectorAll('.cal-day').forEach(day => {
+        grid>`;
+        }
+        gridHtmlHtml += `</div> += `</div>`;
+        const grid`;
+        const grid = document = document.getElementById('calendarGrid'); if.getElementById('calendarGrid'); if(grid) grid.innerHTML = grid(grid) grid.innerHTML = gridHtml;
+Html;
+        const yearMonth        const yearMonthSpan = document.getElementById('currentSpan = document.getElementById('currentYearMonth'); if(yearMonthSpan) yearMonthSpan.innerYearMonth'); if(yearMonthText = `${year}年Span) yearMonthSpan.inner ${String(month+1Text = `${year}年 ${String(month+1).padStart().padStart(2,'2,'0')}月`;
+        document.querySelectorAll('.cal0')}月`;
+        document.querySelectorAll('.cal-day').forEach(day =>-day').forEach(day => {
+            day.addEventListener('click {
             day.addEventListener('click', () => {
-                let date = day.dataset.date;
-                let events = activityCache[date] || [];
+                let', () => {
+                let date = day.dat date = day.dataset.date;
+                let events = activityCacheaset.date;
+                let events[date] || [];
+ = activityCache                let container = document.getElementById('[date] || [];
                 let container = document.getElementById('selectedDateEvents');
+                ifselectedDateEvents');
                 if(!container) return;
-                if(!events.length){ container.innerHTML = `<p>📅 ${date} 无活动记录</p>`; return; }
-                let html = `<h4>${date} 活动记录</h4>`;
+               (!container) return;
+                if(!events.length){ container if(!events.length){ container.innerHTML = `<p>.innerHTML = `<p>📅 ${date} 无📅 ${date} 无活动记录</p>`; return; }
+                let html活动记录</p>`; return; }
+                let html = `<h4> = `<h4>${${date} 活动记录</date} 活动记录</h4>`;
+                eventsh4>`;
                 events.forEach(ev => {
+                   .forEach(ev => {
                     const remark = ev.remark || '';
-                    let remarkHtml = '';
+                    let remarkHtml const remark = ev.remark || '';
+                    = '';
+                    if ( let remarkHtml = '';
                     if (currentUserName === ADMIN_USERNAME) {
-                        remarkHtml = `<div class="remark-area"><input type="text" class="remark-input" id="remark-${ev.id}" placeholder="添加备注" value="${escapeHtml(remark)}"><button class="remark-save-event" data-id="${ev.id}">保存</button></div>`;
+currentUserName === ADMIN_USERNAME) {
+                        remark                        remarkHtml = `<div class="remarkHtml =-area"><input type="text" `<div class="remark-area"><input type="text" class="remark-input" id class="remark-input" id="remark-${ev.id="remark-${ev.id}" placeholder="添加}" placeholder="添加备注" value="${escape备注" value="${escapeHtml(remark)}"><buttonHtml(remark)}"><button class="remark-s class="remark-save-event"ave-event" data-id="${ev.id data-id="${ev.id}">保存</button></}">保存</button></div>`;
+                    } elsediv>`;
                     } else if (remark) {
-                        remarkHtml = `<div class="remark-text">📝 备注：${escapeHtml(remark)}</div>`;
+                        if (remark) {
+                        remarkHtml = `<div class remarkHtml = `<div class="remark-text">="remark-text">📝 备注：${escape📝 备注：${escapeHtmlHtml(remark)}</div(remark)}</div>`;
+>`;
                     }
-                    html += `<div class="history-item"><strong>${escapeHtml(ev.userName)}</strong> ${ev.type}: ${ev.detail}<br><small>${ev.timeStr}</small>${remarkHtml}</div>`;
+                    html                    }
+                    html += `<div class=" += `<div class="historyhistory-item"><strong>${-item"><strong>${escapeHtml(ev.userNameescapeHtml(ev.userName)}</)}</strong> ${evstrong> ${ev.type}: ${ev.type}: ${ev.detail}<br><small>${.detail}<br><small>${ev.timeStr}</small>ev.timeStr}</small>${remarkHtml}</div>${remarkHtml}</div>`;
                 });
                 container.innerHTML = html;
-                if (currentUserName === ADMIN_USERNAME) {
-                    document.querySelectorAll('.remark-save-event').forEach(btn => {
-                        btn.onclick = async (e) => {
+`;
+                });
+                container.innerHTML = html;
+                if (                if (currentUserName === ADMIN_USERcurrentUserName === ADMIN_USERNAME) {
+                    document.querySelectorAllNAME) {
+                    document.querySelectorAll('.remark-save-event').('.remark-save-event').forEach(btn => {
+                       forEach(btn => {
+                        btn.onclick = async ( btn.onclick = async (e) => {
+                            ee) => {
                             e.stopPropagation();
-                            const id = btn.dataset.id;
-                            const newRemark = document.getElementById(`remark-${id}`).value.trim();
-                            await activityLogRef.child(id).update({ remark: newRemark });
-                            logActivity("admin_add_remark", `为活动记录 ${id} 添加备注`);
+                            const id.stopPropagation();
+                            const id = btn = btn.dataset.id;
+                            const new.dataset.id;
+                            const newRemark = document.getElementById(`Remark = document.getElementById(`remark-${id}`).remark-${id}`).value.trim();
+                            await activityvalue.trim();
+                            await activityLogRef.child(id).updateLogRef.child(id).update({ remark: newRemark });
+                            logActivity({ remark: newRemark });
+("admin_add_remark",                            logActivity("admin `为活动记录 ${id_add_remark", `为活动记录 ${id} 添加备注`);
+                           } 添加备注`);
                             location.reload();
                         };
+ location.reload();
+                        };
+                    });
+                }
+            });
                     });
                 }
             });
         });
     }
-    activityLogRef.on('value', snap => {
-        let data = snap.val();
+    activity        });
+    }
+    activityLogLogRef.on('valueRef.on('value', snap => {
+       ', snap => {
+        let let data = snap.val();
         activityCache = {};
-        if(data) for(let [id, ev] of Object.entries(data)) { let date = ev.dateStr; if(!activityCache[date]) activityCache[date] = []; activityCache[date].push({...ev, id: id}); }
-        buildCalendar(currentCalendarYear, currentCalendarMonth);
+        if data = snap.val();
+        activityCache(data) for(let = {};
+        if(data) for(let [id, ev] of [id, ev] of Object.entries(data)) { Object.entries(data)) { let date = ev.date let date = ev.dateStr; if(!activityStr; if(!activityCache[date]) activityCacheCache[date]) activityCache[date] = [];[date] = []; activityCache[date].push activityCache[date].push({...ev,({...ev, id id: id}); }
+: id}); }
+        build        buildCalendar(currentCalendar(currentCalendarYear, currentCalendarCalendarYear, currentCalendarMonth);
     });
-    function changeMonth(delta) { let nm = currentCalendarMonth + delta, ny = currentCalendarYear; if(nm<0){ nm=11; ny--; } if(nm>11){ nm=0; ny++; } currentCalendarYear=ny; currentCalendarMonth=nm; buildCalendar(currentCalendarYear, currentCalendarMonth); }
-    function goToday() { let t=new Date(); currentCalendarYear=t.getFullYear(); currentCalendarMonth=t.getMonth(); buildCalendar(currentCalendarYear, currentCalendarMonth); }
-    document.getElementById('prevMonthBtn')?.addEventListener('click',()=>changeMonth(-1));
-    document.getElementById('nextMonthBtn')?.addEventListener('click',()=>changeMonth(1));
-    document.getElementById('todayBtn')?.addEventListener('click',goToday);
+    functionMonth);
+    });
+    function changeMonth(delta changeMonth(delta) { let nm =) { let nm = currentCalendarMonth + currentCalendarMonth + delta, ny = delta, ny = currentCalendar currentCalendarYear; if(nYear; if(nm<0){ nm=m<0){ nm=11; ny--; }11; ny--; } if(nm>11){ if(nm>11){ nm nm=0; ny++; } currentCalendarYear==0; ny++; } currentCalendarYear=ny; currentCalendarMonth=nmny; currentCalendarMonth=nm; buildCalendar(currentCalendarYear, currentCalendarMonth);; buildCalendar(currentCalendarYear, currentCalendar }
+    function goTodayMonth); }
+    function goToday() { let t() { let t=new Date(); current=new Date(); currentCalendarYear=t.getFullYearCalendarYear=t.getFullYear(); currentCalendarMonth=t.get(); currentCalendarMonth=t.getMonth(); buildCalendar(currentCalendarMonth(); buildCalendar(currentCalendarYear, currentCalendarMonth);Year, currentCalendarMonth); }
+    document.getElementById('prev }
+    document.getElementById('prevMonthBtn')?.addEventListener('click',()=>changeMonthBtn')?.addEventListener('Month(-1));
+    documentclick',()=>changeMonth(-1));
+    document.getElementById('nextMonthBtn').getElementById('nextMonthBtn')?.addEventListener('click?.addEventListener('click',',()=>changeMonth(1()=>changeMonth(1));
+    document.getElementById('today));
+    document.getElementById('todayBtn')?.addEventListener('Btn')?.addEventListener('clickclick',goToday);
 
-    function renderAssetBoard(scores) {
-        const container = document.getElementById('assetList');
+   ',goToday);
+
+    function renderAssetBoard function renderAssetBoard(scores(scores) {
+        const container) {
+        const container = document.getElementById('assetList = document.getElementById('assetList');
+        if (!container)');
         if (!container) return;
-        if (!scores || Object.keys(scores).length === 0) { container.innerHTML = '<div>暂无用户数据，请先进行抽奖</div>'; return; }
+        if (!s return;
+        if (!scores || Object.keys(scorescores || Object.keys(scores).length === 0)).length === 0) { container.innerHTML = '<div>暂无用户 { container.innerHTML = '<div>暂无用户数据数据，请先进行，请先进行抽奖</div>';抽奖</div>'; return; }
+        let html return; }
         let html = '';
-        for (const [user, asset] of Object.entries(scores)) {
-            let assetNum = (typeof asset === 'number') ? asset : 100.0;
-            const delBtn = (currentUserName === ADMIN_USERNAME) ? `<button class="delete-user-btn" data-user="${escapeHtml(user)}">🗑️ 删除用户</button>` : '';
-            html += `<div class="asset-item"><span class="asset-name clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}</span><span class="asset-amount">${assetNum.toFixed(2)} AUD</span>${delBtn}</div>`;
+        for (const = '';
+        for (const [user, asset [user, asset] of Object.entries(scores))] of Object.entries(s {
+            let assetNum = (typeofcores)) {
+            let assetNum = (typeof asset === 'number') ? asset : 100 asset === 'number') ? asset : 100.0;
+            const del.0;
+            const delBtn = (currentBtn = (currentUserName === ADMIN_USERNAME)UserName === ADMIN_USERNAME) ? `<button class="delete ? `<button class="delete-user-user-btn" data-user="${-btn" data-user="${escapeHtmlescapeHtml(user)}">(user)}">🗑️ 删除用户</🗑️ 删除用户</button>` :button>` : '';
+            html '';
+            html += `<div class="asset-item"><span class="asset += `<div class="asset-item"><span class="asset-name-name clickable-asset" data-user="${escape clickable-asset" data-user="${escapeHtml(user)}">${escapeHtml(user)}">${escapeHtml(user)}</spanHtml(user)}</span><span class="asset-amount><span class="asset-amount">">${assetNum.toFixed(2${assetNum.toFixed(2)})} AUD</span>${delBtn}</ AUD</span>${delBtn}</div>`;
         }
         container.innerHTML = html;
-        document.querySelectorAll('.clickable-asset').forEach(el => el.addEventListener('click', () => showUserAsset(el.dataset.user)));
-        if (currentUserName === ADMIN_USERNAME) {
-            document.querySelectorAll('.delete-user-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
+       div>`;
+        }
+        container.innerHTML = html;
+        document.querySelectorAll('.clickable document.querySelectorAll('.clickable-asset').forEach(el =>-asset').forEach(el => el.addEventListener('click', () el.addEventListener('click', () => showUserAsset => showUserAsset(el.dataset(el.dataset.user)));
+       .user)));
+        if (currentUserName if (currentUserName === ADMIN_USERNAME) {
+ === ADMIN_USERNAME) {
+            document.querySelectorAll('.delete-user-btn').forEach(btn            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener(' => {
+                btn.addEventListener('click', async (e)click', async (e) => {
+                    e.stopProp => {
                     e.stopPropagation();
-                    const userName = btn.dataset.user;
-                    if (confirm(`⚠️ 确定删除用户“${userName}”的所有数据吗？不可恢复！`)) {
+                    const userName =agation();
+                    const userName = btn.dataset.user btn.dataset.user;
+                   ;
+                    if (confirm(`⚠️ if (confirm(`⚠️ 确定删除用户“ 确定删除用户“${userName${userName}”的所有}”的所有数据吗？不可数据吗？不可恢复！`)) {
+                       恢复！`)) {
                         try {
-                            await userScoresRef.child(userName).remove();
-                            const histSnap = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value');
-                            histSnap.forEach(child => child.ref.remove());
+                            await userS try {
+                            await userScoresRef.child(userNamecoresRef.child(userName).remove();
+                            const histSn).remove();
+                            const histSnap = await scoreHistoryRefap = await scoreHistoryRef.order.orderByChild('ByChild('userName').equalTo(useruserName').equalTo(userName).once('valueName).once('value');
+                            histSnap.forEach');
+                            histSnap.forEach(child => child.ref(child => child.ref.remove());
+                            alert(`.remove());
                             alert(`已删除用户 “${userName}”`);
-                            logActivity("admin_delete_user", `删除用户 ${userName}`);
-                        } catch (err) { alert("删除失败: " + err.message); }
+已删除用户 “${userName}                            logActivity”`);
+                            logActivity("admin_delete_user", `("admin_delete_user", `删除用户 ${userName}`);
+删除用户 ${userName}`);
+                        } catch (err)                        } catch (err) { alert("删除失败 { alert("删除失败: " + err.message);: " + err.message); }
                     }
                 });
-            });
+ }
+                    }
+                });
+                       });
         }
     }
-    let currentModalListener = null;
+    });
+        }
+    }
+    let currentModalListener let currentModalListener = null;
     function showUserAsset(userName) {
-        const modal = document.getElementById('userAssetModal');
+ = null;
+    function showUserAsset(userName) {
+        const modal = document.getElementById        const modal = document.getElementById('userAssetModal');
+       ('userAssetModal');
         if (!modal) return;
-        document.getElementById('modalUserName').innerText = userName;
-        document.getElementById('modalAssetValue').innerText = '加载中...';
-        modal.style.display = 'block';
-        if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off();
-        currentModalListener = userScoresRef.child(userName).on('value', snap => {
+        document.getElementById if (!modal) return;
+('        document.getElementById('modalUserNamemodalUserName').innerText = userName;
+').innerText = userName;
+        document.getElementById('modalAssetValue').        document.getElementById('modalAssetinnerText = 'Value').innerText = '加载中...';
+        modal加载中...';
+        modal.style.display = 'block.style.display = 'block';
+        if (currentModal';
+        if (currentModalListener && typeof currentModalListener.off ===Listener && typeof currentModalListener.off 'function') currentModalListener.off === 'function') currentModalListener.();
+        currentModalListener =off();
+        currentModalListener = userScoresRef userScoresRef.child(userName).on('.child(userName).on('value', snap => {
             let val = snap.val();
-            document.getElementById('modalAssetValue').innerText = ((typeof val === 'number') ? val : 100).toFixed(2) + ' AUD';
+value', snap => {
+            let val = snap.val();
+            document.getElementById('modalAssetValue').            document.getElementById('modalAssetValue').innerText = ((typeof val === 'number')innerText = ((typeof val === 'number') ? val : 100). ? val : 100).toFixed(2) +toFixed(2) + ' AUD';
+        });
+    ' AUD';
         });
     }
-    window.closeModal = function() { if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off(); currentModalListener = null; document.getElementById('userAssetModal').style.display = 'none'; };
-    window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
+    window.closeModal = }
+    window.closeModal = function() { if (current function() { if (currentModalListener && typeof currentModalModalListener && typeof currentModalListener.off === 'functionListener.off === 'function') currentModalListener.off(); current') currentModalListener.offModalListener = null(); currentModalListener = null; document.getElementById('userAssetModal').style.display =; document.getElementById('userAssetModal').style.display = 'none'; 'none'; };
+    window };
+    window.onclick = function(event).onclick = function(event) { if (event.target === { if (event.target === document.getElementById('userAssetModal document.getElementById('userAssetModal')) closeModal(); };
+
+   ')) closeModal(); };
 
     // 音乐播放器
-    let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
+ // 音乐播放器
+    let current    let currentPlaylist = [], currentTrackIndex = Playlist = [], currentTrackIndex = 0, audioPlayer = new0, audioPlayer = new Audio();
+    let autoPlay Audio();
     let autoPlayAttempted = false;
 
-    function loadPlaylistFromDB() {
-        playlistRef.on('value', snap => {
+   Attempted = false;
+
+    function loadPlaylistFrom function loadPlaylistFromDB() {
+        playlistRefDB() {
+        playlistRef.on('value.on('value', snap =>', snap => {
+            const data {
             const data = snap.val();
-            currentPlaylist = [];
+ = snap.val();
+            current            currentPlaylist = [];
+            ifPlaylist = [];
             if (data) {
-                for (let [id, song] of Object.entries(data)) {
-                    currentPlaylist.push({ id, name: song.name, url: song.url });
+                for (data) {
+                for (let [id, song] of Object.entries(data (let [id, song] of Object.entries(data)) {
+                    currentPlaylist)) {
+                    currentPlaylist.push({ id, name.push({ id, name: song.name, url: song.url });
                 }
+           : song.name, url: song.url });
+                }
+            renderPlaylistUI }
             }
             renderPlaylistUI();
-            if (currentPlaylist.length > 0 && !audioPlayer.src) {
-                currentTrackIndex = 0;
+            if (currentPlaylist.length > 0();
+            if (currentPlay &&list.length > 0 && !audioPlayer.src) {
+ !audioPlayer.src) {
+                currentTrackIndex =                 currentTrackIndex = 0;
+                loadTrack(0;
                 loadTrack(0);
+                attemptAutoPlay0);
                 attemptAutoPlay();
+            } else if (currentPlaylist.length === ();
             } else if (currentPlaylist.length === 0) {
-                document.getElementById('musicInfo').innerText = '无音乐，管理员可添加歌曲链接';
+                document0) {
+                document.getElementById.getElementById('musicInfo').innerText('musicInfo').innerText = '无 = '无音乐，管理员可添加音乐，管理员可添加歌曲链接';
+            }
+       歌曲链接';
             }
         });
     }
 
     function attemptAutoPlay() {
-        if (!audioPlayer.src || autoPlayAttempted) return;
+        if });
+    }
+
+    function attempt (!audioPlayer.src ||AutoPlay() {
+        if (!audioPlayer.src autoPlayAttempted) return;
+        || autoPlayAttempted autoPlayAttempted) return;
         autoPlayAttempted = true;
-        const unlocked = localStorage.getItem('audio_unlocked') === 'true';
+        const unlocked = true;
+        const unlocked = localStorage.getItem('audio_unlocked = localStorage.getItem('audio')_unlocked') === 'true';
+        if (unlocked === 'true';
         if (unlocked) {
-            audioPlayer.play().then(() => updatePlayState('playing')).catch(() => waitForInteraction());
+            audioPlayer.play) {
+            audioPlayer.play().then(() => updatePlayState('playing')).catch().then(() => updatePlayState('playing')).catch(() => waitForInteraction(() => waitForInteraction());
         } else {
-            audioPlayer.play().then(() => {
+           ());
+        } else {
+            audioPlayer.play().then(() audioPlayer.play().then(() => {
+                localStorage.setItem => {
                 localStorage.setItem('audio_unlocked', 'true');
-                updatePlayState('playing');
+                updatePlay('audio_unlocked', 'true');
+                updatePlayStateState('playing');
+            }).catch('playing');
             }).catch(() => waitForInteraction());
+(() => waitForInteraction());
         }
+    }
+
+    function        }
     }
 
     function waitForInteraction() {
-        document.getElementById('playPauseBtn').innerText = '▶️';
-        document.getElementById('musicInfo').innerHTML = '🔊 轻点页面任意处开始播放音乐';
-        document.addEventListener('click', unlockAudio, { once: true });
-        document.addEventListener('touchstart', unlockAudio, { once: true });
+        waitForInteraction() {
+        document.getElementById('playPauseBtn').inner document.getElementById('playPauseText = '▶️';
+        document.getElementByIdBtn').innerText = '('musicInfo').innerHTML▶️';
+        document.getElementById('musicInfo').innerHTML = '🔊 = '🔊 轻点页面任意处 轻点页面任意处开始播放音乐';
+        document开始播放音乐';
+        document.addEventListener('click', unlock.addEventListener('click', unlockAudio, { once: trueAudio, { once: true });
+        document.addEventListener('touch });
+        document.addEventListener('touchstart', unlockAudio, {start', unlockAudio, { once: true });
     }
 
-    function unlockAudio() {
-        audioPlayer.play().then(() => {
-            localStorage.setItem('audio_unlocked', 'true');
-            updatePlayState('playing');
-        }).catch(() => {});
+ once: true });
     }
+
+    function    function unlockAudio() {
+ unlockAudio() {
+        audioPlayer.play().then(() => {
+            localStorage.set        audioPlayer.play().thenItem('audio_unlocked',(() => {
+            localStorage.setItem('audio_unlocked', 'true');
+            updatePlay 'true');
+            updatePlayState('playing');
+        }).State('playing');
+        }).catch(() => {});
+   catch(() => {});
+    }
+
+    function updatePlayState }
 
     function updatePlayState(state) {
+        if ((state) {
         if (state === 'playing') {
-            document.getElementById('playPauseBtn').innerText = '⏸️';
-            document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(currentPlaylist[currentTrackIndex]?.name || '')}`;
+            document.getElementById('playstate === 'playing') {
+            document.getElementById('playPPauseBtn').innerText =auseBtn').innerText = '⏸️';
+ '⏸️';
+            document.getElementById('musicInfo            document.getElementById('musicInfo').innerHTML = `').innerHTML = `🎵 ${escapeHtml(currentPlaylist🎵 ${escapeHtml(currentPlaylist[currentTrackIndex[currentTrackIndex]?.name ||]?.name || '') '')}`;
+        }}`;
         } else {
-            document.getElementById('playPauseBtn').innerText = '▶️';
+            document.getElementById(' else {
+            document.getElementById('playPauseBtn').innerplayPauseBtn').innerText = '▶️';
+Text = '▶️';
         }
+    }
+
+    function        }
     }
 
     function renderPlaylistUI() {
+        const container = renderPlaylistUI document.getElementById('playlistContainer() {
         const container = document.getElementById('playlistContainer');
-        if (!container) return;
-        if (currentPlaylist.length === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#aaa;">暂无歌曲，管理员可添加歌曲链接</div>';
+');
+        if (!container)        if (!container) return;
+        if return;
+        if (current (currentPlaylist.length === 0Playlist.length === 0) {
+            container.innerHTML =) {
+            container.innerHTML = '<div style="text-align '<div style="text-align:center; color:#aaa:center; color:#aaa;">暂无歌曲，管理员可添加歌曲;">暂无歌曲，链接</div>';
+            return管理员可添加歌曲;
+        }
+        let html链接</div>';
             return;
         }
         let html = '';
-        currentPlaylist.forEach((song, idx) => {
-            html += `<div class="playlist-item">
-                <span class="playlist-name" data-index="${idx}" style="cursor:pointer; flex:1;">${escapeHtml(song.name)}</span>
-                ${currentUserName === ADMIN_USERNAME ? `<button class="playlist-delete" data-id="${song.id}" style="background:#882d2d; border:none; border-radius:20px; padding:2px 8px;">🗑️</button>` : ''}
+ = '';
+        currentPlaylist        currentPlaylist.forEach((song, idx.forEach((song, idx) => {
+            html +=) => {
+            html += `<div class="playlist `<div class="playlist-item">
+                <span class="playlist-name" data-item">
+                <span class-index="${idx}" style="="playlist-name" data-index="${idx}" style="cursor:pointer; flex:cursor:pointer; flex:1;">${escapeHtml(song1;">${escapeHtml(s.name)}</span>
+                ${currentong.name)}</span>
+UserName === ADMIN_USERNAME ?                ${currentUserName === ADMIN_USERNAME ? `<button class="play `<button class="playlist-delist-deletelete" data-id="${song.id}" style="" data-id="${song.id}" style="background:#882d2background:#882d2d; border:none;d; border:none; border-radius:20px; border-radius:20px; padding:2px 8px;">🗑️ padding:2px 8</button>` : ''}
+px;">🗑️</button>` :            </div>`;
+        ''}
             </div>`;
         });
+        container.innerHTML });
         container.innerHTML = html;
 
-        document.querySelectorAll('.playlist-name').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const idx = parseInt(el.dataset.index);
-                if (!isNaN(idx) && idx !== currentTrackIndex) {
+        document.querySelectorAll('. = html;
+
+        document.querySelectorAll('.playlist-name').forEach(elplaylist-name').forEach(el => {
+            el.addEventListener(' => {
+            el.addEventListener('click', (e) =>click', (e) => {
+                const idx = parseInt {
+                const idx = parseInt(el(el.dataset.index);
+               .dataset.index);
+                if (!is if (!isNaN(idx) && idx !== currentTrackNaN(idx) && idx !== currentTrackIndex) {
+                    currentTrackIndex) {
                     currentTrackIndex = idx;
+                    loadIndex = idx;
                     loadTrack(currentTrackIndex);
-                    audioPlayer.play().then(() => updatePlayState('playing')).catch(() => {});
-                } else if (!isNaN(idx)) {
-                    playPauseMusic();
+                   Track(currentTrackIndex);
+                    audioPlayer.play().then audioPlayer.play().then(() => updatePlayState(() => updatePlayState('playing')).catch(() =>('playing')).catch(() => {});
+ {});
+                } else if (!isNaN                } else if (!isNaN(idx)) {
+(idx)) {
+                    playPauseMusic                    playPauseMusic();
+                }
+            });
+       ();
                 }
             });
         });
 
+        if (currentUserName });
+
         if (currentUserName === ADMIN_USERNAME) {
-            document.querySelectorAll('.playlist-delete').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
+            document.querySelectorAll('.play === ADMIN_USERNAME) {
+            document.querySelectorAll('.playlist-delete').forEach(list-delete').forEach(btn => {
+                btn.addEventListenerbtn => {
+                btn.addEventListener('click', async (e) =>('click', async (e {
                     e.stopPropagation();
+                    const) => {
+                    e.stop id = btn.dataset.id;
+Propagation();
                     const id = btn.dataset.id;
-                    const song = currentPlaylist.find(s => s.id === id);
-                    if (song && confirm(`删除歌曲 "${song.name}"？`)) {
-                        await playlistRef.child(id).remove();
-                        logActivity("admin_delete_music", `删除歌曲 ${song.name}`);
+                    const song = current                    const song = currentPlaylist.find(s => sPlaylist.find(s => s.id === id);
+                    if.id === id);
+                    if (song && confirm(` (song && confirm(`删除歌曲 "${song.name}"删除歌曲 "${song.name}"？`)) {
+                        await？`)) {
+                        await playlistRef.child playlistRef.child(id).remove();
+                        logActivity("admin_delete(id).remove();
+                        logActivity("admin_music", `删除歌曲_delete_music", `删除 ${song.name}`);
+                   歌曲 ${song }
+                });
+            });
+        }
+.name}`);
                     }
                 });
             });
         }
     }
 
+    function loadTrack    }
+
     function loadTrack(index) {
+        if(index) {
         if (!currentPlaylist.length) return;
+        const (!currentPlaylist.length) song = return;
         const song = currentPlaylist[index];
+        currentPlaylist[index];
         audioPlayer.src = song.url;
+        audioPlayer.load audioPlayer.src = song.url();
+        document.getElementById('musicInfo;
         audioPlayer.load();
-        document.getElementById('musicInfo').innerHTML = `🎵 ${escapeHtml(song.name)}`;
+        document.getElementById('musicInfo').innerHTML').innerHTML = ` = `🎵 ${escapeHtml(song🎵 ${escapeHtml(song.name)}`;
     }
 
-    function playPauseMusic() {
+   .name)}`;
+    }
+
+    function playPauseMusic function playPauseMusic() {
+        if (audio() {
         if (audioPlayer.paused) {
-            audioPlayer.play().then(() => updatePlayState('playing')).catch(() => waitForInteraction());
+            audioPlayer.paused) {
+            audioPlayer.play().then(() => updatePlayState('playing')).catchPlayer.play().then(() => updatePlayState('playing')).catch(()(() => waitForInteraction => waitForInteraction());
+());
+        } else {
         } else {
             audioPlayer.pause();
             updatePlayState('paused');
         }
     }
 
+               audioPlayer.pause();
+            updatePlayState('paused');
+        }
+    }
+
     function nextTrack() {
+        function nextTrack() {
         if (!currentPlaylist.length) return;
-        currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+ if (!currentPlaylist.length) return;
+        currentTrackIndex = (currentTrackIndex        currentTrackIndex = (current + 1) % currentTrackIndex + 1) % currentPlaylist.length;
+        loadPlaylist.length;
         loadTrack(currentTrackIndex);
-        audioPlayer.play().then(() => updatePlayState('playing')).catch(() => {});
+       Track(currentTrackIndex);
+        audioPlayer.play().then(() audioPlayer.play().then(() => updatePlay => updatePlayState('playingState('playing')).catch(() => {});
+')).catch(() => {});
+    }
+
     }
 
     function prevTrack() {
+        if (!current    function prevTrack() {
         if (!currentPlaylist.length) return;
-        currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+Playlist.length) return;
+        currentTrackIndex = (        currentTrackIndex = (currentTrackIndex - 1currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+ + currentPlaylist.length)        loadTrack(currentTrackIndex % currentPlaylist.length;
         loadTrack(currentTrackIndex);
-        audioPlayer.play().then(() => updatePlayState('playing')).catch(() => {});
+        audioPlayer.play().);
+        audioPlayer.play().then(() => updatePlayState('playing')).catch(() =>then(() => updatePlayState('playing')).catch(() => {});
+    {});
     }
 
+    async function addSongBy }
+
     async function addSongByUrl() {
-        if (currentUserName !== ADMIN_USERNAME) return;
-        const name = document.getElementById('manualSongName').value.trim();
-        let url = document.getElementById('manualSongUrl').value.trim();
-        if (!name || !url) return alert("请输入名称和链接");
-        if (!url.startsWith('http')) return alert("链接需以http开头");
-        await playlistRef.push({ name: name, url: url, timestamp: Date.now() });
-        alert(`已添加歌曲：${name}`);
-        logActivity("admin_add_song_by_url", `添加歌曲 ${name}`);
-        document.getElementById('manualSongName').value = '';
+        if (Url() {
+        if (currentUserName !== ADMIN_USERcurrentUserName !== ADMIN_USERNAME) return;
+        constNAME) return;
+        const name = document.getElementById('manual name = document.getElementById('manualSongName').value.trim();
+SongName').value.trim();
+        let url = document.getElementById        let url = document.getElementById('manualSongUrl').('manualSongUrl').value.trimvalue.trim();
+        if (!name();
+        if (!name || !url) || !url) return alert return alert("请输入名称和链接");
+        if (!url("请输入名称和链接.startsWith('http')) return");
+        if (!url alert("链接需以http开头");
+        await.startsWith('http')) return alert("链接需以http开头");
+        await playlistRef.push({ name: playlistRef.push({ name: name, url: url, name, url: url, timestamp: Date.now() });
+ timestamp: Date.now() });
+               alert(`已添加歌曲：${name}`);
+        logActivity("admin alert(`已添加歌曲：${name}`);
+_add_song_by_url        logActivity("admin_add_song_by", `添加歌曲 ${_url", `添加歌曲 ${name}`);
+        document.getElementById('name}`);
+        document.getElementById('manualSongName').value =manualSongName').value = '';
+        document.getElementById('manual '';
         document.getElementById('manualSongUrl').value = '';
+SongUrl').value = '';
     }
 
     function initMusicPlayer() {
-        document.getElementById('playPauseBtn')?.addEventListener('click', playPauseMusic);
-        document.getElementById('nextBtn')?.addEventListener('click', nextTrack);
-        document.getElementById('prevBtn')?.addEventListener('click', prevTrack);
-        document.getElementById('volumeSlider')?.addEventListener('input', e => audioPlayer.volume = parseFloat(e.target.value));
-        document.getElementById('addSongByUrlBtn')?.addEventListener('click', addSongByUrl);
-        document.getElementById('musicToggle')?.addEventListener('click', () => {
-            document.getElementById('musicPanel').classList.toggle('show');
+        document.getElementById('playP    }
+
+    function initMusicPlayer() {
+        document.getElementById('playPauseBtn')auseBtn')?.addEventListener('click',?.addEventListener('click', playPauseMusic);
+        playPauseMusic);
+        document.getElementById('nextBtn') document.getElementById('nextBtn')?.addEventListener('click',?.addEventListener('click', nextTrack);
+        document.getElementById nextTrack);
+        document.getElementById('('prevBtn')?.addEventListener('click',prevBtn')?.addEventListener(' prevTrackclick', prevTrack);
+        document.getElementById(');
+        document.getElementById('volumeSlider')?.addEventListener('volumeSlider')?.addEventListener('input', e => audioinput', e => audioPlayer.volume = parseFloatPlayer.volume = parseFloat(e.target.value));
+        document.getElementById('add(e.target.value));
+        document.getElementById('addSongSongByUrlBtn')?.addEventListener('ByUrlBtn')?.addEventListener('click', addSongByUrlclick', addSongByUrl);
+        document.getElementById('music);
+        document.getElementById('musicToggle')?.addEventListener('Toggle')?.addEventListener('click', () => {
+           click', () => {
+            document.getElementById('musicPanel').classList.toggle document.getElementById('musicPanel').classList.toggle('show('show');
         });
-        audioPlayer.addEventListener('ended', nextTrack);
-        audioPlayer.volume = 0.5;
-        loadPlaylistFromDB();
+        audioPlayer.addEventListener('ended',');
+        });
+        audioPlayer nextTrack);
+.addEventListener('ended', nextTrack);
+        audioPlayer.volume        audioPlayer.volume = 0.5;
+ = 0.5;
+        loadPlaylistFromDB        loadPlaylistFromDB();
     }
 
-    let currentUserScoreListener=null;
-    function subscribeToCurrentUserScore() { if(currentUserScoreListener && typeof currentUserScoreListener.off==='function') currentUserScoreListener.off(); if(currentUserName) { currentUserScoreListener = userScoresRef.child(currentUserName).on('value', snap=>{ let val=snap.val(); document.getElementById('currentScoreDisplay').innerText=(typeof val==='number'?val:100).toFixed(2); }); } else document.getElementById('currentScoreDisplay').innerText='--'; }
+    let current();
+    }
+
+    let currentUserScoreListenerUserScoreListener=null;
+    function subscribe=null;
+    function subscribeToCurrentUserScore() { ifToCurrentUserScore() { if(currentUserScoreListener(currentUserScoreListener && && typeof currentUserScoreListener typeof currentUserScoreListener.off==='function') currentUserScoreListener.off.off==='function') currentUserScoreListener.off(); if(currentUserName(); if(currentUserName) { currentUserScore) { currentUserScoreListener = userSListener = userScoresRef.child(currentUserName).coresRef.child(currentUserName).on('value', snap=>on('value', snap=>{ let val=snap.val();{ let val=snap.val(); document.getElementById(' document.getElementById('currentScoreDisplay').innercurrentScoreDisplay').innerTextText=(typeof=(typeof val== val==='number'?val:='number'?val:100).toFixed(2100).toFixed(2); }); } else); }); } else document.getElementById('currentScoreDisplay').innerText='-- document.getElementById('currentScoreDisplay').innerText='--'; }
+
+    function formatUserName'; }
 
     function formatUserName(rawName) {
-        if (!rawName) return rawName;
-        return rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+        if(rawName) {
+        if (!rawName) return raw (!rawName) return rawName;
+        return rawNameName;
+        return rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+   ();
     }
 
     function setUsername(){
-        let rawName = document.getElementById('usernameInput').value.trim();
+        let rawName = document }
+
+    function setUsername(){
+        let rawName = document.getElementById('usernameInput').value.getElementById('usernameInput').value.trim();
+        if(!.trim();
         if(!rawName) return;
-        let formattedName = formatUserName(rawName);
-        currentUserName = formattedName;
-        localStorage.setItem("wheelUserName", formattedName);
-        document.getElementById('usernameInput').value = formattedName;
-        document.getElementById('currentUserDisplay').innerHTML = `✅ ${escapeHtml(formattedName)}${formattedName===ADMIN_USERNAME?' (管理员)':''}`;
-        updateAdminUI();
+        letrawName) return;
+        formattedName = formatUserName let formattedName = formatUserName(rawName);
+        currentUserName(rawName);
+        currentUserName = = formattedName;
+        localStorage formattedName;
+        localStorage.setItem(".setItem("wheelwheelUserName", formattedName);
+       UserName", formattedName);
+        document.getElementById('usernameInput').value document.getElementById('usernameInput'). =value = formattedName;
+        formattedName;
+        document.getElementById('currentUserDisplay document.getElementById('currentUserDisplay').innerHTML =').innerHTML = `✅ ${escapeHtml(form `✅ ${escapeHtml(formattedName)}${formattedattedName)}${formattedName===ADMIN_USERName===ADMIN_USERNAME?'NAME?' (管理员 (管理员)':'')':''}`;
+       }`;
+        updateAdmin updateAdminUI();
+        subscribeToCurrentUserScoreUI();
         subscribeToCurrentUserScore();
+        renderAll();
         renderAllQuestions();
+        updateQuizQuestions();
         updateQuizStatsAndHistory();
-        updateQATabRedDot();
+        updateStatsAndHistory();
+        updateQATabRedQATabRedDot();
+        updateMessageTabDot();
         updateMessageTabRedDot();
         renderPlaylistUI();
-        updateAllUsersQuizStats();
+       RedDot();
+        renderPlay updateAllUsersQuizStats();
+    }
+
+listUI();
+        updateAll    function loadUserName(){
+       UsersQuizStats();
     }
 
     function loadUserName(){
-        let saved = localStorage.getItem("wheelUserName");
+        let saved = localStorage.getItem(" let saved = localStorage.getItem("wheelUserName");
         if(saved){
-            currentUserName = saved;
+            currentwheelUserName");
+        if(savedUserName = saved;
+            document.getElementById('){
+            currentUserName = savedusernameInput').value = saved;
+;
             document.getElementById('usernameInput').value = saved;
-            document.getElementById('currentUserDisplay').innerHTML = `✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)':''}`;
+            document.getElementById('currentUser            document.getElementById('currentUserDisplay').innerHTML = `Display').innerHTML = `✅ ${escapeHtml(saved)}✅ ${escapeHtml(saved)}${saved===ADMIN_USERNAME?' (管理员)${saved===ADMIN':''}`;
+            update_USERNAME?' (管理员)':''}`;
             updateAdminUI();
+            subscribeToAdminUI();
             subscribeToCurrentUserScore();
+            renderAllQuestionsCurrentUserScore();
             renderAllQuestions();
+();
             updateQuizStatsAndHistory();
+            update            updateQuizStatsAndHistory();
             updateQATabRedDot();
-            updateMessageTabRedDot();
+QATabRedDot();
+            updateMessageTabRedDot            updateMessageTabRedDot();
+            updateAllUsersQuiz();
             updateAllUsersQuizStats();
         } else {
+Stats();
+        } else {
             updateAdminUI();
-            document.getElementById('currentScoreDisplay').innerText = '--';
+                       updateAdminUI();
+            document.getElementById('currentScoreDisplay document.getElementById('currentScoreDisplay').innerText = '--';
+            renderAllQuestions();
+').innerText = '--';
             renderAllQuestions();
         }
     }
 
-    function switchTab(tabId){
+           }
+    }
+
+    function function switchTab(tabId switchTab(tabId){
+        document.querySelectorAll('.tab-content').forEach(t=>){
         document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-        document.getElementById(tabId+'Tab').classList.add('active');
-        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-        document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-        if(tabId==='calendar') buildCalendar(currentCalendarYear,currentCalendarMonth);
-        if(tabId==='qa') { renderAllQuestions(); if(currentUserName===ADMIN_USERNAME) renderAdminReviewPanel(); updateQuizStatsAndHistory(); updateAllUsersQuizStats(); }
-        if(tabId==='message') {
-            setLastMessageReadTime();
+t.classList.remove('active'));
+        document.getElementById(tabId+'Tab').classList.add        document.getElementById(tabId('active');
+        document.querySelector+'Tab').classList.add('active');
+        document.querySelectorAllAll('.tab-btn').forEach('.tab-btn').forEach(b=>b.classList(b=>b.classList.remove('.remove('active'));
+        document.querySelector(`active'));
+        document.querySelector(`.tab-btn[data-t.tab-btn[data-tab="${tabId}"]ab="${tabId}"]`).classList.add('`).classList.add('active');
+        if(tabactive');
+        if(tabId==='calendar') buildId==='calendar') buildCalendar(currentCalendarCalendar(currentCalendarYear,currentCalendarMonth);
+        ifYear,currentCalendarMonth);
+        if(tabId==='qa') { render(tabId==='qa') { renderAllQuestions(); if(currentAllQuestions(); if(currentUserName===ADMIN_USERNAMEUserName===ADMIN_USERNAME) renderAdminReviewPanel();) renderAdminReviewPanel(); updateQuizStatsAnd updateQuizStatsAndHistory(); updateAllUsersHistory(); updateAllUsersQuizStats(); }
+       QuizStats(); }
+        if if(tabId==='message(tabId==='message') {
+            setLastMessage') {
+            setLastMessageReadTimeReadTime();
+            updateMessage();
             updateMessageTabRedDot();
         }
+TabRedDot();
+        }
     }
-    document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
+    document.querySelector    }
+    document.querySelectorAll('.tab-btn').forEachAll('.tab-btn').forEach(btn=>btn(btn=>btn.addEventListener('click',()=>switchTab.addEventListener('click',()=>switchTab(btn.dataset.tab(btn.dataset.tab)));
 
-    userScoresRef.on('value', (snap) => { renderAssetBoard(snap.val()); });
+    userScoresRef)));
+
+    userS.on('value', (coresRef.on('value', (snap) => { rendersnap) => { renderAssetBoard(snap.val());AssetBoard(snap.val()); });
+
+    window.on });
 
     window.onload = () => {
-        canvas = document.getElementById('wheelCanvas'); ctx = canvas.getContext('2d');
-        loadUserName(); drawWheel(); window.addEventListener('resize',()=>drawWheel());
+       load = () => {
+        canvas = document.getElementById('wheel canvas = document.getElementById('wheelCanvas'); ctx = canvas.getCanvas'); ctx = canvas.getContext('2d');
+        loadContext('2d');
+       UserName loadUserName(); drawW(); drawWheel(); window.addEventListener('resheel(); window.addEventListener('resize',()=>drawWize',()=>drawWheel());
+        document.getElementById('spinButton').onheel());
         document.getElementById('spinButton').onclick = startSpin;
-        document.getElementById('setUserBtn').onclick = setUsername;
-        document.getElementById('addPrizeBtn').onclick = addPrize;
-        document.getElementById('addGiftBtn').onclick = addGift;
-        document.getElementById('manualAddBtn').onclick = adminManualAdd;
-        document.getElementById('clearHistoryBtn').onclick = adminClearHistory;
+       click = startSpin;
+        document.getElementById(' document.getElementById('setUserBtn').onclick = setUsername;
+setUserBtn').onclick = setUsername        document.getElementById('add;
+        document.getElementById('addPrizeBtn').onclickPrizeBtn').onclick = addPrize;
+        = addPrize;
+        document.getElementById('addGift document.getElementById('addGiftBtn').onclick = addBtn').onclick = addGift;
+        document.getElementById('Gift;
+        document.getElementById('manualAddBtn').onmanualAddBtn').onclick =click = adminManualAdd;
+ adminManualAdd;
+        document.getElementById('clear        document.getElementById('clearHistoryHistoryBtn').onclick = adminBtn').onclick = adminClearHistory;
+        document.getElementByIdClearHistory;
         document.getElementById('resetAssetBtn').onclick = resetUserAsset;
+('resetAssetBtn').onclick = resetUserAsset;
+        populatePercentSelect();
         populatePercentSelect();
         initMusicPlayer();
+               initMusicPlayer();
         renderMessages();
-        let now = new Date();
-        currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
-        buildCalendar(currentCalendarYear, currentCalendarMonth);
-        document.getElementById('syncStatus').innerHTML = "🌹❀希望你每天都能开开心心的度过❀🌹";
-        updateQATabRedDot();
+        let now renderMessages();
+        let now = new Date = new Date();
+        current();
+        currentCalendarYear = now.getFullCalendarYear = now.getFullYear(); currentYear(); currentCalendarMonth = now.getMonthCalendarMonth = now.getMonth();
+        build();
+        buildCalendar(currentCalendarYear,Calendar(currentCalendarYear, currentCalendarMonth);
+        document currentCalendarMonth);
+        document.getElementById('syncStatus').inner.getElementById('syncStatus').innerHTML = "🌹❀希望你每天都能开开心心的度过HTML = "🌹❀希望你每天都能开开心心的度过❀🌹❀🌹";
+        updateQ";
+        updateQATabRedDotATabRedDot();
+        updateMessageTab();
         updateMessageTabRedDot();
-        updateAllUsersQuizStats();
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
+        updateAllUsersQuizRedDot();
+        updateAllStats();
+        canvas.addEventListenerUsersQuizStats();
+        canvas.addEventListener('('touchstart', (e) => { e.preventDefault(); },touchstart', (e) => { e.preventDefault(); }, { passive: false });
+    { passive: false });
     };
+</script>
+</body };
 </script>
 </body>
 </html>
