@@ -41,6 +41,8 @@
             overflow: hidden; 
             transition: max-height 0.3s ease;
             word-break: break-word;
+            color: #bbccdd;
+            margin-top: 4px;
         }
         .remark-text-wrapper.expanded { 
             max-height: none; 
@@ -142,7 +144,6 @@
         .draft-badge { background: #aa6f20; border-radius: 20px; padding: 2px 8px; font-size: 0.7rem; margin-left: 8px; }
         .delete-user-btn { background: #882d2d; border: none; border-radius: 30px; padding: 2px 8px; margin-left: 8px; font-size: 0.7rem; cursor: pointer; color: white; }
         .delete-user-btn:hover { background: #b33a3a; }
-        /* 留言板独立页面样式 */
         .message-board-page { background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
         .message-list { max-height: 500px; overflow-y: auto; background: #0f1a1f; border-radius: 20px; padding: 10px; margin-bottom: 12px; }
         .message-item { background: #1e2a32; border-radius: 20px; padding: 8px 12px; margin-bottom: 6px; border-left: 3px solid #ffb347; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -174,7 +175,6 @@
         <button class="tab-btn" data-tab="message">📬 留言板</button>
     </div>
 
-    <!-- 转盘游戏界面 -->
     <div id="wheelTab" class="tab-content active">
         <div class="dashboard">
             <div class="wheel-card"><div style="text-align: center;"><canvas id="wheelCanvas" width="600" height="600"></canvas><div><button class="spin-btn" id="spinButton">🎡 旋转转盘 🎡</button></div></div><div class="prize-edit admin-only"><h4>🎁 编辑奖项 (管理员)</h4><div class="prize-list" id="prizeListContainer"></div><div class="add-prize"><input type="text" id="newPrizeInput" placeholder="例如 30%"><button id="addPrizeBtn">➕ 添加</button></div><small>修改后所有人同步</small></div></div>
@@ -183,7 +183,6 @@
         </div>
     </div>
 
-    <!-- 问答互动界面 -->
     <div id="qaTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📝 每日问答 <span style="font-size:0.7rem;">✨ 参与回答，赢取幸运</span></h3>
@@ -209,7 +208,6 @@
         </div>
     </div>
 
-    <!-- 日历界面 -->
     <div id="calendarTab" class="tab-content">
         <div style="background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px;">
             <h3>📆 活动日历</h3>
@@ -219,7 +217,6 @@
         </div>
     </div>
 
-    <!-- 留言板独立页面 -->
     <div id="messageTab" class="tab-content">
         <div class="message-board-page">
             <h3>📬 留言板 <span style="font-size:0.7rem;">（管理员可删除留言）</span></h3>
@@ -817,7 +814,7 @@
         if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
     }
 
-    // ========== 留言板红点功能 ==========
+    // 留言板红点
     function getLastMessageReadTime() {
         if (!currentUserName) return 0;
         const stored = localStorage.getItem('lastMessageReadTime_' + currentUserName);
@@ -853,9 +850,7 @@
         });
     }
 
-    messagesRef.on('value', () => {
-        updateMessageTabRedDot();
-    });
+    messagesRef.on('value', () => { updateMessageTabRedDot(); });
 
     function renderMessages() {
         messagesRef.orderByChild('timestamp').on('value', snap => {
@@ -1053,7 +1048,7 @@
     window.closeModal = function() { if (currentModalListener && typeof currentModalListener.off === 'function') currentModalListener.off(); currentModalListener = null; document.getElementById('userAssetModal').style.display = 'none'; };
     window.onclick = function(event) { if (event.target === document.getElementById('userAssetModal')) closeModal(); };
 
-    // ========== 音乐播放器 ==========
+    // 音乐播放器
     let currentPlaylist = [], currentTrackIndex = 0, audioPlayer = new Audio();
     let autoPlayAttempted = false;
 
