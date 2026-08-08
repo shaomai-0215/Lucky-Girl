@@ -43,7 +43,6 @@
             word-break: break-word;
             color: #bbccdd;
             margin-top: 4px;
-            cursor: default;
         }
         .remark-text-wrapper.expanded { 
             max-height: none; 
@@ -282,7 +281,7 @@
     const activityLogRef = db.ref('activityLog');
     const playlistRef = db.ref('playlist');
     const messagesRef = db.ref('messages');
-    const assetRemarksRef = db.ref('assetRemarks'); // 新增：用户资产备注
+    const assetRemarksRef = db.ref('assetRemarks');
 
     let segments = ["10%","0%","20%","30%","50%","100%"];
     let currentRotation = 0, isSpinning = false, animFrame = null, currentUserName = "";
@@ -819,7 +818,6 @@
         if(unansweredCount > 0) { const badge = document.createElement('span'); badge.className = 'red-dot-badge'; badge.textContent = unansweredCount > 9 ? '9+' : unansweredCount; qaTabBtn.appendChild(badge); }
     }
 
-    // 留言板红点
     function getLastMessageReadTime() {
         if (!currentUserName) return 0;
         const stored = localStorage.getItem('lastMessageReadTime_' + currentUserName);
@@ -1007,7 +1005,7 @@
     document.getElementById('nextMonthBtn')?.addEventListener('click',()=>changeMonth(1));
     document.getElementById('todayBtn')?.addEventListener('click',goToday);
 
-    // 资产实时看板（含备注）
+    // ========== 用户资产实时看板（含备注折叠/展开，管理员可编辑） ==========
     async function refreshAssetBoard() {
         const [scoresSnap, remarksSnap] = await Promise.all([
             userScoresRef.once('value'),
@@ -1028,10 +1026,23 @@
             const delBtn = (currentUserName === ADMIN_USERNAME) ? `<button class="delete-user-btn" data-user="${escapeHtml(user)}">🗑️ 删除用户</button>` : '';
             let remarkHtml = '';
             if (currentUserName === ADMIN_USERNAME) {
-                remarkHtml = `<div class="asset-remark-area">
-                    <input type="text" class="asset-remark-input" id="assetRemark-${escapeHtml(user)}" value="${escapeHtml(remark)}" placeholder="添加备注...">
-                    <button class="asset-remark-save" data-user="${escapeHtml(user)}">保存</button>
-                </div>`;
+                if (remark) {
+                    const remarkId = 'asset-remark-wrapper-' + escapeHtml(user);
+                    remarkHtml = `
+                        <div class="asset-remark-area">
+                            <div class="remark-text-wrapper" id="${remarkId}">📝 备注：${escapeHtml(remark)}</div>
+                            <span class="remark-text-toggle" data-target="${remarkId}">展开▼</span>
+                            <div class="admin-remark-edit" style="display:none;">
+                                <input type="text" class="asset-remark-input" id="assetRemark-${escapeHtml(user)}" value="${escapeHtml(remark)}" placeholder="修改备注...">
+                                <button class="asset-remark-save" data-user="${escapeHtml(user)}">保存</button>
+                            </div>
+                        </div>`;
+                } else {
+                    remarkHtml = `<div class="asset-remark-area">
+                        <input type="text" class="asset-remark-input" id="assetRemark-${escapeHtml(user)}" value="" placeholder="添加备注...">
+                        <button class="asset-remark-save" data-user="${escapeHtml(user)}">保存</button>
+                    </div>`;
+                }
             } else if (remark) {
                 const remarkId = 'asset-remark-wrapper-' + escapeHtml(user);
                 remarkHtml = `
@@ -1051,10 +1062,8 @@
         }
         container.innerHTML = html;
 
-        // 绑定点击查看资产
         document.querySelectorAll('.clickable-asset').forEach(el => el.addEventListener('click', () => showUserAsset(el.dataset.user)));
 
-        // 管理员删除用户
         if (currentUserName === ADMIN_USERNAME) {
             document.querySelectorAll('.delete-user-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
@@ -1065,7 +1074,7 @@
                             await userScoresRef.child(userName).remove();
                             const histSnap = await scoreHistoryRef.orderByChild('userName').equalTo(userName).once('value');
                             histSnap.forEach(child => child.ref.remove());
-                            await assetRemarksRef.child(userName).remove(); // 同时删除备注
+                            await assetRemarksRef.child(userName).remove();
                             alert(`已删除用户 “${userName}”`);
                             logActivity("admin_delete_user", `删除用户 ${userName}`);
                         } catch (err) { alert("删除失败: " + err.message); }
@@ -1074,7 +1083,6 @@
             });
         }
 
-        // 管理员保存备注
         document.querySelectorAll('.asset-remark-save').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const userName = btn.dataset.user;
@@ -1089,7 +1097,6 @@
             });
         });
 
-        // 非管理员备注展开/折叠
         document.querySelectorAll('.remark-text-toggle').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1104,11 +1111,17 @@
                     wrapper.classList.add('expanded');
                     toggle.textContent = '收起▲';
                 }
+                const remarkArea = toggle.closest('.asset-remark-area');
+                if (remarkArea) {
+                    const editArea = remarkArea.querySelector('.admin-remark-edit');
+                    if (editArea) {
+                        editArea.style.display = wrapper.classList.contains('expanded') ? 'block' : 'none';
+                    }
+                }
             });
         });
     }
 
-    // 监听数据变化
     userScoresRef.on('value', () => { refreshAssetBoard(); });
     assetRemarksRef.on('value', () => { refreshAssetBoard(); });
 
