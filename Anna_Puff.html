@@ -158,6 +158,23 @@
         .message-input-area { display: flex; gap: 8px; }
         .message-input { flex: 2; background: #2c3e2f; border: 1px solid #5f8b6f; margin: 0; }
         .send-message-btn { background: #2c6e4f; padding: 8px 20px; border-radius: 40px; }
+        /* ===== 🍜 今日美食吃什么？ ===== */
+        .food-dashboard { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+        .food-left { flex: 1.15; min-width: 320px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
+        .food-middle { flex: 1; min-width: 260px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; }
+        .food-right { flex: 1.3; min-width: 300px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .add-food-panel { background: #101e26; border-radius: 36px; padding: 12px 16px; margin-top: 20px; }
+        .food-count-label { color: #aaffdd; font-size: 0.8rem; }
+        .food-list { max-height: 420px; overflow-y: auto; background: #0f1a1f; border-radius: 28px; padding: 10px; }
+        .food-history { max-height: 420px; overflow-y: auto; background: #0f1a1f; border-radius: 28px; padding: 8px; font-size: 0.75rem; }
+        .food-item { display: flex; align-items: center; gap: 8px; background: #1e2a32; border-radius: 40px; padding: 6px 14px; margin-bottom: 8px; border-left: 4px solid #ffb347; }
+        .food-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .food-edit-btn, .food-del-btn, .food-save-btn, .food-cancel-btn { background: #2c4d3e; border: none; color: #ffd966; border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; cursor: pointer; }
+        .food-del-btn { background: #882d2d; color: white; }
+        .food-save-btn { background: #2c6e4f; color: white; }
+        .food-cancel-btn { background: #4a5560; color: white; }
+        .food-edit-input { flex: 1; margin-bottom: 0; padding: 6px 12px; }
+        .food-admin-panel { background: #101e26; border-radius: 36px; padding: 12px 16px; }
         @media (max-width: 768px) {
             body { padding: 12px; }
             .app-container { padding: 12px; }
@@ -167,6 +184,8 @@
             .wheel-card, .stats-card, .asset-card { padding: 12px; }
             .score-history { max-height: 250px; }
             .music-panel { width: 90vw; right: 5vw; bottom: 70px; }
+            .food-dashboard { flex-direction: column; }
+            .food-left, .food-middle, .food-right { width: 100%; min-width: 0; padding: 12px; }
         }
     </style>
 </head>
@@ -177,6 +196,7 @@
         <button class="tab-btn" data-tab="qa">❓ 问答互动</button>
         <button class="tab-btn" data-tab="calendar">📅 日历记录</button>
         <button class="tab-btn" data-tab="message">📬 留言板</button>
+        <button class="tab-btn" data-tab="food">🍜 美食转盘</button>
     </div>
 
     <div id="wheelTab" class="tab-content active">
@@ -228,6 +248,45 @@
             <div class="message-input-area">
                 <input type="text" id="messageInput" class="message-input" placeholder="输入留言...">
                 <button class="send-message-btn" id="sendMessageBtn">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="foodTab" class="tab-content">
+        <div class="food-dashboard">
+            <!-- 左：转盘 + 输入面板 -->
+            <div class="food-left">
+                <div style="text-align:center;">
+                    <canvas id="foodWheelCanvas" width="600" height="600"></canvas>
+                    <button class="spin-btn" id="foodSpinButton">🍜 旋转美食转盘 🍜</button>
+                </div>
+                <div class="add-food-panel">
+                    <h4>➕ 添加美食 <span class="food-count-label" id="foodCountLabel">(0 / 20)</span></h4>
+                    <div class="input-group">
+                        <input type="text" id="newFoodInput" placeholder="输入美食名称，如：火锅" maxlength="30">
+                        <button id="addFoodBtn">添加</button>
+                    </div>
+                    <small>最多可添加 20 个美食；所有用户都可添加 / 修改 / 删除美食</small>
+                </div>
+            </div>
+            <!-- 中：已输入的美食内容 -->
+            <div class="food-middle">
+                <h3>📋 已添加的美食</h3>
+                <div class="food-list" id="foodListContainer"><div style="text-align:center; padding:20px; color:#aaa;">加载中...</div></div>
+            </div>
+            <!-- 右：过往记录 · 备注 · 结果 -->
+            <div class="food-right">
+                <h3>📜 抽奖记录 · 备注</h3>
+                <div class="food-history" id="foodHistoryList"><div style="text-align:center; padding:20px; color:#aaa;">加载中...</div></div>
+                <div class="food-admin-panel admin-only">
+                    <h4>✍️ 管理员手动添加记录</h4>
+                    <div class="manual-form" style="flex-direction:column; align-items:stretch;">
+                        <input type="text" id="manualFoodUserName" placeholder="用户名" style="flex:1; margin-bottom:8px;">
+                        <input type="text" id="manualFoodName" placeholder="美食名称" style="flex:1; margin-bottom:8px;">
+                        <button id="manualFoodAddBtn" style="width:100%;">➕ 添加记录</button>
+                    </div>
+                    <button id="clearFoodHistoryBtn" class="clear-history-btn" style="width:100%; margin-top:8px;">🗑️ 清空所有记录</button>
+                </div>
             </div>
         </div>
     </div>
@@ -427,6 +486,255 @@
     function renderPrizeTags(){ let cont=document.getElementById('prizeListContainer'); if(!cont) return; let html=''; segments.forEach((seg,i)=>{ html+=`<div class="prize-tag">${escapeHtml(seg)} <span data-idx="${i}" class="del-prize">❌</span></div>`; }); cont.innerHTML=html; document.querySelectorAll('.del-prize').forEach(el=>{ el.onclick=()=>{ let idx=parseInt(el.dataset.idx); if(segments.length>1){ segments.splice(idx,1); segmentsRef.set(segments); logActivity("admin_edit_prize","删除奖项"); } else alert("至少保留一个"); }; }); }
     function addPrize(){ if(currentUserName!==ADMIN_USERNAME) return; let newName=document.getElementById('newPrizeInput').value.trim(); if(!newName) return; segments.push(newName); segmentsRef.set(segments); logActivity("admin_edit_prize",`添加奖项 ${newName}`); document.getElementById('newPrizeInput').value=""; }
     segmentsRef.on('value', snap=>{ let val=snap.val(); if(val&&val.length) segments=val; else segments=["10%","0%","20%","30%","50%","100%"]; drawWheel(); renderPrizeTags(); });
+
+    // ========== 🍜 美食转盘 ==========
+    const foodItemsRef = db.ref('foodWheelItems');
+    const foodHistoryRef = db.ref('foodWheelHistory');
+    const MAX_FOOD = 20;
+    let foodSegments = [];
+    let foodRotation = 0, foodIsSpinning = false, foodAnimFrame = null;
+    let foodCanvas, foodCtx;
+
+    function escapeAttr(str) { return escapeHtml(str).replace(/"/g, '&quot;'); }
+
+    function drawFoodWheel() {
+        if (!foodCtx || !foodCanvas) return;
+        const w = foodCanvas.clientWidth, h = foodCanvas.clientHeight;
+        if (w <= 0 || h <= 0) return;
+        const size = Math.min(w, h);
+        foodCanvas.width = foodCanvas.height = size;
+        const c = size / 2, r = size * 0.45;
+        foodCtx.clearRect(0, 0, size, size);
+        if (!foodSegments.length) {
+            foodCtx.beginPath(); foodCtx.arc(c, c, r, 0, Math.PI * 2); foodCtx.fillStyle = "#2a3e4f"; foodCtx.fill();
+            foodCtx.fillStyle = "#ffd966"; foodCtx.font = `bold ${Math.floor(r * 0.13)}px "Segoe UI"`;
+            foodCtx.textAlign = "center"; foodCtx.textBaseline = "middle";
+            foodCtx.fillText("请先添加美食", c, c);
+            return;
+        }
+        const step = Math.PI * 2 / foodSegments.length;
+        const fontPx = Math.floor(Math.min(r * 0.11, 1000 / foodSegments.length));
+        const maxChars = Math.max(2, Math.floor((r * 0.6) / (fontPx * 0.8)));
+        for (let i = 0; i < foodSegments.length; i++) {
+            const s = i * step + foodRotation, e = (i + 1) * step + foodRotation;
+            foodCtx.beginPath(); foodCtx.moveTo(c, c); foodCtx.arc(c, c, r, s, e);
+            foodCtx.fillStyle = colorPalette[i % colorPalette.length]; foodCtx.fill();
+            foodCtx.strokeStyle = "#fff"; foodCtx.lineWidth = 2; foodCtx.stroke();
+            const angle = s + step / 2;
+            const x = c + Math.cos(angle) * r * 0.68;
+            const y = c + Math.sin(angle) * r * 0.68;
+            let label = foodSegments[i] || '';
+            if (label.length > maxChars) label = label.slice(0, maxChars) + "…";
+            foodCtx.fillStyle = "#fff";
+            foodCtx.font = `bold ${fontPx}px "Segoe UI"`;
+            foodCtx.textAlign = "center"; foodCtx.textBaseline = "middle";
+            foodCtx.fillText(label, x, y);
+        }
+        foodCtx.beginPath(); foodCtx.moveTo(c - 14, c - r - 8); foodCtx.lineTo(c, c - r + 10); foodCtx.lineTo(c + 14, c - r - 8);
+        foodCtx.fillStyle = "#FFD966"; foodCtx.fill();
+    }
+
+    function getFoodPrizeIndex() {
+        const step = Math.PI * 2 / foodSegments.length, pointer = -Math.PI / 2, rot = foodRotation % (Math.PI * 2);
+        for (let i = 0; i < foodSegments.length; i++) {
+            const s = i * step + rot, e = (i + 1) * step + rot;
+            const ps = ((s % (Math.PI*2)) + Math.PI*2) % (Math.PI*2), pe = ((e % (Math.PI*2)) + Math.PI*2) % (Math.PI*2), p = (pointer + Math.PI*2) % (Math.PI*2);
+            if (ps < pe) { if (p >= ps && p < pe) return i; } else { if (p >= ps || p < pe) return i; }
+        }
+        return 0;
+    }
+
+    function startFoodSpin() {
+        if (foodIsSpinning) return;
+        if (!currentUserName) { alert("请先在上方「转盘游戏」页设置参与者姓名"); return; }
+        if (!foodSegments.length) { alert("请先添加美食"); return; }
+        foodIsSpinning = true;
+        const btn = document.getElementById('foodSpinButton');
+        btn.disabled = true;
+        const targetIdx = Math.floor(Math.random() * foodSegments.length);
+        const step = Math.PI * 2 / foodSegments.length;
+        const targetMid = targetIdx * step + step / 2;
+        const rawFinal = -Math.PI / 2 - targetMid, twoPi = Math.PI * 2;
+        const finalRot = ((rawFinal % twoPi) + twoPi) % twoPi + (Math.floor(Math.random() * 5) + 4) * twoPi;
+        const startRot = foodRotation, startTime = performance.now(), duration = 1200;
+        function animate(now) {
+            const t = Math.min(1, (now - startTime) / duration), ease = 1 - Math.pow(1 - t, 3);
+            foodRotation = startRot + (finalRot - startRot) * ease;
+            drawFoodWheel();
+            if (t < 1) { foodAnimFrame = requestAnimationFrame(animate); }
+            else {
+                foodRotation = finalRot % twoPi;
+                drawFoodWheel();
+                const prize = foodSegments[getFoodPrizeIndex()];
+                foodHistoryRef.push({
+                    userName: currentUserName,
+                    food: prize,
+                    timestamp: Date.now(),
+                    dateStr: new Date().toLocaleDateString('zh-CN'),
+                    timeStr: new Date().toLocaleTimeString('zh-CN')
+                }).then(() => {
+                    alert(`🍜 ${currentUserName} 抽中了：${prize}`);
+                    logActivity("food_spin", `美食转盘抽中 ${prize}`);
+                }).catch(err => { alert("保存记录失败：" + err.message); });
+                foodIsSpinning = false;
+                btn.disabled = false;
+            }
+        }
+        if (foodAnimFrame) cancelAnimationFrame(foodAnimFrame);
+        foodAnimFrame = requestAnimationFrame(animate);
+    }
+
+    function renderFoodList() {
+        const cont = document.getElementById('foodListContainer');
+        if (!cont) return;
+        const countLabel = document.getElementById('foodCountLabel');
+        if (countLabel) countLabel.textContent = `(${foodSegments.length} / 20)`;
+        if (!foodSegments.length) { cont.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">暂无美食，请在左侧添加</div>'; return; }
+        let html = '';
+        foodSegments.forEach((name, i) => {
+            html += `<div class="food-item" data-idx="${i}">
+                <span class="food-name">${escapeHtml(name)}</span>
+                <button class="food-edit-btn" data-idx="${i}">✏️</button>
+                <button class="food-del-btn" data-idx="${i}">❌</button>
+            </div>`;
+        });
+        cont.innerHTML = html;
+        cont.querySelectorAll('.food-edit-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.idx);
+                const row = btn.closest('.food-item');
+                row.innerHTML = `<input type="text" class="food-edit-input" value="${escapeAttr(foodSegments[idx])}" maxlength="30"><button class="food-save-btn" data-idx="${idx}">保存</button><button class="food-cancel-btn">取消</button>`;
+                const input = row.querySelector('.food-edit-input');
+                if (input) { input.focus(); input.select(); }
+            };
+        });
+        cont.querySelectorAll('.food-del-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.idx);
+                if (foodSegments.length <= 1) { alert("至少保留一个美食"); return; }
+                foodSegments.splice(idx, 1);
+                foodItemsRef.set(foodSegments);
+                logActivity("food_edit", "删除美食");
+            };
+        });
+        cont.querySelectorAll('.food-save-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.idx);
+                const row = btn.closest('.food-item');
+                const input = row ? row.querySelector('.food-edit-input') : null;
+                const val = input ? input.value.trim() : '';
+                if (!val) { alert("名称不能为空"); return; }
+                foodSegments[idx] = val;
+                foodItemsRef.set(foodSegments);
+                logActivity("food_edit", `修改美食为 ${val}`);
+            };
+        });
+        cont.querySelectorAll('.food-cancel-btn').forEach(btn => {
+            btn.onclick = (e) => { e.stopPropagation(); renderFoodList(); };
+        });
+    }
+
+    function addFood() {
+        const input = document.getElementById('newFoodInput');
+        if (!input) return;
+        const name = input.value.trim();
+        if (!name) { alert("请输入美食名称"); return; }
+        if (foodSegments.length >= MAX_FOOD) { alert(`最多只能添加 ${MAX_FOOD} 个美食`); return; }
+        foodSegments.push(name);
+        foodItemsRef.set(foodSegments);
+        logActivity("food_add", `添加美食 ${name}`);
+        input.value = '';
+    }
+
+    foodItemsRef.on('value', snap => {
+        const val = snap.val();
+        foodSegments = (val && Array.isArray(val)) ? val.filter(v => typeof v === 'string' && v.trim()) : [];
+        drawFoodWheel();
+        renderFoodList();
+    });
+
+    function renderFoodHistory(arr) {
+        const cont = document.getElementById('foodHistoryList');
+        if (!cont) return;
+        if (!arr.length) { cont.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">暂无抽奖记录</div>'; return; }
+        const reversed = [...arr].reverse();
+        let html = '';
+        for (let item of reversed) {
+            const remark = item.remark || '';
+            let remarkHtml = '';
+            if (currentUserName === ADMIN_USERNAME) {
+                remarkHtml = `<div class="remark-area"><input type="text" class="remark-input" id="fremark-${item.id}" placeholder="添加备注" value="${escapeAttr(remark)}"><button class="food-remark-save" data-id="${item.id}">保存</button></div>`;
+            } else if (remark) {
+                const remarkId = 'fremark-wrapper-' + item.id;
+                remarkHtml = `<div class="remark-text-wrapper" id="${remarkId}">📝 备注：${escapeHtml(remark)}</div><span class="food-remark-toggle" data-target="${remarkId}">展开▼</span>`;
+            }
+            const deleteBtn = (currentUserName === ADMIN_USERNAME) ? `<button class="food-delete-btn" data-id="${item.id}">🗑️ 删除</button>` : '';
+            html += `<div class="history-item"><div class="history-content"><strong>${escapeHtml(item.userName)}</strong> 🍜 转到 ${escapeHtml(item.food)}<br><small>${escapeHtml(item.dateStr)} ${escapeHtml(item.timeStr)}</small></div>${remarkHtml}<div class="history-actions"><span></span>${deleteBtn ? `<div>${deleteBtn}</div>` : ''}</div></div>`;
+        }
+        cont.innerHTML = html;
+
+        cont.querySelectorAll('.food-remark-toggle').forEach(toggle => {
+            toggle.onclick = (e) => {
+                e.stopPropagation();
+                const wrapper = document.getElementById(toggle.dataset.target);
+                if (!wrapper) return;
+                const expanded = wrapper.classList.toggle('expanded');
+                toggle.textContent = expanded ? '收起▲' : '展开▼';
+            };
+        });
+        cont.querySelectorAll('.food-remark-save').forEach(btn => {
+            btn.onclick = async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const input = document.getElementById(`fremark-${id}`);
+                const newRemark = input ? input.value.trim() : '';
+                await foodHistoryRef.child(id).update({ remark: newRemark });
+                logActivity("admin_add_remark", `为美食记录 ${id} 添加备注`);
+            };
+        });
+        cont.querySelectorAll('.food-delete-btn').forEach(btn => {
+            btn.onclick = async (e) => {
+                e.stopPropagation();
+                if (currentUserName !== ADMIN_USERNAME) return;
+                const id = btn.dataset.id;
+                if (confirm("删除该条美食抽奖记录？")) {
+                    await foodHistoryRef.child(id).remove();
+                    logActivity("admin_delete_record", `删除美食记录 ${id}`);
+                }
+            };
+        });
+    }
+
+    foodHistoryRef.on('value', snap => {
+        const data = snap.val();
+        let arr = [];
+        if (data) for (let [id, val] of Object.entries(data)) arr.push({ id, ...val });
+        arr.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        renderFoodHistory(arr);
+    });
+
+    function adminAddFoodRecord() {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        const user = document.getElementById('manualFoodUserName').value.trim();
+        const food = document.getElementById('manualFoodName').value.trim();
+        if (!user || !food) { alert("请输入用户名和美食名称"); return; }
+        foodHistoryRef.push({ userName: user, food: food, timestamp: Date.now(), dateStr: new Date().toLocaleDateString('zh-CN'), timeStr: new Date().toLocaleTimeString('zh-CN') });
+        logActivity("admin_manual_food_record", `为 ${user} 添加美食记录 ${food}`);
+        document.getElementById('manualFoodUserName').value = '';
+        document.getElementById('manualFoodName').value = '';
+    }
+
+    function clearFoodHistory() {
+        if (currentUserName !== ADMIN_USERNAME) return;
+        if (confirm("永久删除所有美食抽奖记录？")) {
+            foodHistoryRef.remove();
+            logActivity("admin_clear_food_history", "清空美食抽奖记录");
+        }
+    }
+    // ========== 美食转盘 结束 ==========
 
     function adminManualAdd() {
         if (currentUserName !== ADMIN_USERNAME) return;
@@ -1361,11 +1669,13 @@
             setLastMessageReadTime();
             updateMessageTabRedDot();
         }
+        if(tabId==='food') setTimeout(()=>{ drawFoodWheel(); }, 60);
     }
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
 
     window.onload = () => {
         canvas = document.getElementById('wheelCanvas'); ctx = canvas.getContext('2d');
+        foodCanvas = document.getElementById('foodWheelCanvas'); foodCtx = foodCanvas.getContext('2d');
         loadUserName(); drawWheel(); window.addEventListener('resize',()=>drawWheel());
         document.getElementById('spinButton').onclick = startSpin;
         document.getElementById('setUserBtn').onclick = setUsername;
@@ -1374,6 +1684,12 @@
         document.getElementById('manualAddBtn').onclick = adminManualAdd;
         document.getElementById('clearHistoryBtn').onclick = adminClearHistory;
         document.getElementById('resetAssetBtn').onclick = resetUserAsset;
+        document.getElementById('foodSpinButton').onclick = startFoodSpin;
+        document.getElementById('addFoodBtn').onclick = addFood;
+        document.getElementById('manualFoodAddBtn').onclick = adminAddFoodRecord;
+        document.getElementById('clearFoodHistoryBtn').onclick = clearFoodHistory;
+        document.getElementById('newFoodInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') addFood(); });
+        window.addEventListener('resize',()=>drawFoodWheel());
         populatePercentSelect();
         initMusicPlayer();
         renderMessages();
