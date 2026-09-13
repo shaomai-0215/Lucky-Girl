@@ -230,6 +230,32 @@
         .media-action-btn { background: #2c6e4f; border: none; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; color: #fff; cursor: pointer; }
         .media-del-btn { background: #882d2d; color: #fff; border: none; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; }
         .media-empty { text-align: center; color: #aaa; padding: 30px 10px; grid-column: 1 / -1; }
+        /* ============ 作品评论 / 备注面板 ============ */
+        .comment-overlay { display: none; position: fixed; inset: 0; z-index: 3200; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px; }
+        .comment-overlay.show { display: flex; }
+        .comment-panel { background: #12212a; border: 1px solid #2c4d3e; border-radius: 28px; width: 460px; max-width: 96vw; max-height: 86vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .comment-head { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border-bottom: 1px dashed #2c4d3e; }
+        .comment-title { color: #ffd966; font-weight: bold; font-size: 1rem; }
+        .comment-subject { font-size: 0.75rem; color: #e8eef3; margin-top: 4px; word-break: break-all; }
+        .comment-list { flex: 1; overflow-y: auto; padding: 12px 14px; min-height: 120px; }
+        .comment-item { background: #1e2a32; border-radius: 20px; padding: 8px 12px; margin-bottom: 8px; border-left: 3px solid #6ECB63; }
+        .comment-item.is-admin { border-left-color: #ffb347; }
+        .comment-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+        .comment-user { color: #ffd966; font-weight: bold; font-size: 0.78rem; }
+        .comment-tag { font-size: 0.6rem; background: #2c4d3e; color: #ffd966; border-radius: 20px; padding: 1px 6px; margin-left: 6px; }
+        .comment-time { font-size: 0.65rem; color: #aaccdd; }
+        .comment-text { font-size: 0.82rem; line-height: 1.65; color: #e8eef3; word-break: break-word; white-space: pre-wrap; margin-top: 4px; }
+        .comment-item-foot { display: flex; justify-content: flex-end; }
+        .comment-del-btn { background: #882d2d; color: #fff; border: none; border-radius: 20px; padding: 2px 10px; font-size: 0.65rem; cursor: pointer; margin-top: 6px; }
+        .comment-empty { text-align: center; color: #8899a6; font-size: 0.78rem; padding: 26px 8px; }
+        .comment-input-wrap { padding: 12px 14px; border-top: 1px dashed #2c4d3e; background: #0f1a1f; }
+        .comment-input-wrap textarea { background: #1f3a33; border: 1px solid #5f8b6f; border-radius: 18px; min-height: 64px; font-size: 0.82rem; font-family: inherit; resize: vertical; margin-bottom: 6px; line-height: 1.6; }
+        .comment-input-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .comment-count-tip { font-size: 0.68rem; color: #aaccdd; }
+        .comment-send-btn { background: linear-gradient(135deg, #6ECB63, #2c8b57); color: #fff; font-weight: bold; border: none; border-radius: 30px; padding: 8px 22px; cursor: pointer; }
+        .media-comment-btn { background: #2c4d3e; border: none; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; color: #ffd966; cursor: pointer; }
+        .media-comment-count { display: inline-block; font-size: 0.62rem; padding: 1px 7px; border-radius: 20px; background: #234234; color: #9fe6b0; margin-left: 6px; }
+        .media-actions { flex-wrap: wrap; }
         @media (max-width: 768px) {
             body { padding: 12px; }
             .app-container { padding: 12px; }
@@ -307,13 +333,13 @@
 
     <div id="mediaTab" class="tab-content">
         <div class="memorial-page">
-            <h3>🗂️ 纪念册 <span style="font-size:0.7rem;">（照片、文件、文字作品都可以保存进来；所有人都可以添加，只有管理员可以删除）</span></h3>
+            <h3>🗂️ 纪念册 <span style="font-size:0.7rem;">（照片、文件、文字作品都可以保存进来；所有人都可以添加，只有管理员可以删除；每件作品都能评论 / 备注）</span></h3>
 
             <div class="memorial-layout">
                 <!-- ========== 左侧：作品展示区 ========== -->
                 <div class="memorial-left">
                     <div class="memorial-panel-head">
-                        <h4>🖼️ 作品展示区 <span style="font-size:0.68rem; color:#aaccdd;">（点开任意作品即可放大观看）</span></h4>
+                        <h4>🖼️ 作品展示区 <span style="font-size:0.68rem; color:#aaccdd;">（点开任意作品即可放大观看，也可以点「💬 评论」留下想法）</span></h4>
                         <span class="media-count-note" id="mediaCountNote"></span>
                     </div>
                     <div class="media-filter-bar">
@@ -415,8 +441,9 @@
     const playlistRef = db.ref('playlist');
     const messagesRef = db.ref('messages');
     const assetRemarksRef = db.ref('assetRemarks');
-    const mediaFilesRef = db.ref('mediaFiles');   // 文件元信息
-    const mediaDataRef = db.ref('mediaData');     // 备用内联存储的文件内容（Storage 不可用时使用）
+    const mediaFilesRef = db.ref('mediaFiles');       // 文件元信息
+    const mediaDataRef = db.ref('mediaData');         // 备用内联存储的文件内容（Storage 不可用时使用）
+    const mediaCommentsRef = db.ref('mediaComments'); // 纪念册：作品评论 / 备注
     let storage = null, storageAvailable = true;
     try { storage = firebase.storage(); } catch (e) { storageAvailable = false; console.warn('Firebase Storage 不可用，将使用备用上传方案', e); }
 
@@ -1723,12 +1750,14 @@
             const delBtn = (currentUserName === ADMIN_USERNAME)
                 ? `<button class="media-del-btn" data-del-id="${id}">🗑️ 删除</button>` : '';
             const viewLabel = kind === 'text' ? '📖 阅读全文' : (kind === 'image' ? '🔍 放大观看' : '👁️ 打开 / 下载');
+            const cmtCount = getCommentCount(item.id);
             html += `<div class="media-card ${kind === 'text' ? 'kind-text' : ''}" data-id="${id}">
                 <div class="media-thumb-wrap" data-view-id="${id}">${thumb}</div>
-                <div class="media-name">${escapeHtml(getItemTitle(item))}${badge}</div>
+                <div class="media-name">${escapeHtml(getItemTitle(item))}${badge}<span class="media-comment-count" data-comment-count="${id}">💬 ${cmtCount}</span></div>
                 <div class="media-meta">👤 ${escapeHtml(item.userName || '游客')}<br>🕒 ${new Date(item.timestamp || Date.now()).toLocaleString()}<br>${metaExtra}</div>
                 <div class="media-actions">
                     <button class="media-action-btn" data-view-id="${id}">${viewLabel}</button>
+                    <button class="media-comment-btn" data-comment-id="${id}">${cmtCount ? `💬 评论 (${cmtCount})` : '💬 评论'}</button>
                     ${delBtn}
                 </div>
             </div>`;
@@ -1758,6 +1787,7 @@
     let viewerState = { list: [], index: 0, url: '' };
     let viewerZoom = 1;
     let viewerFontSize = 16;
+    let viewerCurrentItemId = null;
 
     function ensureViewer() {
         let ov = document.getElementById('memorialViewer');
@@ -1810,9 +1840,10 @@
         ov.classList.remove('show');
         document.getElementById('viewerStage').innerHTML = '';
         viewerState = { list: [], index: 0, url: '' };
+        viewerCurrentItemId = null;
         viewerZoom = 1;
         viewerFontSize = 16;
-        document.body.style.overflow = '';
+        document.body.style.overflow = document.getElementById('mediaCommentOverlay')?.classList.contains('show') ? 'hidden' : '';
     }
 
     function adminDeleteBtnHtml(id) {
@@ -1848,6 +1879,7 @@
              <button class="viewer-btn" id="viewerZoomIn">🔍＋</button>
              <button class="viewer-btn" id="viewerZoomReset">↺ 适应屏幕</button>
              <button class="viewer-btn" id="viewerDownload">⬇️ 下载原图</button>
+             <button class="viewer-btn" id="viewerCommentBtn">💬 评论</button>
              ${adminDeleteBtnHtml(item.id)}
              <button class="viewer-btn" id="viewerClose">✖ 关闭</button>`);
         bindViewerTools();
@@ -1862,6 +1894,7 @@
         if (!url) url = await getInlineData(item.id);
         if (!url) { stage.innerHTML = '<div style="color:#aaa;">⚠️ 图片内容不存在或已被删除</div>'; return; }
         viewerState.url = url;
+        viewerCurrentItemId = item.id;
         const many = viewerState.list.length > 1;
         stage.innerHTML = `
             <button class="viewer-nav prev" id="viewerPrev" style="display:${many ? 'block' : 'none'};">‹</button>
@@ -1877,6 +1910,7 @@
         document.getElementById('viewerNext')?.addEventListener('click', e => { e.stopPropagation(); viewerStep(1); });
         document.getElementById('viewerTitle').innerHTML = escapeHtml(getItemTitle(item));
         document.getElementById('viewerSub').innerHTML = `👤 ${escapeHtml(item.userName || '游客')} · 🕒 ${new Date(item.timestamp || Date.now()).toLocaleString()} · ${viewerState.index + 1} / ${viewerState.list.length}`;
+        refreshViewerCommentBtn();
         applyViewerZoom();
     }
 
@@ -1897,11 +1931,13 @@
     /* 文字 / 文章：像读信一样的阅读器 */
     function openTextViewer(item) {
         viewerState = { list: [], index: 0, url: '' };
+        viewerCurrentItemId = item.id;
         viewerFontSize = 16;
         openViewerShell(escapeHtml(getItemTitle(item)), '',
             `<button class="viewer-btn" id="viewerFontDec">A－</button>
              <button class="viewer-btn" id="viewerFontInc">A＋</button>
              <button class="viewer-btn" id="viewerCopy">📋 复制全文</button>
+             <button class="viewer-btn" id="viewerCommentBtn">💬 评论</button>
              ${adminDeleteBtnHtml(item.id)}
              <button class="viewer-btn" id="viewerClose">✖ 关闭</button>`);
         const stage = document.getElementById('viewerStage');
@@ -1927,6 +1963,7 @@
             catch (err) { alert('复制失败，请手动选择文字复制'); }
         };
         bindViewerTools();
+        refreshViewerCommentBtn();
     }
 
     function bindViewerTools() {
@@ -1942,6 +1979,17 @@
         });
         const del = document.getElementById('viewerTools')?.querySelector('[data-vdel]');
         if (del) del.addEventListener('click', e => { e.stopPropagation(); deleteMediaItem(del.dataset.vdel); });
+        document.getElementById('viewerCommentBtn')?.addEventListener('click', e => {
+            e.stopPropagation();
+            if (viewerCurrentItemId) openCommentPanel(viewerCurrentItemId);
+        });
+    }
+
+    function refreshViewerCommentBtn() {
+        const cb = document.getElementById('viewerCommentBtn');
+        if (!cb || !viewerCurrentItemId) return;
+        const n = getCommentCount(viewerCurrentItemId);
+        cb.textContent = n ? `💬 评论 (${n})` : '💬 评论';
     }
 
     function downloadMedia(item, url) {
@@ -2065,10 +2113,187 @@
         }
         let html = '';
         for (const l of memorialLogs) {
-            const icon = l.type === 'memorial_text' ? '✍️' : (l.type === 'memorial_delete' ? '🗑️' : '📤');
+            const iconMap = { memorial_text: '✍️', memorial_upload: '📤', memorial_delete: '🗑️', memorial_comment: '💬', memorial_comment_delete: '🗑️' };
+            const icon = iconMap[l.type] || '📤';
             html += `<div class="memorial-log-item"><span class="memorial-log-icon">${icon}</span><span class="memorial-log-text"><span class="memorial-log-user">${escapeHtml(l.userName || '游客')}</span> ${escapeHtml(l.detail || '')}<span class="memorial-log-time">${escapeHtml(l.dateStr || '')} ${escapeHtml(l.timeStr || '')}</span></span></div>`;
         }
         box.innerHTML = html;
+    }
+
+    /* ==================== 💬 作品的评论 / 备注 ==================== */
+    // 规则：所有用户都能评论 / 备注；管理员可以删除任何一条评论，也可自己添加；
+    //       普通用户只能删除自己写的那条（想彻底禁止用户删除，把下面改成 false）
+    const ALLOW_USER_DELETE_OWN_COMMENT = true;
+    const COMMENT_MAX_LEN = 1000;
+    let mediaCommentsCache = {};      // { 作品id: { 评论id: {...} } }
+    let commentPanelItemId = null;    // 当前评论面板正在看的作品 id
+
+    function getCommentCount(itemId) {
+        const obj = mediaCommentsCache[itemId];
+        return obj ? Object.keys(obj).length : 0;
+    }
+
+    function getCommentsOf(itemId) {
+        const obj = mediaCommentsCache[itemId] || {};
+        return Object.values(obj).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    }
+
+    function canDeleteComment(comment) {
+        if (!comment) return false;
+        if (currentUserName === ADMIN_USERNAME) return true;
+        return ALLOW_USER_DELETE_OWN_COMMENT && comment.userName === currentUserName;
+    }
+
+    function ensureCommentPanel() {
+        let ov = document.getElementById('mediaCommentOverlay');
+        if (ov) return ov;
+        ov = document.createElement('div');
+        ov.className = 'comment-overlay';
+        ov.id = 'mediaCommentOverlay';
+        ov.innerHTML = `
+            <div class="comment-panel">
+                <div class="comment-head">
+                    <div style="flex:1; min-width:0;">
+                        <div class="comment-title">💬 评论 / 备注</div>
+                        <div class="comment-subject" id="commentSubject"></div>
+                    </div>
+                    <button class="viewer-btn" id="commentCloseBtn">✖ 关闭</button>
+                </div>
+                <div class="comment-list" id="commentList"></div>
+                <div class="comment-input-wrap">
+                    <textarea id="commentInput" maxlength="${COMMENT_MAX_LEN}" placeholder="写下你的评论或备注……（Ctrl + Enter 快速发送）"></textarea>
+                    <div class="comment-input-foot">
+                        <span class="comment-count-tip" id="commentCountTip">0 / ${COMMENT_MAX_LEN}</span>
+                        <button class="comment-send-btn" id="commentSendBtn">📨 发送</button>
+                    </div>
+                </div>
+            </div>`;
+        document.body.appendChild(ov);
+        ov.addEventListener('click', e => { if (e.target === ov) closeCommentPanel(); });
+        ov.querySelector('#commentCloseBtn').addEventListener('click', closeCommentPanel);
+        ov.querySelector('#commentSendBtn').addEventListener('click', sendMediaComment);
+        ov.querySelector('#commentInput').addEventListener('input', e => {
+            document.getElementById('commentCountTip').textContent = `${e.target.value.length} / ${COMMENT_MAX_LEN}`;
+        });
+        ov.querySelector('#commentInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendMediaComment(); }
+        });
+        return ov;
+    }
+
+    function openCommentPanel(itemId) {
+        const item = cachedMediaList.find(m => m.id === itemId);
+        if (!item) return;
+        commentPanelItemId = itemId;
+        const ov = ensureCommentPanel();
+        document.getElementById('commentSubject').innerHTML =
+            `${escapeHtml(getItemTitle(item))} <span style="color:#aaccdd;">· 作者 ${escapeHtml(item.userName || '游客')}</span>`;
+        document.getElementById('commentInput').value = '';
+        document.getElementById('commentCountTip').textContent = `0 / ${COMMENT_MAX_LEN}`;
+        ov.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        renderCommentList();
+    }
+
+    function closeCommentPanel() {
+        const ov = document.getElementById('mediaCommentOverlay');
+        if (!ov) return;
+        ov.classList.remove('show');
+        commentPanelItemId = null;
+        const viewerOpen = document.getElementById('memorialViewer')?.classList.contains('show');
+        document.body.style.overflow = viewerOpen ? 'hidden' : '';
+    }
+
+    function renderCommentList() {
+        const box = document.getElementById('commentList');
+        if (!box || !commentPanelItemId) return;
+        const list = getCommentsOf(commentPanelItemId);
+        if (!list.length) {
+            box.innerHTML = `<div class="comment-empty">还没有评论，来写第一条吧～</div>`;
+            updateCommentCountsInCards();
+            return;
+        }
+        let html = '';
+        for (const c of list) {
+            const isAdmin = c.userName === ADMIN_USERNAME;
+            const delBtn = canDeleteComment(c)
+                ? `<button class="comment-del-btn" data-cdel="${escapeAttr(c.id)}">🗑️ 删除</button>` : '';
+            html += `<div class="comment-item ${isAdmin ? 'is-admin' : ''}">
+                <div class="comment-item-head">
+                    <span class="comment-user">👤 ${escapeHtml(c.userName || '游客')}${isAdmin ? '<span class="comment-tag">管理员</span>' : ''}</span>
+                    <span class="comment-time">${c.timestamp ? new Date(c.timestamp).toLocaleString() : ''}</span>
+                </div>
+                <div class="comment-text">${escapeHtml(c.text || '')}</div>
+                <div class="comment-item-foot">${delBtn}</div>
+            </div>`;
+        }
+        box.innerHTML = html;
+        box.querySelectorAll('[data-cdel]').forEach(btn => {
+            btn.addEventListener('click', () => deleteMediaComment(commentPanelItemId, btn.dataset.cdel));
+        });
+        box.scrollTop = box.scrollHeight;
+        updateCommentCountsInCards();
+    }
+
+    async function sendMediaComment() {
+        if (!currentUserName) { alert('请先到「🎡 转盘游戏」页面设置你的名字，再发表评论～'); return; }
+        if (!commentPanelItemId) return;
+        const input = document.getElementById('commentInput');
+        const text = input.value.replace(/\r\n/g, '\n').trim();
+        if (!text) { alert('评论内容不能为空～'); return; }
+        if (text.length > COMMENT_MAX_LEN) { alert(`评论最多 ${COMMENT_MAX_LEN} 字，请精简后再发送`); return; }
+        const btn = document.getElementById('commentSendBtn');
+        btn.disabled = true;
+        btn.textContent = '⏳ 发送中...';
+        try {
+            const item = cachedMediaList.find(m => m.id === commentPanelItemId);
+            await mediaCommentsRef.child(commentPanelItemId).push({
+                userName: currentUserName,
+                text: text,
+                timestamp: Date.now()
+            });
+            logActivity('memorial_comment', `评论了《${item ? getItemTitle(item) : '作品'}》`);
+            input.value = '';
+            document.getElementById('commentCountTip').textContent = `0 / ${COMMENT_MAX_LEN}`;
+        } catch (err) {
+            alert('发送失败：' + err.message);
+        }
+        btn.disabled = false;
+        btn.textContent = '📨 发送';
+    }
+
+    async function deleteMediaComment(itemId, commentId) {
+        if (!itemId || !commentId) return;
+        const target = getCommentsOf(itemId).find(c => c.id === commentId);
+        if (!target) return;
+        if (!canDeleteComment(target)) { alert('只能删除自己写的评论，其他人的评论需要管理员来删～'); return; }
+        if (!confirm('确定删除这条评论吗？此操作不可恢复。')) return;
+        try {
+            await mediaCommentsRef.child(itemId).child(commentId).remove();
+            const item = cachedMediaList.find(m => m.id === itemId);
+            logActivity('memorial_comment_delete', `删除了《${item ? getItemTitle(item) : '作品'}》下 ${target.userName} 的评论`);
+        } catch (err) {
+            alert('删除失败：' + err.message);
+        }
+    }
+
+    function updateCommentCountsInCards() {
+        document.querySelectorAll('[data-comment-count]').forEach(el => {
+            el.textContent = `💬 ${getCommentCount(el.dataset.commentCount)}`;
+        });
+        document.querySelectorAll('[data-comment-id]').forEach(btn => {
+            const n = getCommentCount(btn.dataset.commentId);
+            btn.textContent = n ? `💬 评论 (${n})` : '💬 评论';
+        });
+        refreshViewerCommentBtn();
+    }
+
+    function startMediaComments() {
+        mediaCommentsRef.on('value', snap => {
+            mediaCommentsCache = snap.val() || {};
+            updateCommentCountsInCards();
+            if (commentPanelItemId) renderCommentList();
+        });
     }
 
     function initMediaModule() {
@@ -2098,6 +2323,8 @@
         document.getElementById('mediaGrid')?.addEventListener('click', e => {
             const del = e.target.closest('[data-del-id]');
             if (del) { deleteMediaItem(del.dataset.delId); return; }
+            const cmt = e.target.closest('[data-comment-id]');
+            if (cmt) { openCommentPanel(cmt.dataset.commentId); return; }
             const view = e.target.closest('[data-view-id]');
             if (view) viewMediaItem(view.dataset.viewId);
         });
@@ -2112,6 +2339,7 @@
         document.getElementById('mediaSearchInput')?.addEventListener('input', renderMediaList);
         updateMemorialCharCount();
         startMemorialLogs();
+        startMediaComments();
         updateMediaTabRedDot();
     }
 
